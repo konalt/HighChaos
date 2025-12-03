@@ -1,4 +1,4 @@
-import { ctx, d, font } from "../engine";
+import { ctx } from "../engine";
 import * as shine from "../gradients/shine";
 import { FourNums } from "../utils";
 
@@ -9,6 +9,7 @@ const dullSideExtraWidth = 5;
 const sharpSideWidth = 20;
 const handleLength = 250;
 const bladeLength = 320;
+const bladeTipOffset = 10;
 
 const dullBezier = 0.6;
 const bladeTip = 0.1;
@@ -17,14 +18,15 @@ const dullTipCP = 0.8;
 const pointCP = 0.5;
 const neckWidthModifier = 0.8;
 
-const totalHeight = bladeLength * (1 + pointCP) + handleLength;
+const realBladeLength = bladeLength * (1 + pointCP * 0.25);
+const totalHeight = realBladeLength + handleLength;
 const gradientStart = "#c0c0c0ff";
 const gradientPreNeck = "#b9b9b9ff";
-const gradientNeck = "#0a0a0aff";
-const gradientPostNeck = "#686868ff";
+const gradientNeck = "#575757ff";
+const gradientPostNeck = "#888888ff";
 const gradientEnd = "#a1a1a1ff";
-const gradientNeckOffset = (bladeLength * (1 + pointCP)) / totalHeight - 0.01;
-const gradientNeckStartOffset = gradientNeckOffset - 0.05;
+const gradientNeckOffset = realBladeLength / totalHeight - 0.03;
+const gradientNeckStartOffset = gradientNeckOffset - 0.03;
 const gradientNeckEndOffset = gradientNeckOffset + 0.05;
 
 function addColorStops(gradient: CanvasGradient) {
@@ -39,7 +41,7 @@ export function drawKnife(x: number, y: number, disty = false) {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(-1, 1); // i wrote it wrong and i dont want to fix it
-    const gradCoords: FourNums = [0, -bladeLength * (1 + pointCP), 0, handleLength];
+    const gradCoords: FourNums = [0, -realBladeLength, 0, handleLength];
     const gradient = ctx.createLinearGradient(...gradCoords);
     addColorStops(gradient);
     const shineGradient = shine.linear(...gradCoords, 0.3);
@@ -63,7 +65,7 @@ export function drawKnife(x: number, y: number, disty = false) {
             -bladeLength + 20
         );
         ctx.bezierCurveTo(
-            10,
+            bladeTipOffset,
             -(bladeLength * (1 + pointCP)),
             neckWidth / 2 + sharpSideWidth + 20,
             -bladeLength * bladeTip,
