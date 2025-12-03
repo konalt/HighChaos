@@ -61,5 +61,6 @@ export function drawKnife(x: number, y: number) {
         "cc"
     );
     d.text(0, 0, "knife", "blue", font(24), "center", neckWidth);
+    d.text(0, -bladeLength / 2, "blade", "blue", font(24), "center", neckWidth);
     ctx.restore();
 }
