@@ -56,10 +56,10 @@ export function clamp(x: number, min = 0, max = 1) {
     return Math.min(Math.max(x, min), max);
 }
 
-export function lerp(a: number, b: number, x: number) {
-    return (b - a) * x;
+export function lerp(x: number, a: number, b: number) {
+    return a + (b - a) * x;
 }
 
 export function lerpPositions(v: number, x1: number, y1: number, x2: number, y2: number): TwoNums {
-    return [lerp(x1, x2, v), lerp(y1, y2, v)];
+    return [lerp(v, x1, x2), lerp(v, y1, y2)];
 }
