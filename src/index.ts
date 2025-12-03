@@ -1,6 +1,4 @@
-import * as cutscene_intro from "./cutscenes/cutscene_intro";
 import * as scene_menu from "./scenes/menu";
-import { w, h } from "./engine";
 import * as c from "./engine";
 import { Scene } from "./utils";
 
