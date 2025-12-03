@@ -1,9 +1,26 @@
 import { log } from "./log";
 import { Anchor, anchorToCoords, basicPointInRect } from "./utils";
 
-const canvas: HTMLCanvasElement =
-    (document.getElementById("canvas") as HTMLCanvasElement) ?? (document.createElement("canvas") as HTMLCanvasElement);
-const ctx: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasRenderingContext2D;
+let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
+
+let canvases: [HTMLCanvasElement, CanvasRenderingContext2D][] = [[canvasMain, ctxMain]];
+
+let canvas = canvases[0][0];
+let ctx = canvases[0][1];
+
+export function getCanvas(id: number) {
+    return canvases[id][0];
+}
+
+export function useCanvas(id: number) {
+    if (!canvases[id]) {
+        let cv = document.createElement("canvas");
+        let ct = cv.getContext("2d");
+        canvases[id] = [cv, ct];
+    }
+    [canvas, ctx] = canvases[id];
+}
 
 export type CanvasStyle = string | CanvasGradient | CanvasPattern;
 
@@ -13,25 +30,25 @@ const height = 1080;
 let aspect = 16 / 9;
 export let w = height * aspect;
 export let h = height;
-let parent = canvas.parentElement as HTMLElement; // i swear to you. it's not null.
+let parent = canvasMain.parentElement as HTMLElement; // i swear to you. it's not null.
 
 export function onResize() {
     if (
         parent.clientWidth > parent.clientHeight &&
-        (canvas.width = parent.clientHeight * aspect) <= parent.clientWidth
+        (canvasMain.width = parent.clientHeight * aspect) <= parent.clientWidth
     ) {
-        canvas.height = parent.clientHeight;
-        canvas.width = parent.clientHeight * aspect;
+        canvasMain.height = parent.clientHeight;
+        canvasMain.width = parent.clientHeight * aspect;
     } else {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientWidth * (1 / aspect);
+        canvasMain.width = parent.clientWidth;
+        canvasMain.height = parent.clientWidth * (1 / aspect);
     }
 
-    ctx.scale(canvas.height / height, canvas.height / height);
+    ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
 }
 
 export function sz(size: number) {
-    let ret = canvas.height * (size / height);
+    let ret = canvasMain.height * (size / height);
     return ret;
 }
 
@@ -367,7 +384,9 @@ function draw() {
         drawFunction();
         ctx.restore();
     } catch (e) {
-        canvas.width = w;
+        ctx.restore();
+        useCanvas(0);
+        canvasMain.width = w;
         ctx.textBaseline = "top";
         text(0, 0, e.message, "red", "24px monospace", "left", w);
     }
@@ -383,16 +402,16 @@ export function init() {
     document.addEventListener("keyup", handleKeyUp, {
         capture: true,
     });
-    canvas.addEventListener("mousedown", handleMouseDown, {
+    canvasMain.addEventListener("mousedown", handleMouseDown, {
         capture: true,
     });
-    canvas.addEventListener("mouseup", handleMouseUp, {
+    canvasMain.addEventListener("mouseup", handleMouseUp, {
         capture: true,
     });
-    canvas.addEventListener("mousemove", handleMouseMove, {
+    canvasMain.addEventListener("mousemove", handleMouseMove, {
         capture: true,
     });
-    canvas.addEventListener(
+    canvasMain.addEventListener(
         "contextmenu",
         (e) => {
             e.preventDefault();
