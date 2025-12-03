@@ -1,3 +1,4 @@
+import { log } from "./log";
 import { Anchor, anchorToCoords, basicPointInRect } from "./utils";
 
 const canvas: HTMLCanvasElement =
@@ -324,21 +325,33 @@ export function setFont(newFont: string) {
 }
 //#endregion
 
+//#region timers
 export let globalTimer = 0;
 let timers = {};
-export function startTimer(name: string, duration: number) {
-    timers[name] = [globalTimer, duration];
+export function startTimer(name: string, duration: number, inverse = false) {
+    log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
+    timers[name] = [globalTimer, duration, inverse];
 }
 export function timer(name: string, clamp = true) {
-    if (!timers[name]) {
-        console.error(`Unknown timer ${name}`);
-        return;
-    }
+    if (!timers[name]) return 0;
     let thisTimer = timers[name];
     let t = (globalTimer - thisTimer[0]) / thisTimer[1];
+    if (thisTimer[2]) t = 1 - t;
     if (clamp) t = Math.min(Math.max(t, 0), 1);
     return t;
 }
+export function timerEnd(name: string, cb = () => {}) {
+    if (!timers[name]) return;
+    let thisTimer = timers[name];
+    let ended = globalTimer - thisTimer[0] >= thisTimer[1];
+    if (ended) {
+        log("timers", `Timer ended: ${name}`);
+        cb();
+        delete timers[name];
+    }
+    return ended;
+}
+//#endregion
 
 let drawFunction = () => {};
 export function setDrawFunction(func: () => void) {
@@ -354,7 +367,7 @@ function draw() {
         drawFunction();
         ctx.restore();
     } catch (e) {
-        ctx.restore();
+        canvas.width = w;
         ctx.textBaseline = "top";
         text(0, 0, e.message, "red", "24px monospace", "left", w);
     }
