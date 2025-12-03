@@ -39,8 +39,7 @@ function loggerGetCurrentTimeStr(now) {
 
 function log(req, res, url) {
     const timeString = loggerGetCurrentTimeStr(new Date());
-    const requestIP =
-        req.headers["x-forwarded-for"] || req.socket.remoteAddress.substring(7);
+    const requestIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress.substring(7);
     const method = req.method;
     const status = res.statusCode.toString();
     console.log(
@@ -66,6 +65,7 @@ function log(req, res, url) {
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(WEB_ROOT, "index.html"));
+    log(req, res, req.url);
 });
 
 app.get("*path", (req, res) => {
