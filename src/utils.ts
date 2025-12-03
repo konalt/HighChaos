@@ -1,21 +1,6 @@
-export type Anchor =
-    | "tl"
-    | "tc"
-    | "tr"
-    | "cl"
-    | "cc"
-    | "cr"
-    | "bl"
-    | "bc"
-    | "br";
+export type Anchor = "tl" | "tc" | "tr" | "cl" | "cc" | "cr" | "bl" | "bc" | "br";
 
-export function anchorToCoords(
-    anchor: Anchor,
-    x: number,
-    y: number,
-    w: number,
-    h: number
-) {
+export function anchorToCoords(anchor: Anchor, x: number, y: number, w: number, h: number) {
     let bx = 0;
     let by = 0;
     const locationY = anchor[0];
@@ -53,13 +38,6 @@ export function grey(fraction: number) {
 function valueInRange(val: number, min: number, max: number) {
     return val >= min && val <= max;
 }
-export function basicPointInRect(
-    px: number,
-    py: number,
-    x: number,
-    y: number,
-    w: number,
-    h: number
-) {
+export function basicPointInRect(px: number, py: number, x: number, y: number, w: number, h: number) {
     return valueInRange(px, x, x + w) && valueInRange(py, y, y + h);
 }
