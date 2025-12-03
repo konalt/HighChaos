@@ -29,6 +29,11 @@ export function onResize() {
     ctx.scale(canvas.height / height, canvas.height / height);
 }
 
+export function sz(size: number) {
+    let ret = canvas.height * (size / height);
+    return ret;
+}
+
 const defaultStrokeWidth = 5;
 
 //#region draw functions
@@ -193,6 +198,21 @@ function button(
     if (hovered && mouse[2]) {
         onClick();
     }
+}
+//#endregion
+
+//#region shadows
+export function setShadow(x: number, y: number, blur: number, color: string) {
+    ctx.shadowBlur = sz(blur);
+    ctx.shadowColor = color;
+    ctx.shadowOffsetX = sz(x); // WHY DOES THIS NOT SCALE PROPERLY???
+    ctx.shadowOffsetY = sz(y); // WHAT THE FUCK??
+}
+export function resetShadow() {
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = "transparent";
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 }
 //#endregion
 
