@@ -1,0 +1,3 @@
+{
+    "ignore": ["src", "web", "node_modules"]
+}

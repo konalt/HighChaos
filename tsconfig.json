@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "esModuleInterop": true,
+        "outDir": "web/dist",
+        "rootDir": "src"
+    },
+    "compileOnSave": true,
+    "watchOptions": {
+        "watchDirectory": "usefsevents"
+    },
+    "exclude": [""],
+    "include": ["src/**/*.*"]
+}
