@@ -1,6 +1,7 @@
-import { ctx, globalTimer } from "../engine";
+import { ctx, globalTimer, resetShadow, setShadow } from "../engine";
 import * as metallic from "../gradients/metallic";
 import * as plastic_glossy from "../gradients/plastic_glossy";
+import { degToRad } from "../utils";
 
 const capWidth = 200;
 const capHeight = 130;
@@ -12,26 +13,56 @@ const bottleNeck = 25;
 const bottleNeckHeight = 50;
 const strokeThickness = 5;
 const round = 20;
+const capTopLines = 7;
+const capTopLineFraction = 0.3;
+const capTopLiftX = -200;
+const capTopLiftY = 400;
+const capTopLiftRotate = degToRad(-45);
 
 const shadowDarkness = 0.5;
 
-function capTop(rotate = 0) {
+function capTop(rotate = 0, lift = 0) {
+    rotate *= 10;
+    rotate %= 1;
+    ctx.save();
+    ctx.translate(lift * capTopLiftX, -lift * capTopLiftY);
+    ctx.rotate(lift * capTopLiftRotate);
     const gradient = plastic_glossy.linear(-capWidth / 2, 0, capWidth / 2, 0);
-    ctx.beginPath();
-    ctx.moveTo(-capWidth / 2 + round, 0);
-    ctx.lineTo(capWidth / 2 - round, 0);
-    ctx.arc(capWidth / 2 - round, round, round, -Math.PI * 0.5, 0);
-    ctx.lineTo(capWidth / 2, capHeight - capBottomHeight / 2);
-    ctx.lineTo(-capWidth / 2, capHeight - capBottomHeight / 2);
-    ctx.lineTo(-capWidth / 2, round);
-    ctx.arc(-capWidth / 2 + round, round, round, Math.PI, Math.PI * 1.5);
-    ctx.closePath();
+    const path = () => {
+        ctx.beginPath();
+        ctx.moveTo(-capWidth / 2 + round, 0);
+        ctx.lineTo(capWidth / 2 - round, 0);
+        ctx.arc(capWidth / 2 - round, round, round, -Math.PI * 0.5, 0);
+        ctx.lineTo(capWidth / 2, capHeight - capBottomHeight / 2);
+        ctx.lineTo(-capWidth / 2, capHeight - capBottomHeight / 2);
+        ctx.lineTo(-capWidth / 2, round);
+        ctx.arc(-capWidth / 2 + round, round, round, Math.PI, Math.PI * 1.5);
+        ctx.closePath();
+    };
+    path();
     ctx.fillStyle = gradient;
+    ctx.fill();
+    let dx = capWidth / capTopLines;
+    let cx = -capWidth / 2 + rotate * dx;
+    for (let i = 0; i < capTopLines; i++) {
+        if (cx > capWidth / 2) break;
+        setShadow((-i / capTopLines) * 2 + 1, 0, 3, "#1414149c");
+        ctx.beginPath();
+        ctx.moveTo(cx, capHeight - capBottomHeight / 2);
+        ctx.lineTo(cx, capHeight * capTopLineFraction);
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#ffffffff";
+        ctx.stroke();
+        cx += dx;
+    }
+    resetShadow();
+    path();
     ctx.strokeStyle = "black";
     ctx.lineWidth = strokeThickness;
     ctx.lineJoin = "round";
-    ctx.fill();
     ctx.stroke();
+    ctx.restore();
 }
 
 function capBottom() {
@@ -92,11 +123,11 @@ function bottle() {
     ctx.stroke();
 }
 
-export function drawDistyBottle(x: number, y: number) {
+export function drawDistyBottle(x: number, y: number, capRotate = 0, capLift = 0) {
     ctx.save();
     ctx.translate(x, y);
     bottle();
-    capTop(globalTimer);
+    capTop(capRotate, capLift);
     capBottom();
     ctx.restore();
 }

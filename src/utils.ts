@@ -41,3 +41,11 @@ function valueInRange(val: number, min: number, max: number) {
 export function basicPointInRect(px: number, py: number, x: number, y: number, w: number, h: number) {
     return valueInRange(px, x, x + w) && valueInRange(py, y, y + h);
 }
+
+export function degToRad(degrees: number) {
+    return degrees * (Math.PI / 180);
+}
+
+export function radToDeg(degrees: number) {
+    return (degrees / 180) * Math.PI;
+}
