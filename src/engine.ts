@@ -329,7 +329,15 @@ export let deltaTime = 1;
 let lastLoop = performance.now();
 function draw() {
     globalTimer = performance.now();
-    drawFunction();
+    ctx.save();
+    try {
+        drawFunction();
+        ctx.restore();
+    } catch (e) {
+        ctx.restore();
+        ctx.textBaseline = "top";
+        text(0, 0, e.message, "red", "24px monospace", "left", w);
+    }
     const thisLoop = performance.now();
     deltaTime = thisLoop - lastLoop;
     requestAnimationFrame(draw);
