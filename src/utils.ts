@@ -1,6 +1,7 @@
 export type Anchor = "tl" | "tc" | "tr" | "cl" | "cc" | "cr" | "bl" | "bc" | "br";
 export type TwoNums = [number, number]; // we have fun here
 export type ThreeNums = [number, number, number];
+export type FourNums = [number, number, number, number];
 
 export function anchorToCoords(anchor: Anchor, x: number, y: number, w: number, h: number) {
     let bx = 0;
