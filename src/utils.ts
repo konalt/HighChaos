@@ -51,3 +51,15 @@ export function degToRad(degrees: number) {
 export function radToDeg(degrees: number) {
     return (degrees / 180) * Math.PI;
 }
+
+export function clamp(x: number, min = 0, max = 1) {
+    return Math.min(Math.max(x, min), max);
+}
+
+export function lerp(a: number, b: number, x: number) {
+    return (b - a) * x;
+}
+
+export function lerpPositions(v: number, x1: number, y1: number, x2: number, y2: number): TwoNums {
+    return [lerp(x1, x2, v), lerp(y1, y2, v)];
+}
