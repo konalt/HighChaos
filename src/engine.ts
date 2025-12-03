@@ -390,6 +390,8 @@ function draw() {
         ctx.textBaseline = "top";
         text(0, 0, e.message, "red", "24px monospace", "left", w);
     }
+    justPressed = [];
+    justReleased = [];
     const thisLoop = performance.now();
     deltaTime = thisLoop - lastLoop;
     requestAnimationFrame(draw);
