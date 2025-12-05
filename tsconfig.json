@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "esnext",
         "module": "es6",
         "esModuleInterop": true,
         "outDir": "web/dist",
-        "rootDir": "src"
+        "rootDir": "src",
+        "noEmitHelpers": false
     },
     "compileOnSave": true,
     "watchOptions": {
