@@ -13,6 +13,18 @@ export function getCanvas(id: number) {
     return canvases[id][0];
 }
 
+export async function getCanvasImage(id: number) {
+    const c = canvases[id][0];
+    const url = c.toDataURL();
+    const img = new Image();
+    return new Promise<HTMLImageElement>((res) => {
+        img.addEventListener("load", () => {
+            res(img);
+        });
+        img.src = url;
+    });
+}
+
 export function useCanvas(id: number) {
     if (!canvases[id]) {
         let cv = document.createElement("canvas");
