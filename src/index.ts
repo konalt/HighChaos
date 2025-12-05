@@ -3,8 +3,9 @@ import * as c from "./engine";
 import { Scene } from "./utils";
 
 export function setScene(scene: Scene) {
-    scene.init();
-    c.setDrawFunction(scene.draw);
+    scene.init().then(() => {
+        c.setDrawFunction(scene.draw);
+    });
 }
 
 setScene(scene_menu);

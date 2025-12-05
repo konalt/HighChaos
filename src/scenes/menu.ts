@@ -17,9 +17,13 @@ export function draw() {
         d.rect(0, 0, w, h, "black");
         ctx.globalAlpha = 1;
     }
-    c.timerEnd("menu_fade", () => {
-        setScene(cutscene_intro);
-    });
+    c.timerEnd(
+        "menu_fade",
+        () => {
+            setScene(cutscene_intro);
+        },
+        false
+    );
 }
 
-export function init() {}
+export async function init() {}

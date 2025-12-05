@@ -2,7 +2,7 @@ import { easeInCirc, easeInOutCirc, easeInOutQuad, easeOutCirc } from "../ease";
 import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
 import { drawDistyBottle } from "../objects/distybottle";
-import { drawKnife } from "../objects/knife";
+import * as knife from "../objects/knife";
 import { clamp, degToRad, lerp, lerpPositions, TwoNums } from "../utils";
 
 const distyPosition: TwoNums = [w / 2, h / 2];
@@ -67,7 +67,7 @@ export function draw() {
         ctx.save();
         ctx.translate(...knifePosition);
         ctx.rotate(knifeRotation);
-        drawKnife(0, 0);
+        knife.draw(0, 0);
         ctx.restore();
     }
     drawDistyBottle(...distyPosition, easeInOutQuad(c.timer("cap_rotate")), easeInOutQuad(c.timer("cap_lift")));
@@ -79,6 +79,7 @@ export function draw() {
     ctx.globalAlpha = 1;
 }
 
-export function init() {
+export async function init() {
     c.startTimer("intro_fade", 2000, true);
+    await knife.preload();
 }

@@ -1,4 +1,4 @@
-import { ctx } from "../engine";
+import { canvas, ctx, d, getCanvasImage, useCanvas } from "../engine";
 import * as shine from "../gradients/shine";
 import { FourNums } from "../utils";
 
@@ -37,9 +37,12 @@ function addColorStops(gradient: CanvasGradient) {
     gradient.addColorStop(1, gradientEnd);
 }
 
-export function drawKnife(x: number, y: number) {
+async function getKnifeImage() {
+    useCanvas(1);
+    canvas.width = 100;
+    canvas.height = totalHeight + 10;
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(canvas.width / 2, realBladeLength);
     ctx.scale(-1, 1); // i wrote it wrong and i dont want to fix it
     const gradCoords: FourNums = [0, -realBladeLength, 0, handleLength];
     const gradient = ctx.createLinearGradient(...gradCoords);
@@ -108,4 +111,18 @@ export function drawKnife(x: number, y: number) {
     ctx.lineWidth = 4;
     ctx.stroke();
     ctx.restore();
+    useCanvas(0);
+    return getCanvasImage(1);
+}
+
+let cachedKnife: HTMLImageElement;
+
+export async function preload() {
+    cachedKnife = await getKnifeImage();
+}
+
+export function draw(x: number, y: number) {
+    if (cachedKnife) {
+        d.quickImage(cachedKnife, x, y);
+    }
 }
