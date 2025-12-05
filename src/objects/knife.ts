@@ -37,7 +37,7 @@ function addColorStops(gradient: CanvasGradient) {
     gradient.addColorStop(1, gradientEnd);
 }
 
-export function drawKnife(x: number, y: number, disty = false) {
+export function drawKnife(x: number, y: number) {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(-1, 1); // i wrote it wrong and i dont want to fix it
