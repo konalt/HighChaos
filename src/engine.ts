@@ -229,6 +229,14 @@ function button(
         onClick();
     }
 }
+
+function quickImage(image: HTMLImageElement, x: number, y: number, scale: number = 1, anchor: Anchor = "cc"): void {
+    if (!ctx) return;
+    if (!anchor) anchor = "tl";
+    const [w, h] = [image.width * scale, image.height * scale];
+    const [bx, by] = anchorToCoords(anchor, x, y, w, h);
+    ctx.drawImage(image, bx, by, w, h);
+}
 //#endregion
 
 //#region shadows
@@ -444,4 +452,5 @@ export const d = {
     roundRect,
     text,
     button,
+    quickImage,
 };
