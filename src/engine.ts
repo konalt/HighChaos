@@ -377,14 +377,14 @@ export function timer(name: string, clamp = true) {
     if (clamp) t = Math.min(Math.max(t, 0), 1);
     return t;
 }
-export function timerEnd(name: string, cb = () => {}) {
+export function timerEnd(name: string, cb = () => {}, remove = true) {
     if (!timers[name]) return;
     let thisTimer = timers[name];
     let ended = globalTimer - thisTimer[0] >= thisTimer[1];
     if (ended) {
         log("timers", `Timer ended: ${name}`);
         cb();
-        delete timers[name];
+        if (remove) delete timers[name];
     }
     return ended;
 }
