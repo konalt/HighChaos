@@ -1,16 +1,10 @@
 import * as cutscene_intro from "../cutscenes/cutscene_intro";
 import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
-import { setScene } from "../index";
+import { setScene } from "../engine";
+import * as menutitle from "../objects/menutitle";
 
-export function draw() {
-    if (c.getKeyDown("keyp")) {
-        c.startTimer("menu_fade", 3000);
-    }
-
-    d.rect(0, 0, w, h, "green");
-    d.circ(c.mouseX, c.mouseY, 5, "red");
-
+function fade() {
     let fadeTimer = c.timer("menu_fade");
     if (fadeTimer > 0) {
         ctx.globalAlpha = fadeTimer;
@@ -26,4 +20,13 @@ export function draw() {
     );
 }
 
-export async function init() {}
+export function draw() {
+    d.rect(0, 0, w, h, "black");
+    menutitle.draw(w / 2, h / 2);
+    fade();
+}
+
+export async function init() {
+    c.setFont("'Futuristic Armour', sans-serif");
+    await menutitle.preload();
+}

@@ -5,12 +5,13 @@
         "esModuleInterop": true,
         "outDir": "web/dist",
         "rootDir": "src",
-        "noEmitHelpers": false
+        "noEmitHelpers": false,
+        "skipLibCheck": true
     },
     "compileOnSave": true,
     "watchOptions": {
         "watchDirectory": "usefsevents"
     },
-    "exclude": [""],
+    "exclude": ["node_modules"],
     "include": ["src/**/*.*"]
 }

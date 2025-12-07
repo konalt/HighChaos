@@ -1,5 +1,5 @@
 import { log } from "./log";
-import { Anchor, anchorToCoords, basicPointInRect } from "./utils";
+import { Anchor, anchorToCoords, basicPointInRect, Scene } from "./utils";
 
 let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
@@ -444,6 +444,12 @@ export function init() {
     window.addEventListener("resize", onResize);
     lastLoop = performance.now();
     draw();
+}
+
+export function setScene(scene: Scene) {
+    scene.init().then(() => {
+        setDrawFunction(scene.draw);
+    });
 }
 
 export const d = {

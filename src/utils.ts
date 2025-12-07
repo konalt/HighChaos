@@ -65,3 +65,7 @@ export function lerp(x: number, a: number, b: number) {
 export function lerpPositions(v: number, x1: number, y1: number, x2: number, y2: number): TwoNums {
     return [lerp(v, x1, x2), lerp(v, y1, y2)];
 }
+
+export function isUpperCase(str: string) {
+    return str.toUpperCase() == str;
+}

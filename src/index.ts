@@ -1,13 +1,9 @@
 import * as scene_menu from "./scenes/menu";
 import * as c from "./engine";
-import { Scene } from "./utils";
+import { loadFonts } from "./fonts";
 
-export function setScene(scene: Scene) {
-    scene.init().then(() => {
-        c.setDrawFunction(scene.draw);
-    });
-}
+loadFonts().then(() => {
+    c.setScene(scene_menu);
 
-setScene(scene_menu);
-
-c.init();
+    c.init();
+});
