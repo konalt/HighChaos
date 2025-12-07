@@ -1,1 +1,1 @@
-const FadeDuration = 2000;
+export const FadeDuration = 2000;
