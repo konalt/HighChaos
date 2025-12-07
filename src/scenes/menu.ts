@@ -2,9 +2,10 @@ import * as cutscene_intro from "../cutscenes/cutscene_intro";
 import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
 import { setScene } from "../engine";
-import * as menutitle from "../objects/menutitle";
+import * as hhctail from "../objects/hhctail";
 import * as menubutton from "../objects/menubutton";
 import * as menucopyright from "../objects/menucopyright";
+import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
 
@@ -51,7 +52,9 @@ const MenuButtonGap = 150;
 export function draw() {
     d.rect(0, 0, w, h, "rgba(66, 66, 66, 1)");
     vignette.draw("black", 1);
+
     menutitle.draw(500, 120);
+    hhctail.draw(MenuButtonX, 280, 34);
 
     ctx.save();
     ctx.translate(MenuButtonX, MenuButtonStartY);
