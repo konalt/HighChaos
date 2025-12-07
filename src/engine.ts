@@ -390,6 +390,47 @@ export function timerEnd(name: string, cb = () => {}, remove = true) {
 }
 //#endregion
 
+//#region cursors
+export enum CursorMode {
+    Default,
+    Click,
+    Grab,
+    Grabbing,
+    ResizeEW,
+    ResizeNS,
+    ResizeNESW,
+    ResizeNWSE,
+}
+export function setCursorMode(mode: CursorMode) {
+    switch (mode) {
+        case CursorMode.Default:
+            canvas.style.cursor = "default";
+            break;
+        case CursorMode.Click:
+            canvas.style.cursor = "pointer";
+            break;
+        case CursorMode.Grab:
+            canvas.style.cursor = "grab";
+            break;
+        case CursorMode.Grabbing:
+            canvas.style.cursor = "grabbing";
+            break;
+        case CursorMode.ResizeEW:
+            canvas.style.cursor = "ew-resize";
+            break;
+        case CursorMode.ResizeNS:
+            canvas.style.cursor = "ns-resize";
+            break;
+        case CursorMode.ResizeNESW:
+            canvas.style.cursor = "nesw-resize";
+            break;
+        case CursorMode.ResizeNWSE:
+            canvas.style.cursor = "nwse-resize";
+            break;
+    }
+}
+//#endregion
+
 let drawFunction = () => {};
 export function setDrawFunction(func: () => void) {
     drawFunction = func;
@@ -400,6 +441,7 @@ let lastLoop = performance.now();
 function draw() {
     globalTimer = performance.now();
     ctx.save();
+    setCursorMode(CursorMode.Default);
     try {
         drawFunction();
         ctx.restore();
