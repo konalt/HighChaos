@@ -8,7 +8,7 @@ const FontSize = 40;
 const MarginX = 10;
 const MarginY = 14;
 const UnderlineThickness = 2;
-const LineAnimSpeed = 0.05;
+const LineAnimSpeed = 0.1;
 
 let hovers = {};
 
@@ -25,6 +25,7 @@ export function draw(x: number, y: number, text: string = "Button", onClick = ()
 
     const isHovering = basicPointInRect(c.mouseX, c.mouseY, ...rect);
     if (isHovering) {
+        c.setCursorMode(c.CursorMode.Click);
         hovers[text] += LineAnimSpeed;
     } else {
         hovers[text] -= LineAnimSpeed;
