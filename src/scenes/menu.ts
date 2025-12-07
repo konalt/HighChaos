@@ -5,6 +5,7 @@ import { setScene } from "../engine";
 import * as menutitle from "../objects/menutitle";
 import * as menubutton from "../objects/menubutton";
 import * as menucopyright from "../objects/menucopyright";
+import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
 
 function fade() {
@@ -48,7 +49,8 @@ const MenuButtonStartY = 400;
 const MenuButtonGap = 150;
 
 export function draw() {
-    d.rect(0, 0, w, h, "#112");
+    d.rect(0, 0, w, h, "rgba(66, 66, 66, 1)");
+    vignette.draw("black", 1);
     menutitle.draw(500, 120);
 
     ctx.save();
