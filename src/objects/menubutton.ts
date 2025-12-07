@@ -4,7 +4,7 @@ import * as c from "../engine";
 import { ctx, d } from "../engine";
 import { basicPointInRect, clamp, FourNums } from "../utils";
 
-const FontSize = 40;
+const FontSize = 80;
 const MarginX = 10;
 const MarginY = 14;
 const UnderlineThickness = 2;
@@ -23,7 +23,7 @@ export function draw(x: number, y: number, text: string = "Button", onClick = ()
     const textHeight = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent + MarginY * 2;
     const rect: FourNums = [x - MarginX, y - textHeight / 2, measure.width + MarginX * 2, textHeight];
 
-    const isHovering = basicPointInRect(c.mouseX, c.mouseY, ...rect);
+    const isHovering = basicPointInRect(...c.getMouse(), ...rect);
     if (isHovering) {
         c.setCursorMode(c.CursorMode.Click);
         hovers[text] += LineAnimSpeed;
