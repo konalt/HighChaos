@@ -1,4 +1,4 @@
-import { MenuFont } from "../constants";
+import { MenuFontTitle } from "../constants";
 import * as c from "../engine";
 import { ctx, d } from "../engine";
 import { isUpperCase } from "../utils";
@@ -22,7 +22,7 @@ async function createLetters() {
     let letters: HTMLImageElement[] = [];
     c.useCanvas(1);
 
-    c.setFont(MenuFont);
+    c.setFont(MenuFontTitle);
     ctx.font = c.font(FontSize, "900");
 
     for (const char of Title) {

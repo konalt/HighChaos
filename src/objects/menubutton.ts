@@ -7,8 +7,11 @@ import { basicPointInRect, clamp, FourNums } from "../utils";
 const FontSize = 80;
 const MarginX = 10;
 const MarginY = 14;
-const UnderlineThickness = 2;
+const UnderlineThickness = 4;
 const LineAnimSpeed = 0.1;
+
+const BaseAlpha = 0.6;
+const DeltaAlpha = 1 - BaseAlpha;
 
 let hovers = {};
 
@@ -32,13 +35,19 @@ export function draw(x: number, y: number, text: string = "Button", onClick = ()
     }
     hovers[text] = clamp(hovers[text]);
 
+    ctx.globalAlpha = BaseAlpha + hovers[text] * DeltaAlpha;
+
     d.text(x, y, text, "white", c.font(FontSize), "left");
 
-    const underlineY = y + textHeight / 2 - 5;
-    ctx.lineWidth = UnderlineThickness;
-    ctx.strokeStyle = "white";
-    ctx.beginPath();
-    ctx.moveTo(x, underlineY);
-    ctx.lineTo(x + measure.width * easeInOutQuad(hovers[text]), underlineY);
-    ctx.stroke();
+    if (hovers[text] > 0) {
+        const underlineY = y + textHeight / 2 - 5;
+        ctx.lineWidth = UnderlineThickness;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "white";
+        ctx.beginPath();
+        ctx.moveTo(x, underlineY);
+        ctx.lineTo(x + measure.width * easeInOutQuad(hovers[text]), underlineY);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
 }
