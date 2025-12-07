@@ -1,5 +1,5 @@
 import { log } from "./log";
-import { Anchor, anchorToCoords, basicPointInRect, Scene } from "./utils";
+import { Anchor, anchorToCoords, basicPointInRect, Scene, TwoNums } from "./utils";
 
 let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
@@ -278,8 +278,14 @@ function handleKeyUp(event: KeyboardEvent) {
         });
     }
 }
-export let mouseX = 0;
-export let mouseY = 0;
+let mouseX = 0;
+let mouseY = 0;
+export function getMouse(): TwoNums {
+    const transform = ctx.getTransform();
+    const p = new DOMPoint(mouseX, mouseY);
+    const transformed = p.matrixTransform(transform.inverse());
+    return [transformed.x, transformed.y];
+}
 export function forceKeyDown(code: string) {
     justPressed.push(code);
     heldKeys.push(code);
@@ -296,8 +302,8 @@ function handleMouseDown(event: MouseEvent) {
         justPressed.push("mouse2");
         heldKeys.push("mouse2");
     }
-    mouseX = event.offsetX * (h / canvas.height);
-    mouseY = event.offsetY * (h / canvas.height);
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
 }
 function handleMouseUp(event: MouseEvent) {
     if (event.button == 0) {
@@ -307,12 +313,12 @@ function handleMouseUp(event: MouseEvent) {
         justReleased.push("mouse2");
         heldKeys = heldKeys.filter((hk) => hk !== "mouse2");
     }
-    mouseX = event.offsetX * (h / canvas.height);
-    mouseY = event.offsetY * (h / canvas.height);
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
 }
 function handleMouseMove(event: MouseEvent) {
-    mouseX = event.offsetX * (h / canvas.height);
-    mouseY = event.offsetY * (h / canvas.height);
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
 }
 export function getKey(key: string) {
     return heldKeys.includes(key.toLowerCase());
