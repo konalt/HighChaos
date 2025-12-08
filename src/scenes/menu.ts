@@ -3,11 +3,15 @@ import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
 import { setScene } from "../engine";
 import * as hhctail from "../objects/hhctail";
+import * as menubackground from "../objects/menubackground";
 import * as menubutton from "../objects/menubutton";
 import * as menucopyright from "../objects/menucopyright";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
+import { clamp } from "../utils";
+import { easeInOutCirc, easeOutCirc, easeOutQuad } from "../ease";
+import { nextResolution, ResolutionOptions, saveSettings, settings } from "../options";
 
 function fade() {
     let fadeTimer = c.timer("menu_fade") || c.timer("menu_fade_in");
@@ -25,44 +29,140 @@ function fade() {
     );
 }
 
-const MenuButtons: [string, () => void][] = [
+function transition(next = []) {
+    c.removeTimer("buttons");
+    lastButtons = [...currentButtons];
+    currentButtons = next;
+    c.startTimer("hidebuttons", 200);
+    c.startTimer("move_btns", 100);
+}
+
+type MenuOption = [string, () => void, string?];
+const BackButton: MenuOption = [
+    "Back",
+    () => {
+        transition(MainMenuButtons);
+    },
+];
+
+const MainMenuButtons: MenuOption[] = [
     [
         "New Game",
         () => {
-            console.log("play the game");
+            transition(ExtraButtons);
         },
     ],
     [
         "Options",
         () => {
-            console.log("open the options");
+            transition();
+            refreshOptions();
         },
     ],
     [
         "Extras",
         () => {
-            console.log("open the extras");
+            transition(ExtraButtons);
         },
     ],
 ];
+const OptionsButtons: MenuOption[] = [
+    [
+        "Resolution: %r",
+        () => {
+            nextResolution();
+            refreshOptions();
+            saveSettings();
+        },
+        "resbtn",
+    ],
+    [
+        "Detail Level: %d",
+        () => {
+            console.log("Lmao");
+        },
+        "detbtn",
+    ],
+    [
+        "Gradients: %g",
+        () => {
+            console.log("Lmao");
+        },
+        "gbtn",
+    ],
+    BackButton,
+];
+const ExtraButtons: MenuOption[] = [
+    [
+        "We smoking Fire",
+        () => {
+            console.log("Lmao");
+        },
+    ],
+    BackButton,
+];
+
+function refreshOptions() {
+    currentButtons = OptionsButtons.map((o) => [
+        o[0].replace(/%r/g, ResolutionOptions[settings.resolution][1]),
+        o[1],
+        o[2],
+    ]);
+}
+
+let currentButtons: MenuOption[] = MainMenuButtons;
+let lastButtons: MenuOption[] = [];
+
 const MenuButtonX = 100;
 const MenuButtonStartY = 400;
 const MenuButtonGap = 150;
+const MenuButtonTransitionDistance = 1000;
 
 export function draw() {
+    ctx.save();
+    ctx.translate(MenuButtonX, MenuButtonStartY);
+    let mbi = 0;
+    for (const mb of currentButtons) {
+        menubutton.think(0, 0, mb[0], mb[1], false, mb[2] ?? mb[0]);
+        ctx.translate(0, MenuButtonGap);
+        mbi++;
+    }
+    ctx.restore();
+
     d.rect(0, 0, w, h, "rgba(66, 66, 66, 1)");
-    vignette.draw("black", 1);
+    menubackground.draw();
+    vignette.draw("black", 1, 0.5, 1.1);
 
     menutitle.draw(500, 120);
     hhctail.draw(MenuButtonX, 280, 34);
 
+    c.timerEnd("move_btns", () => {
+        c.startTimer("buttons", 500);
+    });
+
     ctx.save();
     ctx.translate(MenuButtonX, MenuButtonStartY);
-    for (const mb of MenuButtons) {
-        menubutton.draw(0, 0, ...mb);
+    mbi = 0;
+    for (const mb of lastButtons) {
+        menubutton.draw(0, 0, mb[0], 1 - c.timer("hidebuttons"), mb[2] ?? mb[0]);
         ctx.translate(0, MenuButtonGap);
+        mbi++;
     }
     ctx.restore();
+    ctx.globalAlpha = 1;
+
+    ctx.save();
+    ctx.translate(MenuButtonX, MenuButtonStartY);
+    mbi = 0;
+    for (const mb of currentButtons) {
+        let buttonTimer = clamp(c.timer("buttons", false) - mbi * 0.1);
+        let offset = easeOutCirc(buttonTimer) * MenuButtonTransitionDistance;
+        menubutton.draw(offset - MenuButtonTransitionDistance, 0, mb[0], 1, mb[2] ?? mb[0]);
+        ctx.translate(0, MenuButtonGap);
+        mbi++;
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
 
     menucopyright.draw();
 
@@ -72,5 +172,6 @@ export function draw() {
 export async function init() {
     c.setFont("'Futuristic Armour', sans-serif");
     c.startTimer("menu_fade_in", FadeDuration, true);
+    c.startTimer("move_btns", FadeDuration * 0.5);
     await menutitle.preload();
 }
