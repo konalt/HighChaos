@@ -44,17 +44,27 @@ export let w = height * aspect;
 export let h = height;
 let parent = canvasMain.parentElement as HTMLElement; // i swear to you. it's not null.
 
+let resolutionMultiplier = 1;
+export function setResolution(res: number) {
+    resolutionMultiplier = res;
+    requestAnimationFrame(onResize);
+}
 export function onResize() {
-    if (
-        parent.clientWidth > parent.clientHeight &&
-        (canvasMain.width = parent.clientHeight * aspect) <= parent.clientWidth
-    ) {
-        canvasMain.height = parent.clientHeight;
-        canvasMain.width = parent.clientHeight * aspect;
+    let elWidth = 0;
+    let elHeight = 0;
+    if (parent.clientWidth > parent.clientHeight && parent.clientHeight * aspect <= parent.clientWidth) {
+        elWidth = parent.clientHeight * aspect;
+        elHeight = parent.clientHeight;
     } else {
-        canvasMain.width = parent.clientWidth;
-        canvasMain.height = parent.clientWidth * (1 / aspect);
+        elWidth = parent.clientWidth;
+        elHeight = parent.clientWidth / aspect;
     }
+
+    canvasMain.width = elWidth * resolutionMultiplier;
+    canvasMain.height = elHeight * resolutionMultiplier;
+
+    canvasMain.style.width = `${elWidth}px`;
+    canvasMain.style.height = `${elHeight}px`;
 
     ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
 }
@@ -282,7 +292,7 @@ let mouseX = 0;
 let mouseY = 0;
 export function getMouse(): TwoNums {
     const transform = ctx.getTransform();
-    const p = new DOMPoint(mouseX, mouseY);
+    const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
     const transformed = p.matrixTransform(transform.inverse());
     return [transformed.x, transformed.y];
 }
