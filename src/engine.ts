@@ -394,6 +394,9 @@ export function timerEnd(name: string, cb = () => {}, remove = true) {
     }
     return ended;
 }
+export function removeTimer(name: string) {
+    delete timers[name];
+}
 //#endregion
 
 //#region cursors
