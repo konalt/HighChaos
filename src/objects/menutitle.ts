@@ -8,6 +8,7 @@ const FontSize = 120;
 const LetterSwayDistance = 5;
 const LetterSwayRate = 0.0005;
 const LetterSpacing = 5 + LetterSwayDistance / 2;
+const PreloadMargin = 20;
 
 const UpperColor = "#25bd25ff";
 const LowerColor = "#ffffffff";
@@ -27,8 +28,8 @@ async function createLetters() {
 
     for (const char of Title) {
         let measure = ctx.measureText(char);
-        let w = measure.width + 5;
-        let h = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent + 5;
+        let w = measure.width + PreloadMargin;
+        let h = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent + PreloadMargin;
         c.canvas.width = w;
         c.canvas.height = h;
 
@@ -51,7 +52,7 @@ export async function preload() {
 }
 
 export function draw(x: number, y: number) {
-    const totalWidth = letters.reduce((a, b) => a + b.width + LetterSpacing, 0);
+    const totalWidth = letters.reduce((a, b) => a + b.width + LetterSpacing - PreloadMargin, 0);
 
     ctx.save();
     ctx.translate(x - totalWidth / 2 + SwayOffsets[0], y + SwayOffsets[1]);
@@ -62,7 +63,7 @@ export function draw(x: number, y: number) {
         const swayY =
             Math.cos(performance.now() * LetterSwayRate + RandomizedLetterSways[i][1] * Math.PI) * LetterSwayDistance;
         ctx.drawImage(letter, swayX, swayY);
-        ctx.translate(letter.width + LetterSpacing, 0);
+        ctx.translate(letter.width + LetterSpacing - PreloadMargin, 0);
         i++;
     }
     ctx.restore();
