@@ -14,15 +14,18 @@ const BaseAlpha = 0.6;
 const DeltaAlpha = 1 - BaseAlpha;
 
 let hovers = {};
+let measures = {};
 
 export function think(x: number, y: number, text: string, onClick = () => {}, lock = false, id = "-") {
     if (id == "-") id = text;
     if (!hovers[id]) hovers[id] = 0;
     if (!lock) {
-        c.setFont(MenuFont);
-        ctx.font = c.font(FontSize);
-
-        const measure = ctx.measureText(text);
+        if (!measures[text]) {
+            c.setFont(MenuFont);
+            ctx.font = c.font(FontSize);
+            measures[text] = ctx.measureText(text);
+        }
+        const measure = measures[text];
         const textHeight = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent + MarginY * 2;
         const rect: FourNums = [x - MarginX, y - textHeight / 2, measure.width + MarginX * 2, textHeight];
 
@@ -46,12 +49,13 @@ export function draw(x: number, y: number, text: string = "Button", alphaOverrid
     ctx.font = c.font(FontSize);
     ctx.textBaseline = "middle";
 
-    const measure = ctx.measureText(text);
+    if (!measures[text]) measures[text] = ctx.measureText(text);
+    const measure = measures[text];
     const textHeight = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent + MarginY * 2;
 
     ctx.globalAlpha = (BaseAlpha + hovers[id] * DeltaAlpha) * alphaOverride;
-
-    d.text(x, y, text, "white", c.font(FontSize), "left");
+    ctx.fillStyle = "white";
+    ctx.fillText(text, x, y);
 
     if (hovers[id] > 0) {
         const underlineY = y + textHeight / 2;
