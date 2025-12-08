@@ -1,5 +1,4 @@
 import { ctx } from "../engine";
-import { lerp, lerpPositions } from "../utils";
 
 const SegmentDeltaX = 50;
 const SegmentDeltaY = 20;
