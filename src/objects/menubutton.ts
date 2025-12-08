@@ -61,7 +61,7 @@ export function draw(x: number, y: number, text: string = "Button", alphaOverrid
     ctx.fillText(text, x, y);
 
     if (hovers[id] > 0) {
-        const underlineY = y + textHeight / 2;
+        const underlineY = y + textHeight * 0.4;
         hhctail.draw(x, underlineY, easeInOutQuad(hovers[id]) * measure.width, true, 0.5);
     }
     ctx.globalAlpha = alphaOverride;

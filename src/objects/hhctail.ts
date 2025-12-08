@@ -14,14 +14,14 @@ export function draw(x: number, y: number, length: number, lengthInUnits = false
     length += 1;
 
     ctx.beginPath();
-    ctx.moveTo(x, y - sdy / 2);
+    ctx.moveTo(x, y);
 
     let isDown = false;
     let lx = x;
     let ly = y;
     for (let i = 0; i < Math.floor(length); i++) {
         lx = x + i * sdx;
-        ly = y + sdy * (isDown ? 0.5 : -0.5);
+        ly = y + (isDown ? sdy : 0);
         ctx.lineTo(lx, ly);
         isDown = !isDown;
     }
