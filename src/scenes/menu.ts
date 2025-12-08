@@ -11,7 +11,15 @@ import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
 import { clamp } from "../utils";
 import { easeInOutCirc, easeOutCirc, easeOutQuad } from "../ease";
-import { nextResolution, ResolutionOptions, saveSettings, settings } from "../options";
+import {
+    detail,
+    DetailLevelNames,
+    nextDetail,
+    nextResolution,
+    ResolutionOptions,
+    saveSettings,
+    settings,
+} from "../options";
 
 function fade() {
     let fadeTimer = c.timer("menu_fade") || c.timer("menu_fade_in");
@@ -70,6 +78,8 @@ const OptionsButtons: MenuOption[] = [
     [
         "Resolution: %r",
         () => {
+            console.log("resolution");
+
             nextResolution();
             refreshOptions();
             saveSettings();
@@ -79,14 +89,22 @@ const OptionsButtons: MenuOption[] = [
     [
         "Detail Level: %d",
         () => {
-            console.log("Lmao");
+            console.log("detail");
+
+            nextDetail();
+            refreshOptions();
+            saveSettings();
         },
         "detbtn",
     ],
     [
         "Gradients: %g",
         () => {
-            console.log("Lmao");
+            console.log("grads");
+
+            settings.gradients = !settings.gradients;
+            refreshOptions();
+            saveSettings();
         },
         "gbtn",
     ],
@@ -103,11 +121,17 @@ const ExtraButtons: MenuOption[] = [
 ];
 
 function refreshOptions() {
-    currentButtons = OptionsButtons.map((o) => [
-        o[0].replace(/%r/g, ResolutionOptions[settings.resolution][1]),
-        o[1],
-        o[2],
-    ]);
+    currentButtons = OptionsButtons.map(
+        (o) =>
+            [
+                o[0]
+                    .replace(/%r/g, ResolutionOptions[settings.resolution][1])
+                    .replace(/%d/g, DetailLevelNames[settings.detailLevel])
+                    .replace(/%g/g, settings.gradients ? "Enabled" : "Disabled"),
+                o[1],
+                o[2],
+            ] as MenuOption
+    );
 }
 
 let currentButtons: MenuOption[] = MainMenuButtons;
@@ -123,15 +147,21 @@ export function draw() {
     ctx.translate(MenuButtonX, MenuButtonStartY);
     let mbi = 0;
     for (const mb of currentButtons) {
-        menubutton.think(0, 0, mb[0], mb[1], false, mb[2] ?? mb[0]);
+        let c = menubutton.think(0, 0, mb[0], mb[1], false, mb[2] ?? mb[0]);
+        if (c) break;
         ctx.translate(0, MenuButtonGap);
         mbi++;
     }
     ctx.restore();
 
-    d.rect(0, 0, w, h, "rgba(66, 66, 66, 1)");
     menubackground.draw();
-    vignette.draw("black", 1, 0.5, 1.1);
+    if (detail(1)) {
+        if (settings.gradients) {
+            vignette.draw("black", 1, 0.5, 1.1);
+        } else {
+            d.rect(0, 0, w, h, "rgba(0,0,0,0.5)");
+        }
+    }
 
     menutitle.draw(500, 120);
     hhctail.draw(MenuButtonX, 280, 34);

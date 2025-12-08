@@ -1,6 +1,7 @@
 import { MenuFontTitle } from "../constants";
 import * as c from "../engine";
 import { ctx, d } from "../engine";
+import { detail } from "../options";
 import { isUpperCase } from "../utils";
 
 const Title = "HIGH chaos";
@@ -47,21 +48,27 @@ async function createLetters() {
     return letters;
 }
 
+let totalWidth = 0;
 export async function preload() {
     letters = await createLetters();
+    totalWidth = letters.reduce((a, b) => a + b.width + LetterSpacing - PreloadMargin, 0);
 }
 
 export function draw(x: number, y: number) {
-    const totalWidth = letters.reduce((a, b) => a + b.width + LetterSpacing - PreloadMargin, 0);
-
     ctx.save();
     ctx.translate(x - totalWidth / 2 + SwayOffsets[0], y + SwayOffsets[1]);
     let i = 0;
     for (const letter of letters) {
-        const swayX =
-            Math.cos(performance.now() * LetterSwayRate + RandomizedLetterSways[i][0] * Math.PI) * LetterSwayDistance;
-        const swayY =
-            Math.cos(performance.now() * LetterSwayRate + RandomizedLetterSways[i][1] * Math.PI) * LetterSwayDistance;
+        let swayX = 0;
+        let swayY = 0;
+        if (detail(2)) {
+            swayX =
+                Math.cos(performance.now() * LetterSwayRate + RandomizedLetterSways[i][0] * Math.PI) *
+                LetterSwayDistance;
+            swayY =
+                Math.cos(performance.now() * LetterSwayRate + RandomizedLetterSways[i][1] * Math.PI) *
+                LetterSwayDistance;
+        }
         ctx.drawImage(letter, swayX, swayY);
         ctx.translate(letter.width + LetterSpacing - PreloadMargin, 0);
         i++;

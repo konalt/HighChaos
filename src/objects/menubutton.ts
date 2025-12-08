@@ -17,6 +17,7 @@ let hovers = {};
 let measures = {};
 
 export function think(x: number, y: number, text: string, onClick = () => {}, lock = false, id = "-") {
+    let clicked = false;
     if (id == "-") id = text;
     if (!hovers[id]) hovers[id] = 0;
     if (!lock) {
@@ -34,6 +35,7 @@ export function think(x: number, y: number, text: string, onClick = () => {}, lo
             c.setCursorMode(c.CursorMode.Click);
             if (c.getKeyDown("mouse1")) {
                 onClick();
+                clicked = true;
             }
             hovers[id] += LineAnimSpeed;
         } else {
@@ -41,6 +43,7 @@ export function think(x: number, y: number, text: string, onClick = () => {}, lo
         }
         hovers[id] = clamp(hovers[id]);
     }
+    return clicked;
 }
 
 export function draw(x: number, y: number, text: string = "Button", alphaOverride = 1, id = "-") {
