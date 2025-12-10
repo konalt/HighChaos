@@ -11,7 +11,7 @@ export function draw(color: string, opacity = 0.5, internalRadius = 0.9, externa
 
     ctx.globalAlpha = opacity;
     ctx.fillStyle = grad;
-    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.fillRect(-w / 2 - 10, -h / 2 - 10, w + 10, h + 10);
     ctx.globalAlpha = 1;
 
     ctx.restore();
