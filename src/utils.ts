@@ -1,3 +1,5 @@
+import { ctx } from "./engine";
+
 export type Anchor = "tl" | "tc" | "tr" | "cl" | "cc" | "cr" | "bl" | "bc" | "br";
 export type TwoNums = [number, number]; // we have fun here
 export type ThreeNums = [number, number, number];
@@ -72,4 +74,10 @@ export function isUpperCase(str: string) {
 
 export function sample<T>(array: T[]): T {
     return array[Math.floor(Math.random() * array.length)];
+}
+
+export function alpha(n = 1, set = true) {
+    if (n <= 0) return false;
+    if (set) ctx.globalAlpha = n;
+    return true;
 }
