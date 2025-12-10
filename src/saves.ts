@@ -10,6 +10,11 @@ export function createEmptySave(): Save {
 
 export let savedGames: Save[] = [createEmptySave(), createEmptySave(), createEmptySave()];
 
+let currentSave = -1;
+export function setCurrentSave(index: number) {
+    currentSave = index;
+}
+
 export function save(save: Save, slot: number) {
     savedGames[slot] = save;
     localStorage.setItem("save", JSON.stringify(savedGames));

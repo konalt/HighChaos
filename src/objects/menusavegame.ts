@@ -1,6 +1,7 @@
+import { FadeDuration } from "../constants";
 import { easeInOutCirc } from "../ease";
-import { ctx, CursorMode, d, font, getMouse, setCursorMode } from "../engine";
-import { Save } from "../saves";
+import { ctx, CursorMode, d, font, getKeyDown, getMouse, setCursorMode, startTimer } from "../engine";
+import { Save, setCurrentSave } from "../saves";
 import { basicPointInRect, clamp } from "../utils";
 
 let hovers = [];
@@ -15,6 +16,12 @@ const HoverAnimRate = 0.075;
 const BaseAlpha = 0.6;
 const DeltaAlpha = 1 - BaseAlpha;
 
+function click(save: Save) {
+    if (save.empty) {
+        startTimer("start_intro", FadeDuration);
+    }
+}
+
 export function think(x: number, y: number, index = 0, save: Save) {
     if (!hovers[index]) hovers[index] = 0;
     ctx.save();
@@ -23,6 +30,10 @@ export function think(x: number, y: number, index = 0, save: Save) {
     let isHovered = basicPointInRect(...getMouse(), 0, 0, BoxWidth, BoxHeight);
     if (isHovered) {
         setCursorMode(CursorMode.Click);
+        if (getKeyDown("mouse1")) {
+            setCurrentSave(index);
+            click(save);
+        }
         hovers[index] += HoverAnimRate;
     } else {
         hovers[index] -= HoverAnimRate;

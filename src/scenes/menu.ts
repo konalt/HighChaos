@@ -24,14 +24,14 @@ import {
 import { savedGames } from "../saves";
 
 function fade() {
-    let fadeTimer = c.timer("menu_fade") || c.timer("menu_fade_in");
+    let fadeTimer = c.timer("start_intro") || c.timer("menu_fade_in");
     if (fadeTimer > 0) {
         ctx.globalAlpha = fadeTimer;
         d.rect(0, 0, w, h, "black");
         ctx.globalAlpha = 1;
     }
     c.timerEnd(
-        "menu_fade",
+        "start_intro",
         () => {
             setScene(cutscene_intro);
         },
@@ -158,46 +158,56 @@ const MenuSaveTransitionDistance = 1200;
 const MenuSaveGap = 650;
 
 export function draw() {
-    ctx.save();
-    ctx.translate(MenuButtonX, MenuButtonStartY);
+    let interactable = c.timer("start_intro") == 0;
     let mbi = 0;
-    for (const mb of currentButtons) {
-        let buttonTimer = clamp(c.timer("buttons", false) - mbi * MenuButtonTransitionOffset);
-        let offset = easeOutCirc(buttonTimer) * MenuButtonTransitionDistance;
-        let clicked = menubutton.think(offset - MenuButtonTransitionDistance, 0, mb[0], mb[1], false, mb[2] ?? mb[0]);
-        if (clicked) break;
-        ctx.translate(0, MenuButtonGap);
-        mbi++;
-    }
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
-    for (let i = 0; i < 3; i++) {
-        let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
-        let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
-        menusavegame.think(0, offset, i, savedGames[i]);
-        ctx.translate(MenuSaveGap, 0);
-    }
-    ctx.restore();
-
     let saveTimer = clamp(c.timer("saves", false) - 0.5);
     let saveBackOffset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
-    ctx.save();
-    ctx.translate(60, h - 100);
-    menubutton.think(
-        0,
-        saveBackOffset,
-        "Back",
-        () => {
-            transition(MainMenuButtons);
-            c.startTimer("title_hide", 200, true);
-            c.startTimer("saves_fade", 100);
-        },
-        c.timer("saves_fade") > 0,
-        "saveback"
-    );
-    ctx.restore();
+    if (interactable) {
+        ctx.save();
+        ctx.translate(MenuButtonX, MenuButtonStartY);
+        for (const mb of currentButtons) {
+            let buttonTimer = clamp(c.timer("buttons", false) - mbi * MenuButtonTransitionOffset);
+            let offset = easeOutCirc(buttonTimer) * MenuButtonTransitionDistance;
+            let clicked = menubutton.think(
+                offset - MenuButtonTransitionDistance,
+                0,
+                mb[0],
+                mb[1],
+                false,
+                mb[2] ?? mb[0]
+            );
+            if (clicked) break;
+            ctx.translate(0, MenuButtonGap);
+            mbi++;
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
+        for (let i = 0; i < 3; i++) {
+            let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
+            let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
+            menusavegame.think(0, offset, i, savedGames[i]);
+            ctx.translate(MenuSaveGap, 0);
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(60, h - 100);
+        menubutton.think(
+            0,
+            saveBackOffset,
+            "Back",
+            () => {
+                transition(MainMenuButtons);
+                c.startTimer("title_hide", 200, true);
+                c.startTimer("saves_fade", 100);
+            },
+            c.timer("saves_fade") > 0,
+            "saveback"
+        );
+        ctx.restore();
+    }
 
     menubackground.draw();
     if (detail(1)) {
