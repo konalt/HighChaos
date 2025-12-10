@@ -450,6 +450,18 @@ export function setCursorMode(mode: CursorMode) {
 }
 //#endregion
 
+//#region Assets
+export async function loadImage(url: string) {
+    return new Promise<HTMLImageElement>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            resolve(img);
+        };
+        img.src = url;
+    });
+}
+//#endregion
+
 let drawFunction = () => {};
 export function setDrawFunction(func: () => void) {
     drawFunction = func;
