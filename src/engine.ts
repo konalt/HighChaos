@@ -457,7 +457,7 @@ export async function loadImage(url: string) {
         img.onload = () => {
             resolve(img);
         };
-        img.src = url;
+        img.src = `assets/img/${url}`;
     });
 }
 //#endregion

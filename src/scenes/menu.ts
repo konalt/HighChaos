@@ -1,4 +1,5 @@
 import * as cutscene_intro from "../cutscenes/cutscene_intro";
+import * as vendingscene from "../scenes/pictureofavendingmachine";
 import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
 import { setScene } from "../engine";
@@ -10,7 +11,7 @@ import * as menusavegame from "../objects/menusavegame";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
-import { alpha, clamp } from "../utils";
+import { alpha, clamp, Scene } from "../utils";
 import { easeOutCirc } from "../ease";
 import {
     detail,
@@ -23,17 +24,22 @@ import {
 } from "../options";
 import { savedGames } from "../saves";
 
+let fadeScene: Scene = cutscene_intro;
+export function fadeToScene(scene: Scene) {
+    fadeScene = scene;
+    c.startTimer("next_scene", FadeDuration);
+}
 function fade() {
-    let fadeTimer = c.timer("start_intro") || c.timer("menu_fade_in");
+    let fadeTimer = c.timer("next_scene") || c.timer("menu_fade_in");
     if (fadeTimer > 0) {
-        ctx.globalAlpha = fadeTimer;
+        ctx.globalAlpha = fadeTimer / 0.9;
         d.rect(0, 0, w, h, "black");
         ctx.globalAlpha = 1;
     }
     c.timerEnd(
-        "start_intro",
+        "next_scene",
         () => {
-            setScene(cutscene_intro);
+            setScene(fadeScene);
         },
         false
     );
@@ -120,9 +126,9 @@ const OptionsButtons: MenuOption[] = [
 ];
 const ExtraButtons: MenuOption[] = [
     [
-        "We smoking Fire",
+        "Vending Machine",
         () => {
-            console.log("Lmao");
+            fadeToScene(vendingscene);
         },
     ],
     BackButton,
@@ -158,7 +164,7 @@ const MenuSaveTransitionDistance = 1200;
 const MenuSaveGap = 650;
 
 export function draw() {
-    let interactable = c.timer("start_intro") == 0;
+    let interactable = c.timer("next_scene") == 0;
     let mbi = 0;
     let saveTimer = clamp(c.timer("saves", false) - 0.5);
     let saveBackOffset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
