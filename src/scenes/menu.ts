@@ -182,15 +182,17 @@ export function draw() {
         }
         ctx.restore();
 
-        ctx.save();
-        ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
-        for (let i = 0; i < 3; i++) {
-            let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
-            let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
-            menusavegame.think(0, offset, i, savedGames[i]);
-            ctx.translate(MenuSaveGap, 0);
+        if (c.timer("saves_fade") == 0) {
+            ctx.save();
+            ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
+            for (let i = 0; i < 3; i++) {
+                let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
+                let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
+                menusavegame.think(0, offset, i, savedGames[i]);
+                ctx.translate(MenuSaveGap, 0);
+            }
+            ctx.restore();
         }
-        ctx.restore();
 
         ctx.save();
         ctx.translate(60, h - 100);
