@@ -21,13 +21,15 @@ export interface Settings {
     smoothing: boolean;
     gradients: boolean;
     detailLevel: DetailLevel;
+    easing: boolean;
 }
 
 export let settings: Settings = {
     resolution: 3,
     smoothing: true,
     gradients: true,
-    detailLevel: 3,
+    detailLevel: 2,
+    easing: true,
 };
 
 export function saveSettings() {
