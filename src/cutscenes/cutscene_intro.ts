@@ -1,4 +1,4 @@
-import { easeInCirc, easeInOutCirc, easeInOutQuad, easeOutCirc } from "../ease";
+import { easeInOutQuad } from "../ease";
 import { w, h, d, ctx } from "../engine";
 import * as c from "../engine";
 import { drawDistyBottle } from "../objects/distybottle";
