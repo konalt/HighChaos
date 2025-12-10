@@ -1,5 +1,6 @@
-import { canvas, ctx, d, getCanvasImage, useCanvas } from "../engine";
+import { canvas, CanvasStyle, ctx, d, getCanvasImage, useCanvas } from "../engine";
 import * as shine from "../gradients/shine";
+import { settings } from "../options";
 import { FourNums } from "../utils";
 
 const neckWidth = 30;
@@ -29,7 +30,8 @@ const gradientNeckOffset = realBladeLength / totalHeight - 0.03;
 const gradientNeckStartOffset = gradientNeckOffset - 0.03;
 const gradientNeckEndOffset = gradientNeckOffset + 0.05;
 
-function addColorStops(gradient: CanvasGradient) {
+function addColorStops(gradient: CanvasStyle) {
+    if (!(gradient instanceof CanvasGradient)) return;
     gradient.addColorStop(0, gradientStart);
     gradient.addColorStop(gradientNeckStartOffset, gradientPreNeck);
     gradient.addColorStop(gradientNeckOffset, gradientNeck);
@@ -45,7 +47,7 @@ async function getKnifeImage() {
     ctx.translate(canvas.width / 2, realBladeLength);
     ctx.scale(-1, 1); // i wrote it wrong and i dont want to fix it
     const gradCoords: FourNums = [0, -realBladeLength, 0, handleLength];
-    const gradient = ctx.createLinearGradient(...gradCoords);
+    const gradient: CanvasStyle = settings.gradients ? ctx.createLinearGradient(...gradCoords) : gradientPostNeck;
     addColorStops(gradient);
     const shineGradient = shine.linear(...gradCoords, 0.3);
     const path = () => {

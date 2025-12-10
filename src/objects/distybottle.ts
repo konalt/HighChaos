@@ -1,6 +1,7 @@
-import { ctx, globalTimer, resetShadow, setShadow } from "../engine";
+import { CanvasStyle, ctx, globalTimer, resetShadow, setShadow } from "../engine";
 import * as metallic from "../gradients/metallic";
 import * as plastic_glossy from "../gradients/plastic_glossy";
+import { detail, settings } from "../options";
 import { degToRad } from "../utils";
 
 const capWidth = 200;
@@ -46,7 +47,7 @@ function capTop(rotate = 0, lift = 0) {
     let cx = -capWidth / 2 + rotate * dx;
     for (let i = 0; i < capTopLines; i++) {
         if (cx > capWidth / 2) break;
-        setShadow((-i / capTopLines) * 2 + 1, 0, 3, "#1414149c");
+        if (detail(2)) setShadow((-i / capTopLines) * 2 + 1, 0, 3, "#1414149c");
         ctx.beginPath();
         ctx.moveTo(cx, capHeight - capBottomHeight / 2);
         ctx.lineTo(cx, capHeight * capTopLineFraction);
@@ -83,11 +84,14 @@ function capBottom() {
 
 function bottle() {
     const gradient = metallic.linear(-bottleWidth / 2, 0, bottleWidth / 2, 0);
-    const shadowGradient = ctx.createLinearGradient(0, capHeight, 0, capHeight + bottleHeight);
-    shadowGradient.addColorStop(0, `rgba(0,0,0,${shadowDarkness})`);
-    shadowGradient.addColorStop(bottleNeckHeight / bottleHeight, "transparent");
-    shadowGradient.addColorStop((bottleHeight - round) / bottleHeight, "transparent");
-    shadowGradient.addColorStop(1, `rgba(0,0,0,${shadowDarkness})`);
+    let shadowGradient: CanvasStyle = "transparent";
+    if (settings.gradients) {
+        shadowGradient = ctx.createLinearGradient(0, capHeight, 0, capHeight + bottleHeight);
+        shadowGradient.addColorStop(0, `rgba(0,0,0,${shadowDarkness})`);
+        shadowGradient.addColorStop(bottleNeckHeight / bottleHeight, "transparent");
+        shadowGradient.addColorStop((bottleHeight - round) / bottleHeight, "transparent");
+        shadowGradient.addColorStop(1, `rgba(0,0,0,${shadowDarkness})`);
+    }
     ctx.beginPath();
     ctx.moveTo(-bottleWidth / 2 + bottleNeck, capHeight);
     ctx.lineTo(bottleWidth / 2 - bottleNeck, capHeight);

@@ -1,10 +1,14 @@
-import { ctx } from "../engine";
+import { CanvasStyle, ctx } from "../engine";
+import { settings } from "../options";
 
 const base = "#555555ff";
 const shine = "#dbdbdbff";
 const shinePosition = 0.3;
 
-export function linear(x0: number, y0: number, x1: number, y1: number): CanvasGradient {
+const fallback = "#a5a5a5ff";
+
+export function linear(x0: number, y0: number, x1: number, y1: number): CanvasStyle {
+    if (!settings.gradients) return fallback;
     const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
     gradient.addColorStop(0, base);
     gradient.addColorStop(shinePosition, shine);
