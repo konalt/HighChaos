@@ -457,11 +457,25 @@ export function setDrawFunction(func: () => void) {
 
 export let deltaTime = 1;
 let lastLoop = performance.now();
+const fpsc: number[] = [];
+const fpscc = 30;
+function calculateFPS() {
+    const thisLoop = Date.now();
+    const fps = 1000 / (thisLoop - lastLoop);
+    fpsc.push(fps);
+    if (fpsc.length > fpscc) fpsc.shift();
+    deltaTime = (thisLoop - lastLoop) / 75;
+    lastLoop = thisLoop;
+}
+export function getFPS() {
+    return Math.round(fpsc.reduce((a, b) => a + b, 0) / fpsc.length);
+}
 function draw() {
     globalTimer = performance.now();
     ctx.save();
-    setCursorMode(CursorMode.Default);
     try {
+        calculateFPS();
+        setCursorMode(CursorMode.Default);
         drawFunction();
         ctx.restore();
     } catch (e) {
