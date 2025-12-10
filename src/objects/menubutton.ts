@@ -58,6 +58,7 @@ export function draw(x: number, y: number, text: string = "Button", alphaOverrid
 
     ctx.globalAlpha = (BaseAlpha + hovers[id] * DeltaAlpha) * alphaOverride;
     ctx.fillStyle = "white";
+    ctx.textAlign = "left";
     ctx.fillText(text, x, y);
 
     if (hovers[id] > 0) {
