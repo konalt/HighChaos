@@ -10,8 +10,8 @@ import * as menusavegame from "../objects/menusavegame";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../constants";
-import { clamp } from "../utils";
-import { easeInOutCirc, easeOutCirc, easeOutQuad } from "../ease";
+import { alpha, clamp } from "../utils";
+import { easeOutCirc } from "../ease";
 import {
     detail,
     DetailLevelNames,
@@ -21,6 +21,7 @@ import {
     saveSettings,
     settings,
 } from "../options";
+import { savedGames } from "../saves";
 
 function fade() {
     let fadeTimer = c.timer("menu_fade") || c.timer("menu_fade_in");
@@ -82,8 +83,6 @@ const OptionsButtons: MenuOption[] = [
     [
         "Resolution: %r",
         () => {
-            console.log("resolution");
-
             nextResolution();
             refreshOptions();
             saveSettings();
@@ -93,8 +92,6 @@ const OptionsButtons: MenuOption[] = [
     [
         "Detail Level: %d",
         () => {
-            console.log("detail");
-
             nextDetail();
             refreshOptions();
             saveSettings();
@@ -104,13 +101,20 @@ const OptionsButtons: MenuOption[] = [
     [
         "Gradients: %g",
         () => {
-            console.log("grads");
-
             settings.gradients = !settings.gradients;
             refreshOptions();
             saveSettings();
         },
         "gbtn",
+    ],
+    [
+        "Animations: %e",
+        () => {
+            settings.easing = !settings.easing;
+            refreshOptions();
+            saveSettings();
+        },
+        "ebtn",
     ],
     BackButton,
 ];
@@ -131,7 +135,8 @@ function refreshOptions() {
                 o[0]
                     .replace(/%r/g, ResolutionOptions[settings.resolution][1])
                     .replace(/%d/g, DetailLevelNames[settings.detailLevel])
-                    .replace(/%g/g, settings.gradients ? "Enabled" : "Disabled"),
+                    .replace(/%g/g, settings.gradients ? "Enabled" : "Disabled")
+                    .replace(/%e/g, settings.easing ? "Fancy" : "Fast"),
                 o[1],
                 o[2],
             ] as MenuOption
@@ -144,7 +149,9 @@ let lastButtons: MenuOption[] = [];
 const MenuButtonX = 100;
 const MenuButtonStartY = 400;
 const MenuButtonGap = 150;
-const MenuButtonTransitionDistance = 1000;
+const MenuButtonTransitionDistance = w;
+const MenuButtonTransitionDuration = 500;
+const MenuButtonTransitionOffset = 0.2;
 
 const MenuSaveY = 500;
 const MenuSaveTransitionDistance = 1200;
@@ -155,7 +162,7 @@ export function draw() {
     ctx.translate(MenuButtonX, MenuButtonStartY);
     let mbi = 0;
     for (const mb of currentButtons) {
-        let buttonTimer = clamp(c.timer("buttons", false) - mbi * 0.1);
+        let buttonTimer = clamp(c.timer("buttons", false) - mbi * MenuButtonTransitionOffset);
         let offset = easeOutCirc(buttonTimer) * MenuButtonTransitionDistance;
         let clicked = menubutton.think(offset - MenuButtonTransitionDistance, 0, mb[0], mb[1], false, mb[2] ?? mb[0]);
         if (clicked) break;
@@ -169,7 +176,7 @@ export function draw() {
     for (let i = 0; i < 3; i++) {
         let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
         let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
-        menusavegame.think(0, offset, i);
+        menusavegame.think(0, offset, i, savedGames[i]);
         ctx.translate(MenuSaveGap, 0);
     }
     ctx.restore();
@@ -177,7 +184,7 @@ export function draw() {
     let saveTimer = clamp(c.timer("saves", false) - 0.5);
     let saveBackOffset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
     ctx.save();
-    ctx.translate(MenuButtonX, h - 70);
+    ctx.translate(60, h - 100);
     menubutton.think(
         0,
         saveBackOffset,
@@ -185,7 +192,7 @@ export function draw() {
         () => {
             transition(MainMenuButtons);
             c.startTimer("title_hide", 200, true);
-            c.startTimer("saves_fade", 200);
+            c.startTimer("saves_fade", 100);
         },
         c.timer("saves_fade") > 0,
         "saveback"
@@ -201,31 +208,34 @@ export function draw() {
         }
     }
 
-    ctx.globalAlpha = 1 - c.timer("title_hide");
-    menutitle.draw(500, 120);
-    hhctail.draw(MenuButtonX, 280, 34);
-    ctx.globalAlpha = 1;
+    if (alpha(1 - c.timer("title_hide"))) {
+        menutitle.draw(500, 120);
+        hhctail.draw(MenuButtonX, 280, 34);
+        alpha();
+    }
 
     c.timerEnd("move_btns", () => {
-        c.startTimer("buttons", 500);
+        c.startTimer("buttons", MenuButtonTransitionDuration);
     });
 
-    ctx.save();
-    ctx.translate(MenuButtonX, MenuButtonStartY);
-    mbi = 0;
-    for (const mb of lastButtons) {
-        menubutton.draw(0, 0, mb[0], 1 - c.timer("hidebuttons"), mb[2] ?? mb[0]);
-        ctx.translate(0, MenuButtonGap);
-        mbi++;
+    if (alpha(1 - c.timer("hidebuttons"), false)) {
+        ctx.save();
+        ctx.translate(MenuButtonX, MenuButtonStartY);
+        mbi = 0;
+        for (const mb of lastButtons) {
+            menubutton.draw(0, 0, mb[0], 1 - c.timer("hidebuttons"), mb[2] ?? mb[0]);
+            ctx.translate(0, MenuButtonGap);
+            mbi++;
+        }
+        ctx.restore();
+        alpha;
     }
-    ctx.restore();
-    ctx.globalAlpha = 1;
 
     ctx.save();
     ctx.translate(MenuButtonX, MenuButtonStartY);
     mbi = 0;
     for (const mb of currentButtons) {
-        let buttonTimer = clamp(c.timer("buttons", false) - mbi * 0.1);
+        let buttonTimer = clamp(c.timer("buttons", false) - mbi * MenuButtonTransitionOffset);
         let offset = easeOutCirc(buttonTimer) * MenuButtonTransitionDistance;
         menubutton.draw(offset - MenuButtonTransitionDistance, 0, mb[0], 1, mb[2] ?? mb[0]);
         ctx.translate(0, MenuButtonGap);
@@ -234,20 +244,21 @@ export function draw() {
     ctx.restore();
     ctx.globalAlpha = 1;
 
-    ctx.save();
-    ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
-    for (let i = 0; i < 3; i++) {
-        let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
-        let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
-        menusavegame.draw(0, offset, i, 1 - c.timer("saves_fade"));
-        ctx.translate(MenuSaveGap, 0);
+    if (c.timer("saves") > 0 && alpha(1 - c.timer("saves_fade"), false)) {
+        ctx.save();
+        ctx.translate(w / 2 - MenuSaveGap, MenuSaveY);
+        for (let i = 0; i < 3; i++) {
+            let saveTimer = clamp(c.timer("saves", false) - i * 0.1);
+            let offset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
+            menusavegame.draw(0, offset, i, 1 - c.timer("saves_fade"), savedGames[i]);
+            ctx.translate(MenuSaveGap, 0);
+        }
+        ctx.restore();
+        ctx.save();
+        ctx.translate(50, h - 85);
+        menubutton.draw(0, saveBackOffset, "Back", 1 - c.timer("saves_fade"), "saveback");
+        ctx.restore();
     }
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(MenuButtonX, h - 70);
-    menubutton.draw(0, saveBackOffset, "Back", 1 - c.timer("saves_fade"), "saveback");
-    ctx.restore();
 
     menucopyright.draw();
 

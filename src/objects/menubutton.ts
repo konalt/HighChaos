@@ -1,5 +1,5 @@
 import { MenuFont } from "../constants";
-import { easeInOutCirc, easeInOutQuad, easeOutCirc } from "../ease";
+import { easeInOutQuad } from "../ease";
 import * as c from "../engine";
 import { ctx, d } from "../engine";
 import { basicPointInRect, clamp, FourNums } from "../utils";

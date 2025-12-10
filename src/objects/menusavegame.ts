@@ -1,21 +1,21 @@
 import { easeInOutCirc } from "../ease";
-import { ctx, CursorMode, d, getMouse, setCursorMode } from "../engine";
+import { ctx, CursorMode, d, font, getMouse, setCursorMode } from "../engine";
+import { Save } from "../saves";
 import { basicPointInRect, clamp } from "../utils";
-import * as hhctail from "./hhctail";
 
 let hovers = [];
 
 const BoxWidth = 550;
 const BoxHeight = 800;
-const BaseTailLength = 2;
-const DynamicTailLengthX = 10;
-const DynamicTailLengthY = 16;
+const BaseTailLength = 80;
+const DynamicTailLengthX = 300;
+const DynamicTailLengthY = 300;
 
-const HoverAnimRate = 0.1;
+const HoverAnimRate = 0.075;
 const BaseAlpha = 0.6;
 const DeltaAlpha = 1 - BaseAlpha;
 
-export function think(x: number, y: number, index = 0) {
+export function think(x: number, y: number, index = 0, save: Save) {
     if (!hovers[index]) hovers[index] = 0;
     ctx.save();
     ctx.translate(x - BoxWidth / 2, y - BoxHeight / 2);
@@ -32,35 +32,35 @@ export function think(x: number, y: number, index = 0) {
     ctx.restore();
 }
 
-export function draw(x: number, y: number, index = 0, alphaOverride = 1) {
+export function draw(x: number, y: number, index = 0, alphaOverride = 1, save: Save) {
     ctx.save();
     ctx.translate(x - BoxWidth / 2, y - BoxHeight / 2);
-
-    //d.rect(0, 0, BoxWidth, BoxHeight, "rgba(0,0,0,0.8)", "red", 5);
 
     let anim = easeInOutCirc(hovers[index]);
 
     const tailWidth = BaseTailLength + DynamicTailLengthX * anim;
     const tailHeight = BaseTailLength + DynamicTailLengthY * anim;
 
-    ctx.globalAlpha = (BaseAlpha + anim * DeltaAlpha) * alphaOverride;
+    ctx.globalAlpha = (BaseAlpha + hovers[index] * DeltaAlpha) * alphaOverride;
 
-    ctx.save();
-    ctx.scale(1, -1);
-    hhctail.draw(0, 0, tailWidth, false, 0.8);
-    ctx.scale(1, -1);
-    ctx.rotate(Math.PI / 2);
-    hhctail.draw(0, 0, tailHeight, false, 0.8);
-    ctx.restore();
+    d.rect(0, 0, BoxWidth, BoxHeight, `rgba(0,0,0,0.7)`);
 
-    ctx.save();
-    ctx.translate(BoxWidth, BoxHeight);
-    ctx.scale(-1, 1);
-    hhctail.draw(0, 0, tailWidth, false, 0.8);
-    ctx.scale(1, -1);
-    ctx.rotate(Math.PI / 2);
-    hhctail.draw(0, 0, tailHeight, false, 0.8);
-    ctx.restore();
+    ctx.lineWidth = 4;
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    ctx.moveTo(0, tailHeight);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(tailWidth, 0);
+    ctx.moveTo(BoxWidth, BoxHeight - tailHeight);
+    ctx.lineTo(BoxWidth, BoxHeight);
+    ctx.lineTo(BoxWidth - tailWidth, BoxHeight);
+    ctx.stroke();
+
+    if (save.empty) {
+        ctx.textBaseline = "bottom";
+        d.text(BoxWidth / 2, BoxHeight / 2, "New\nGame", "white", font(96), "center");
+    }
 
     ctx.globalAlpha = 1 * alphaOverride;
 
