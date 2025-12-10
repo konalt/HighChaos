@@ -6,7 +6,7 @@ import { loadSettings } from "./options";
 loadFonts().then(() => {
     loadSettings();
 
-    c.setScene(scene_menu);
+    c.setScene(scene_menu, true);
 
     c.init();
 });

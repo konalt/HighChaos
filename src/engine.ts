@@ -1,3 +1,4 @@
+import { FadeDuration } from "./constants";
 import { log } from "./log";
 import { Anchor, anchorToCoords, basicPointInRect, Scene, TwoNums } from "./utils";
 
@@ -249,6 +250,23 @@ function quickImage(image: HTMLImageElement, x: number, y: number, scale: number
 }
 //#endregion
 
+//#region Fade
+function fade(x: number, color: CanvasStyle = "black") {
+    if (x > 0) {
+        ctx.globalAlpha = x;
+        rect(0, 0, w, h, color);
+        ctx.globalAlpha = 1;
+    }
+}
+export let isFading = false;
+let fadeScene: Scene;
+export function fadeToScene(scene: Scene) {
+    fadeScene = scene;
+    isFading = true;
+    startTimer("__scene_fade_out", FadeDuration);
+}
+//#endregion
+
 //#region shadows
 export function setShadow(x: number, y: number, blur: number, color: string) {
     ctx.shadowBlur = sz(blur);
@@ -489,6 +507,20 @@ function draw() {
         calculateFPS();
         setCursorMode(CursorMode.Default);
         drawFunction();
+        let fadeTimer = timer("__scene_fade_out") || timer("__scene_fade_in");
+        if (fadeTimer > 0) {
+            fade(fadeTimer);
+            timerEnd(
+                "__scene_fade_out",
+                () => {
+                    setScene(fadeScene, true).then(() => {
+                        isFading = false;
+                        removeTimer("__scene_fade_out");
+                    });
+                },
+                false
+            );
+        }
         ctx.restore();
     } catch (e) {
         ctx.restore();
@@ -533,10 +565,12 @@ export function init() {
     draw();
 }
 
-export function setScene(scene: Scene) {
-    scene.init().then(() => {
-        setDrawFunction(scene.draw);
-    });
+export async function setScene(scene: Scene, fadeIn = false) {
+    await scene.init();
+    if (fadeIn) {
+        startTimer("__scene_fade_in", FadeDuration, true);
+    }
+    setDrawFunction(scene.draw);
 }
 
 export const d = {

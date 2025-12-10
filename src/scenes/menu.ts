@@ -24,27 +24,6 @@ import {
 } from "../options";
 import { savedGames } from "../saves";
 
-let fadeScene: Scene = cutscene_intro;
-export function fadeToScene(scene: Scene) {
-    fadeScene = scene;
-    c.startTimer("next_scene", FadeDuration);
-}
-function fade() {
-    let fadeTimer = c.timer("next_scene") || c.timer("menu_fade_in");
-    if (fadeTimer > 0) {
-        ctx.globalAlpha = fadeTimer / 0.9;
-        d.rect(0, 0, w, h, "black");
-        ctx.globalAlpha = 1;
-    }
-    c.timerEnd(
-        "next_scene",
-        () => {
-            setScene(fadeScene);
-        },
-        false
-    );
-}
-
 function transition(next = []) {
     c.removeTimer("buttons");
     lastButtons = [...currentButtons];
@@ -128,7 +107,7 @@ const ExtraButtons: MenuOption[] = [
     [
         "Vending Machine",
         () => {
-            fadeToScene(vendingscene);
+            c.fadeToScene(vendingscene);
         },
     ],
     BackButton,
@@ -164,7 +143,7 @@ const MenuSaveTransitionDistance = 1200;
 const MenuSaveGap = 650;
 
 export function draw() {
-    let interactable = c.timer("next_scene") == 0;
+    let interactable = !c.isFading;
     let mbi = 0;
     let saveTimer = clamp(c.timer("saves", false) - 0.5);
     let saveBackOffset = (1 - easeOutCirc(saveTimer)) * MenuSaveTransitionDistance;
@@ -279,8 +258,6 @@ export function draw() {
     }
 
     menucopyright.draw();
-
-    fade();
 }
 
 export async function init() {
