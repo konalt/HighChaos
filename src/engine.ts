@@ -514,13 +514,15 @@ function draw() {
                 "__scene_fade_out",
                 () => {
                     setScene(fadeScene, true).then(() => {
-                        isFading = false;
                         removeTimer("__scene_fade_out");
                     });
                 },
                 false
             );
         }
+        timerEnd("__scene_fade_in", () => {
+            isFading = false;
+        });
         ctx.restore();
     } catch (e) {
         ctx.restore();

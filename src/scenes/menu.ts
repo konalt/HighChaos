@@ -261,8 +261,10 @@ export function draw() {
 }
 
 export async function init() {
+    currentButtons = MainMenuButtons;
+    lastButtons = [];
+    c.removeTimer("buttons");
     c.setFont("'Futuristic Armour', sans-serif");
-    c.startTimer("menu_fade_in", FadeDuration, true);
     c.startTimer("move_btns", FadeDuration * 0.5);
     await menutitle.preload();
 }
