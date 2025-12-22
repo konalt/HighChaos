@@ -64,7 +64,13 @@ function log(req, res, url) {
 }
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(WEB_ROOT, "index.html"));
+    //res.sendFile(path.join(WEB_ROOT, "index.html"));
+    res.type("html").status(400).send("<a href='/game/highchaos'>Play</a>"); // TODO make this not awful
+    log(req, res, req.url);
+});
+app.get("/game/*game", async (req, res) => {
+    const content = await fs.readFile(path.join(WEB_ROOT, "game.html"), "utf8");
+    res.type("html").send(content.replace(/%game%/g, req.params.game));
     log(req, res, req.url);
 });
 

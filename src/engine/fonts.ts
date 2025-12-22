@@ -11,7 +11,7 @@ for (const wt of FontWeights) {
 
 export async function loadFonts() {
     for (const fn of fontNames) {
-        const f = new FontFace(fn.split("/").at(-1).replace(/-/g, " "), `url("fonts/${fn}.woff2")`);
+        const f = new FontFace(fn.split("/").at(-1).replace(/-/g, " "), `url("/fonts/${fn}.woff2")`);
         document.fonts.add(f);
         f.load();
     }

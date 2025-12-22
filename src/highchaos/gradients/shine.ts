@@ -1,5 +1,5 @@
-import { CanvasStyle, ctx } from "../engine";
-import { settings } from "../options";
+import { CanvasStyle, ctx } from "../../engine/engine";
+import { settings } from "../../engine/options";
 
 const base = "#ffffff00";
 const shine = "#ffffff9e";

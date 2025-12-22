@@ -1,7 +1,7 @@
-import { canvas, CanvasStyle, ctx, d, getCanvasImage, useCanvas } from "../engine";
+import { canvas, CanvasStyle, ctx, d, getCanvasImage, useCanvas } from "../../engine/engine";
 import * as shine from "../gradients/shine";
-import { settings } from "../options";
-import { FourNums } from "../utils";
+import { settings } from "../../engine/options";
+import { FourNums } from "../../engine/utils";
 
 const neckWidth = 30;
 const baseWidth = 45;

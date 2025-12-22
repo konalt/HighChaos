@@ -1,6 +1,6 @@
 import { MenuFont } from "../constants";
-import { ctx, d, font, getKeyDown, h, setFont, w } from "../engine";
-import { sample } from "../utils";
+import { ctx, d, font, getKeyDown, h, setFont, w } from "../../engine/engine";
+import { sample } from "../../engine/utils";
 
 const Copyright = [
     "Copyright",

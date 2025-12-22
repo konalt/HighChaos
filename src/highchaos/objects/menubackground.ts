@@ -1,4 +1,4 @@
-import { w, h, ctx, globalTimer, d } from "../engine";
+import { w, h, ctx, globalTimer, d } from "../../engine/engine";
 
 const OuterPad = 50;
 const GridScale = 100;

@@ -1,4 +1,4 @@
-import { ctx } from "../engine";
+import { ctx } from "../../engine/engine";
 
 const SegmentDeltaX = 50;
 const SegmentDeltaY = 20;

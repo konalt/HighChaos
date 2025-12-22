@@ -1,8 +1,8 @@
-import { CanvasStyle, ctx, globalTimer, resetShadow, setShadow } from "../engine";
+import { CanvasStyle, ctx, globalTimer, resetShadow, setShadow } from "../../engine/engine";
 import * as metallic from "../gradients/metallic";
 import * as plastic_glossy from "../gradients/plastic_glossy";
-import { detail, settings } from "../options";
-import { degToRad } from "../utils";
+import { detail, settings } from "../../engine/options";
+import { degToRad } from "../../engine/utils";
 
 const capWidth = 200;
 const capHeight = 130;

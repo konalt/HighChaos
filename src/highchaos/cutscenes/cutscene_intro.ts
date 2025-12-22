@@ -1,9 +1,9 @@
-import { easeInOutQuad } from "../ease";
-import { w, h, d, ctx } from "../engine";
-import * as c from "../engine";
+import { easeInOutQuad } from "../../engine/ease";
+import { w, h, d, ctx } from "../../engine/engine";
+import * as c from "../../engine/engine";
 import { drawDistyBottle } from "../objects/distybottle";
 import * as knife from "../objects/knife";
-import { clamp, degToRad, lerp, lerpPositions, TwoNums } from "../utils";
+import { clamp, degToRad, lerp, lerpPositions, TwoNums } from "../../engine/utils";
 
 const distyPosition: TwoNums = [w / 2, h / 2];
 

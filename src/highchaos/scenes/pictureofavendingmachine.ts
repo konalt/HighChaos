@@ -1,5 +1,5 @@
 import { MenuFont } from "../constants";
-import { ctx, d, fadeToScene, font, getKeyDown, h, isFading, loadImage, setFont, w } from "../engine";
+import { ctx, d, fadeToScene, font, getKeyDown, h, isFading, loadImage, setFont, w } from "../../engine/engine";
 import * as menu from "./menu";
 
 const Gap = 150;

@@ -1,8 +1,8 @@
 import { MenuFontTitle } from "../constants";
-import * as c from "../engine";
-import { ctx, d } from "../engine";
-import { detail } from "../options";
-import { isUpperCase } from "../utils";
+import * as c from "../../engine/engine";
+import { ctx, d } from "../../engine/engine";
+import { detail } from "../../engine/options";
+import { isUpperCase } from "../../engine/utils";
 
 const Title = "HIGH chaos";
 const FontSize = 120;

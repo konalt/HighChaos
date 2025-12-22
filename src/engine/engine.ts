@@ -538,7 +538,10 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-export function init() {
+export let game = "unknown";
+
+export function init(_g: string) {
+    game = _g;
     document.addEventListener("keydown", handleKeyDown, {
         capture: true,
     });

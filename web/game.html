@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>High Chaos</title>
+        <title>%game%</title>
         <style>
             * {
                 box-sizing: border-box;
@@ -26,9 +26,12 @@
                 display: block;
             }
         </style>
+        <script>
+            window.hcGameID = "%game%";
+        </script>
     </head>
     <body>
         <canvas id="canvas" data-real="yes"></canvas>
-        <script type="module" src="dist/index.js"></script>
+        <script type="module" src="/dist/%game%/index.js"></script>
     </body>
 </html>

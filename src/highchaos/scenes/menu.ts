@@ -1,8 +1,8 @@
 import * as cutscene_intro from "../cutscenes/cutscene_intro";
 import * as vendingscene from "../scenes/pictureofavendingmachine";
-import { w, h, d, ctx } from "../engine";
-import * as c from "../engine";
-import { setScene } from "../engine";
+import { w, h, d, ctx } from "../../engine/engine";
+import * as c from "../../engine/engine";
+import { setScene } from "../../engine/engine";
 import * as hhctail from "../objects/hhctail";
 import * as menubackground from "../objects/menubackground";
 import * as menubutton from "../objects/menubutton";
@@ -10,9 +10,9 @@ import * as menucopyright from "../objects/menucopyright";
 import * as menusavegame from "../objects/menusavegame";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
-import { FadeDuration } from "../constants";
-import { alpha, clamp, Scene } from "../utils";
-import { easeOutCirc } from "../ease";
+import { FadeDuration } from "../../engine/constants";
+import { alpha, clamp, Scene } from "../../engine/utils";
+import { easeOutCirc } from "../../engine/ease";
 import {
     detail,
     DetailLevelNames,
@@ -21,8 +21,8 @@ import {
     ResolutionOptions,
     saveSettings,
     settings,
-} from "../options";
-import { savedGames } from "../saves";
+} from "../../engine/options";
+import { savedGames } from "../../engine/saves";
 
 function transition(next = []) {
     c.removeTimer("buttons");
