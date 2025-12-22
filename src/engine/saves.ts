@@ -1,3 +1,5 @@
+import { game } from "./engine";
+
 export interface Save {
     empty: boolean;
 }
@@ -17,9 +19,9 @@ export function setCurrentSave(index: number) {
 
 export function save(save: Save, slot: number) {
     savedGames[slot] = save;
-    localStorage.setItem("save", JSON.stringify(savedGames));
+    localStorage.setItem(`save_${game}`, JSON.stringify(savedGames));
 }
 
 export function load() {
-    savedGames = JSON.parse(localStorage.getItem("save"));
+    savedGames = JSON.parse(localStorage.getItem(`save_${game}`));
 }
