@@ -480,6 +480,50 @@ export async function loadImage(url: string) {
 }
 //#endregion
 
+//#region Sound
+const sounds: Record<string, AudioBuffer> = {};
+const sources: Record<string, AudioBufferSourceNode[]> = {};
+
+export async function loadSounds(soundList: string[]) {
+    for (const path of soundList) {
+        const id = path.replace(/\//g, "_");
+        const arrayBuffer = await (await fetch(`/assets/snd/${path}.mp3`)).arrayBuffer();
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+            sounds[id] = audioBuffer;
+        });
+    }
+}
+
+let audioContext: AudioContext;
+let volume = 1;
+let gains: [number, GainNode][] = [];
+export function playSound(sndID: string, vol = 1, loop = false) {
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = vol * volume;
+    gainNode.connect(audioContext.destination);
+    gains.push([vol, gainNode]);
+    const source = audioContext.createBufferSource();
+    source.loop = loop;
+    source.buffer = sounds[sndID];
+    source.connect(gainNode);
+    source.start(0);
+    if (!sources[sndID]) sources[sndID] = [];
+    sources[sndID].push(source);
+    source.addEventListener("ended", () => {
+        if (!source.loop) {
+            gains = gains.filter((g) => g[1] !== gainNode);
+        }
+    });
+    return source;
+}
+export function setGlobalVolume(newVolume: number) {
+    volume = newVolume;
+    for (const [originalVolume, node] of gains) {
+        node.gain.value = originalVolume * newVolume;
+    }
+}
+//#endregion
+
 let drawFunction = () => {};
 export function setDrawFunction(func: () => void) {
     drawFunction = func;
@@ -565,6 +609,7 @@ export function init(_g: string) {
         { capture: true }
     );
     onResize();
+    audioContext = new AudioContext();
     window.addEventListener("resize", onResize);
     lastLoop = performance.now();
     draw();

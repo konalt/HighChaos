@@ -41,7 +41,7 @@ export function grey(fraction: number) {
     return `rgb(${val}, ${val}, ${val})`;
 }
 
-function valueInRange(val: number, min: number, max: number) {
+export function valueInRange(val: number, min: number, max: number) {
     return val >= min && val <= max;
 }
 export function basicPointInRect(px: number, py: number, x: number, y: number, w: number, h: number) {
