@@ -40,6 +40,7 @@ export function draw(foreground: boolean) {
 }
 
 export function init() {
+    snows = [];
     for (let i = 0; i < snowCount; i++) {
         snows.push(createSnow(false));
     }

@@ -154,9 +154,11 @@ function roundRect(
     r: number,
     fill: CanvasStyle,
     stroke: CanvasStyle = "transparent",
-    strokeWidth = 0
+    strokeWidth = 0,
+    anchor: Anchor = "tl"
 ): void {
     if (!ctx) return;
+    if (!anchor) anchor = "tl";
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;
     if (stroke !== "transparent") {
@@ -167,19 +169,20 @@ function roundRect(
         }
     }
     ctx.beginPath();
+    const [bx, by] = anchorToCoords(anchor, x, y, w, h);
     w -= r;
     h -= r;
     w -= ctx.lineWidth;
     h -= ctx.lineWidth;
-    ctx.moveTo(x + ctx.lineWidth / 2 + r, y + ctx.lineWidth / 2);
-    ctx.lineTo(x + ctx.lineWidth / 2 + w, y + ctx.lineWidth / 2);
-    ctx.arc(x + ctx.lineWidth / 2 + w, y + ctx.lineWidth / 2 + r, r, Math.PI * 1.5, Math.PI * 2.0);
-    ctx.lineTo(x + ctx.lineWidth / 2 + w + r, y + ctx.lineWidth / 2 + h);
-    ctx.arc(x + ctx.lineWidth / 2 + w, y + ctx.lineWidth / 2 + h, r, Math.PI * 0.0, Math.PI * 0.5);
-    ctx.lineTo(x + ctx.lineWidth / 2 + r, y + ctx.lineWidth / 2 + h + r);
-    ctx.arc(x + ctx.lineWidth / 2 + r, y + ctx.lineWidth / 2 + h, r, Math.PI * 0.5, Math.PI * 1.0);
-    ctx.lineTo(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2 + r);
-    ctx.arc(x + ctx.lineWidth / 2 + r, y + ctx.lineWidth / 2 + r, r, Math.PI * 1.0, Math.PI * 1.5);
+    ctx.moveTo(bx + ctx.lineWidth / 2 + r, by + ctx.lineWidth / 2);
+    ctx.lineTo(bx + ctx.lineWidth / 2 + w, by + ctx.lineWidth / 2);
+    ctx.arc(bx + ctx.lineWidth / 2 + w, by + ctx.lineWidth / 2 + r, r, Math.PI * 1.5, Math.PI * 2.0);
+    ctx.lineTo(bx + ctx.lineWidth / 2 + w + r, by + ctx.lineWidth / 2 + h);
+    ctx.arc(bx + ctx.lineWidth / 2 + w, by + ctx.lineWidth / 2 + h, r, Math.PI * 0.0, Math.PI * 0.5);
+    ctx.lineTo(bx + ctx.lineWidth / 2 + r, by + ctx.lineWidth / 2 + h + r);
+    ctx.arc(bx + ctx.lineWidth / 2 + r, by + ctx.lineWidth / 2 + h, r, Math.PI * 0.5, Math.PI * 1.0);
+    ctx.lineTo(bx + ctx.lineWidth / 2, by + ctx.lineWidth / 2 + r);
+    ctx.arc(bx + ctx.lineWidth / 2 + r, by + ctx.lineWidth / 2 + r, r, Math.PI * 1.0, Math.PI * 1.5);
     ctx.fill();
     if (stroke !== "transparent") {
         ctx.stroke();
@@ -236,8 +239,11 @@ function button(
     ctx.textBaseline = "top";
     text(bx + buttonPadding, by + buttonPadding, buttonText, textColor, ctx.font, "left", bw - buttonPadding);
     ctx.textBaseline = otb;
-    if (hovered && mouse[2]) {
-        onClick();
+    if (hovered) {
+        setCursorMode(CursorMode.Click);
+        if (mouse[2]) {
+            onClick();
+        }
     }
 }
 
@@ -261,6 +267,7 @@ function fade(x: number, color: CanvasStyle = "black") {
 export let isFading = false;
 let fadeScene: Scene;
 export function fadeToScene(scene: Scene) {
+    if (isFading) return;
     fadeScene = scene;
     isFading = true;
     startTimer("__scene_fade_out", FadeDuration);
@@ -615,8 +622,8 @@ export function init(_g: string) {
     draw();
 }
 
-export async function setScene(scene: Scene, fadeIn = false) {
-    await scene.init();
+export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<string, any> = {}) {
+    await scene.init(sceneInit);
     if (fadeIn) {
         startTimer("__scene_fade_in", FadeDuration, true);
     }

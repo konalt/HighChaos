@@ -1,8 +1,6 @@
 import { game } from "./engine";
 
-export interface Save {
-    empty: boolean;
-}
+export type Save = Record<string, any>;
 
 export function createEmptySave(): Save {
     return {

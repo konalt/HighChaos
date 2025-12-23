@@ -1,4 +1,8 @@
 import {
+    Axis,
+    deltaTime,
+    getAxis,
+    getKey,
     getMouse,
     h,
     loadImage,
@@ -18,8 +22,9 @@ import * as sack from "../objects/sack";
 import * as score_display from "../objects/score";
 import * as lives_display from "../objects/lives";
 import * as scene_gameover from "./gameover";
-import { FourNums, lerpPositions, TwoNums, valueInRange } from "../../engine/utils";
-import { easeInOutCirc, easeOutCirc } from "../../engine/ease";
+import * as mutebutton from "../objects/mutebutton";
+import { clamp, FourNums, lerpPositions, TwoNums, valueInRange } from "../../engine/utils";
+import { easeOutCirc } from "../../engine/ease";
 
 let globalGravity = 1;
 export let score = 0;
@@ -47,14 +52,25 @@ function doLevelup() {
     }
 }
 
+let sackX = w / 2;
+const sackSpeed = 80;
+const sprintMult = 1.7;
+
+function movement() {
+    let a = getAxis(Axis.Horizontal);
+    sackX += a * deltaTime * sackSpeed * (getKey("shiftleft") ? sprintMult : 1);
+    sackX = clamp(sackX, 0, w);
+}
+
 export function draw() {
     skydark.draw();
     snow.draw(false);
     hillsfront.draw();
 
-    const mouse = getMouse();
-    const catchXMin = mouse[0] - (sack.getStretch() * sack.SackGrabWidth) / 2;
-    const catchXMax = mouse[0] + (sack.getStretch() * sack.SackGrabWidth) / 2;
+    movement();
+
+    const catchXMin = sackX - (sack.getStretch() * sack.SackGrabWidth) / 2;
+    const catchXMax = sackX + (sack.getStretch() * sack.SackGrabWidth) / 2;
 
     let i = 0;
     for (const p of presents) {
@@ -65,7 +81,7 @@ export function draw() {
         } else {
             let t = timer(`pc${i}`);
             let ease = easeOutCirc(t);
-            let lerped = lerpPositions(ease, p[0][0], p[0][1], mouse[0], h - sack.SackGrabHeightMin / 2);
+            let lerped = lerpPositions(ease, p[0][0], p[0][1], sackX, h - sack.SackGrabHeightMin / 2);
             present.draw(...lerped);
             timerEnd(
                 `pc${i}`,
@@ -89,7 +105,9 @@ export function draw() {
         if (p[0][1] > h + 50) {
             lives--;
             if (lives == 0) {
-                setScene(scene_gameover, false);
+                setScene(scene_gameover, true, {
+                    presents: score,
+                });
             }
             playSound("santa_baby", 0.5);
             presents[i] = createPresent();
@@ -105,20 +123,23 @@ export function draw() {
         true
     );
 
-    sack.draw(getMouse()[0], h);
+    sack.draw(sackX, h);
 
     snow.draw(true);
 
     score_display.draw();
     lives_display.draw();
+
+    mutebutton.draw();
 }
 
 export async function init() {
-    presents = [createPresent(), createPresent(), createPresent()];
+    presents = [createPresent(), createPresent(), createPresent(), createPresent()];
+    globalGravity = 1;
+    score = 0;
     snow.init();
+    score_display.init();
     await present.load();
     await sack.load();
     await lives_display.load();
-
-    await loadSounds([`santa/hohoho`, `santa/merrychristmas`, `santa/sleighbells`, `santa/baby`]);
 }
