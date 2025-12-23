@@ -137,6 +137,7 @@ export async function init() {
     presents = [createPresent(), createPresent(), createPresent(), createPresent()];
     globalGravity = 1;
     score = 0;
+    lives = 0;
     snow.init();
     score_display.init();
     await present.load();
