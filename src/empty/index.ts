@@ -8,5 +8,5 @@ loadFonts().then(() => {
 
     c.setScene(scene_example, true);
 
-    c.init("santa");
+    c.init("empty");
 });
