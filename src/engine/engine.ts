@@ -1,6 +1,7 @@
 import { FadeDuration } from "./constants";
 import { log } from "./log";
-import { Anchor, anchorToCoords, basicPointInRect, Scene, TwoNums } from "./utils";
+import { Scene } from "./scene";
+import { Anchor, anchorToCoords, basicPointInRect, TwoNums } from "./utils";
 
 let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
@@ -86,7 +87,7 @@ function rect(
     fill: CanvasStyle,
     stroke: CanvasStyle = "transparent",
     strokeWidth = 0,
-    anchor: Anchor = "tl"
+    anchor: Anchor = "tl",
 ): void {
     if (!ctx) return;
     if (!anchor) anchor = "tl";
@@ -113,7 +114,7 @@ function circ(
     r: number,
     fill: CanvasStyle,
     stroke: CanvasStyle = "transparent",
-    strokeWidth = Number.EPSILON
+    strokeWidth = Number.EPSILON,
 ): void {
     if (!ctx) return;
     ctx.fillStyle = fill;
@@ -155,7 +156,7 @@ function roundRect(
     fill: CanvasStyle,
     stroke: CanvasStyle = "transparent",
     strokeWidth = 0,
-    anchor: Anchor = "tl"
+    anchor: Anchor = "tl",
 ): void {
     if (!ctx) return;
     if (!anchor) anchor = "tl";
@@ -197,7 +198,7 @@ function text(
     font: string,
     align: CanvasTextAlign,
     maxWidth = 99999,
-    outline = 0
+    outline = 0,
 ) {
     ctx.fillStyle = col;
     ctx.textAlign = align;
@@ -225,7 +226,7 @@ function button(
     textColor: CanvasStyle,
     mouse: [number, number, boolean],
     onClick: () => void,
-    fontName = "sans-serif"
+    fontName = "sans-serif",
 ) {
     const buttonPadding = 5;
     ctx.font = `${fontSize}px ${fontName}`;
@@ -265,6 +266,7 @@ function fade(x: number, color: CanvasStyle = "black") {
     }
 }
 export let isFading = false;
+
 let fadeScene: Scene;
 export function fadeToScene(scene: Scene) {
     if (isFading) return;
@@ -531,11 +533,6 @@ export function setGlobalVolume(newVolume: number) {
 }
 //#endregion
 
-let drawFunction = () => {};
-export function setDrawFunction(func: () => void) {
-    drawFunction = func;
-}
-
 export let deltaTime = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
@@ -557,7 +554,7 @@ function draw() {
     try {
         calculateFPS();
         setCursorMode(CursorMode.Default);
-        drawFunction();
+        currentScene.draw();
         let fadeTimer = timer("__scene_fade_out") || timer("__scene_fade_in");
         if (fadeTimer > 0) {
             fade(fadeTimer);
@@ -568,7 +565,7 @@ function draw() {
                         removeTimer("__scene_fade_out");
                     });
                 },
-                false
+                false,
             );
         }
         timerEnd("__scene_fade_in", () => {
@@ -613,7 +610,7 @@ export function init(_g: string) {
         (e) => {
             e.preventDefault();
         },
-        { capture: true }
+        { capture: true },
     );
     onResize();
     audioContext = new AudioContext();
@@ -622,12 +619,14 @@ export function init(_g: string) {
     draw();
 }
 
+let currentScene: Scene;
+
 export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<string, any> = {}) {
     await scene.init(sceneInit);
+    currentScene = scene;
     if (fadeIn) {
         startTimer("__scene_fade_in", FadeDuration, true);
     }
-    setDrawFunction(scene.draw);
 }
 
 export const d = {
