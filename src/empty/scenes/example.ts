@@ -1,13 +1,11 @@
-import * as example from "../objects/example";
+import { Scene } from "../../engine/scene";
+import { ExampleObject } from "../objects/example";
 
-export function draw() {
-    example.draw();
-}
+export class ExampleScene extends Scene {
+    constructor() {
+        super();
 
-export async function init() {
-    // Place init code here:
-    //object1.init();
-    //await object2.load();
-    //image = await loadImage("path/image.png");
-    //await loadSounds([`path/sound`]);
+        let exampleObject = new ExampleObject();
+        this.add(exampleObject);
+    }
 }
