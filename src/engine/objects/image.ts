@@ -1,0 +1,35 @@
+import { d, loadImage } from "../engine";
+import { GameObject } from "../object";
+import { Anchor } from "../utils";
+
+const MISSINGTEXTUREURL =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALElEQVQYV2P8z/D/PwMQMAIhCAD5YBrGZySoAKwJi06ESYQUELSCoAKK3QAAUtcn+TTvDwYAAAAASUVORK5CYII=";
+export let NULLTEXTURE: HTMLImageElement;
+
+let img = new Image();
+img.onload = () => {
+    NULLTEXTURE = img;
+};
+img.src = MISSINGTEXTUREURL;
+
+export class ImageObject extends GameObject {
+    src: string;
+    scale: number;
+    anchor: Anchor;
+    image: HTMLImageElement;
+
+    constructor() {
+        super();
+        this.src = MISSINGTEXTUREURL;
+
+        this.image = NULLTEXTURE;
+    }
+
+    draw() {
+        d.quickImage(this.image, this.x, this.y, this.scale, this.anchor);
+    }
+
+    async load() {
+        this.image = await loadImage(this.src);
+    }
+}
