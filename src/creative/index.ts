@@ -1,6 +1,6 @@
-import * as c from "../engine/engine";
-import { loadFonts } from "../engine/fonts";
-import { loadSettings } from "../engine/options";
+import * as c from "../lib/engine/engine";
+import { loadFonts } from "../lib/engine/fonts";
+import { loadSettings } from "../lib/engine/options";
 
 import init from "../wasm_gzip/wasm_gzip.js";
 import { ConnectScene } from "./scenes/connect";

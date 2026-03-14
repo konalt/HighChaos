@@ -1,4 +1,4 @@
-import { d, font, h, w } from "../../engine/engine";
+import { d, font, h, w } from "../../lib/engine/engine";
 import * as skydark from "../objects/skydark";
 import * as hillsfront from "../objects/hillsfront";
 import * as snow from "../objects/snow";

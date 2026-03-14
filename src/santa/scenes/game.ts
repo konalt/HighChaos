@@ -13,7 +13,7 @@ import {
     timer,
     timerEnd,
     w,
-} from "../../engine/engine";
+} from "../../lib/engine/engine";
 import * as skydark from "../objects/skydark";
 import * as snow from "../objects/snow";
 import * as hillsfront from "../objects/hillsfront";
@@ -23,8 +23,8 @@ import * as score_display from "../objects/score";
 import * as lives_display from "../objects/lives";
 import * as scene_gameover from "./gameover";
 import * as mutebutton from "../objects/mutebutton";
-import { clamp, FourNums, lerpPositions, TwoNums, valueInRange } from "../../engine/utils";
-import { easeOutCirc } from "../../engine/ease";
+import { clamp, FourNums, lerpPositions, TwoNums, valueInRange } from "../../lib/engine/utils";
+import { easeOutCirc } from "../../lib/engine/ease";
 
 let globalGravity = 1;
 export let score = 0;
@@ -88,7 +88,7 @@ export function draw() {
                 () => {
                     presents[i] = createPresent();
                 },
-                true
+                true,
             );
         }
         if (
@@ -120,7 +120,7 @@ export function draw() {
         () => {
             powerup = false;
         },
-        true
+        true,
     );
 
     sack.draw(sackX, h);

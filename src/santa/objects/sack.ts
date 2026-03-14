@@ -1,4 +1,4 @@
-import { ctx, d, loadImage, timer } from "../../engine/engine";
+import { ctx, d, loadImage, timer } from "../../lib/engine/engine";
 
 let img: HTMLImageElement;
 

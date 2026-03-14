@@ -1,7 +1,7 @@
-import { canvas, CanvasStyle, ctx, d, getCanvasImage, useCanvas } from "../../engine/engine";
+import { canvas, CanvasStyle, ctx, d, getCanvasImage, useCanvas } from "../../lib/engine/engine";
 import * as shine from "../gradients/shine";
-import { settings } from "../../engine/options";
-import { FourNums } from "../../engine/utils";
+import { settings } from "../../lib/engine/options";
+import { FourNums } from "../../lib/engine/utils";
 
 const neckWidth = 30;
 const baseWidth = 45;
@@ -59,7 +59,7 @@ async function getKnifeImage() {
             -neckWidth / 2 - dullSideWidth - dullSideExtraWidth,
             -neckDullCP * (bladeLength * dullBezier),
             -neckWidth / 2 - dullSideWidth - dullSideExtraWidth,
-            -bladeLength * dullBezier
+            -bladeLength * dullBezier,
         );
         ctx.bezierCurveTo(
             -neckWidth / 2 - dullSideWidth - dullSideExtraWidth,
@@ -67,7 +67,7 @@ async function getKnifeImage() {
             -neckWidth / 2 - dullSideWidth,
             -bladeLength * dullBezier - dullTipCP * (bladeLength * (1 - dullBezier)),
             -neckWidth / 2 - dullSideWidth,
-            -bladeLength + 20
+            -bladeLength + 20,
         );
         ctx.bezierCurveTo(
             bladeTipOffset,
@@ -75,7 +75,7 @@ async function getKnifeImage() {
             neckWidth / 2 + sharpSideWidth + 20,
             -bladeLength * bladeTip,
             neckWidth / 2 + sharpSideWidth,
-            -bladeLength * bladeTip
+            -bladeLength * bladeTip,
         );
         ctx.bezierCurveTo(
             neckWidth / 2 + sharpSideWidth,
@@ -83,7 +83,7 @@ async function getKnifeImage() {
             neckWidth / 2 + sharpSideWidth - 20,
             -bladeLength * bladeTip,
             (neckWidth / 2) * neckWidthModifier,
-            0
+            0,
         );
         ctx.bezierCurveTo(neckWidth / 2, 30, baseWidth / 2, handleLength - 30, baseWidth / 2, handleLength);
         ctx.bezierCurveTo(
@@ -92,7 +92,7 @@ async function getKnifeImage() {
             -baseWidth / 2,
             handleLength + 10,
             -baseWidth / 2,
-            handleLength
+            handleLength,
         );
         ctx.bezierCurveTo(
             -baseWidth / 2,
@@ -100,7 +100,7 @@ async function getKnifeImage() {
             -neckWidth / 2,
             30,
             (-neckWidth / 2) * neckWidthModifier,
-            0
+            0,
         );
         ctx.closePath();
     };

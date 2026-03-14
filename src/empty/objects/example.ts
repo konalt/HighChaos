@@ -1,6 +1,6 @@
-import { d } from "../../engine/engine";
-import { GameObject } from "../../engine/object";
-import { Scene } from "../../engine/scene";
+import { d } from "../../lib/engine/engine";
+import { GameObject } from "../../lib/engine/object";
+import { Scene } from "../../lib/engine/scene";
 
 // Lifecycle:
 // constructor -> load -> init

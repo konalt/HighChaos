@@ -1,4 +1,4 @@
-import { ctx, h, w } from "../../engine/engine";
+import { ctx, h, w } from "../../lib/engine/engine";
 
 export function draw(color: string, opacity = 0.5, internalRadius = 0.9, externalRadius = 1.5, aspectMod = 1) {
     ctx.save();

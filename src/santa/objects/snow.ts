@@ -1,4 +1,4 @@
-import { d, globalTimer, h, w } from "../../engine/engine";
+import { d, globalTimer, h, w } from "../../lib/engine/engine";
 
 let snows = [];
 

@@ -1,9 +1,9 @@
-import { easeInOutQuad } from "../../engine/ease";
-import { w, h, d, ctx } from "../../engine/engine";
-import * as c from "../../engine/engine";
+import { easeInOutQuad } from "../../lib/engine/ease";
+import { w, h, d, ctx } from "../../lib/engine/engine";
+import * as c from "../../lib/engine/engine";
 import { drawDistyBottle } from "../objects/distybottle";
 import * as knife from "../objects/knife";
-import { clamp, degToRad, lerp, lerpPositions, TwoNums } from "../../engine/utils";
+import { clamp, degToRad, lerp, lerpPositions, TwoNums } from "../../lib/engine/utils";
 
 const distyPosition: TwoNums = [w / 2, h / 2];
 
@@ -39,7 +39,7 @@ function getKnifePositionAndRotation(): [TwoNums, number] {
         ];
         const lastRotation = degToRad(-180) - Math.cos(knifeSwaySpeed) * knifeSwayRotation;
         const subtimer = easeInOutQuad(
-            clamp((knifeTimer - knifeMoveAction - knifeSwayAction) / (1 - knifeMoveAction - knifeSwayAction))
+            clamp((knifeTimer - knifeMoveAction - knifeSwayAction) / (1 - knifeMoveAction - knifeSwayAction)),
         );
         const knifePosition = lerpPositions(subtimer, ...lastPosition, ...knifePositionFinal);
         const knifeRotation = lerp(subtimer, lastRotation, knifeRotationFinal);

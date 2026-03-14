@@ -1,4 +1,4 @@
-import { ctx, d, h, w } from "../../engine/engine";
+import { ctx, d, h, w } from "../../lib/engine/engine";
 
 const stretchFactor = 0.8;
 
@@ -11,7 +11,7 @@ export function draw() {
         0,
         w / 2,
         (h / stretchFactor) * 1.25,
-        w * 0.6
+        w * 0.6,
     );
     g.addColorStop(0, "#0D6FBF");
     g.addColorStop(1, "#000E33");

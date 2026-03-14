@@ -1,4 +1,4 @@
-import { ctx, d, font } from "../../engine/engine";
+import { ctx, d, font } from "../../lib/engine/engine";
 import { getSavedBest } from "../save";
 import { score } from "../scenes/game";
 

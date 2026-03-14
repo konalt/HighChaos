@@ -1,8 +1,8 @@
 import * as cutscene_intro from "../cutscenes/cutscene_intro";
 import * as vendingscene from "../scenes/pictureofavendingmachine";
-import { w, h, d, ctx } from "../../engine/engine";
-import * as c from "../../engine/engine";
-import { setScene } from "../../engine/engine";
+import { w, h, d, ctx } from "../../lib/engine/engine";
+import * as c from "../../lib/engine/engine";
+import { setScene } from "../../lib/engine/engine";
 import * as hhctail from "../objects/hhctail";
 import * as menubackground from "../objects/menubackground";
 import * as menubutton from "../objects/menubutton";
@@ -10,9 +10,9 @@ import * as menucopyright from "../objects/menucopyright";
 import * as menusavegame from "../objects/menusavegame";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
-import { FadeDuration } from "../../engine/constants";
-import { alpha, clamp, Scene } from "../../engine/utils";
-import { easeOutCirc } from "../../engine/ease";
+import { FadeDuration } from "../../lib/engine/constants";
+import { alpha, clamp, Scene } from "../../lib/engine/utils";
+import { easeOutCirc } from "../../lib/engine/ease";
 import {
     detail,
     DetailLevelNames,
@@ -21,8 +21,8 @@ import {
     ResolutionOptions,
     saveSettings,
     settings,
-} from "../../engine/options";
-import { savedGames } from "../../engine/saves";
+} from "../../lib/engine/options";
+import { savedGames } from "../../lib/engine/saves";
 
 function transition(next = []) {
     c.removeTimer("buttons");
@@ -124,7 +124,7 @@ function refreshOptions() {
                     .replace(/%e/g, settings.easing ? "Fancy" : "Fast"),
                 o[1],
                 o[2],
-            ] as MenuOption
+            ] as MenuOption,
     );
 }
 
@@ -159,7 +159,7 @@ export function draw() {
                 mb[0],
                 mb[1],
                 false,
-                mb[2] ?? mb[0]
+                mb[2] ?? mb[0],
             );
             if (clicked) break;
             ctx.translate(0, MenuButtonGap);
@@ -191,7 +191,7 @@ export function draw() {
                 c.startTimer("saves_fade", 100);
             },
             c.timer("saves_fade") > 0,
-            "saveback"
+            "saveback",
         );
         ctx.restore();
     }

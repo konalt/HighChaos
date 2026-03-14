@@ -1,8 +1,8 @@
 import { MenuFont } from "../constants";
-import { easeInOutQuad } from "../../engine/ease";
-import * as c from "../../engine/engine";
-import { ctx, d } from "../../engine/engine";
-import { basicPointInRect, clamp, FourNums } from "../../engine/utils";
+import { easeInOutQuad } from "../../lib/engine/ease";
+import * as c from "../../lib/engine/engine";
+import { ctx, d } from "../../lib/engine/engine";
+import { basicPointInRect, clamp, FourNums } from "../../lib/engine/utils";
 import * as hhctail from "../objects/hhctail";
 
 const FontSize = 80;

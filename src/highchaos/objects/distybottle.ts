@@ -1,8 +1,8 @@
-import { CanvasStyle, ctx, globalTimer, resetShadow, setShadow } from "../../engine/engine";
+import { CanvasStyle, ctx, globalTimer, resetShadow, setShadow } from "../../lib/engine/engine";
 import * as metallic from "../gradients/metallic";
 import * as plastic_glossy from "../gradients/plastic_glossy";
-import { detail, settings } from "../../engine/options";
-import { degToRad } from "../../engine/utils";
+import { detail, settings } from "../../lib/engine/options";
+import { degToRad } from "../../lib/engine/utils";
 
 const capWidth = 200;
 const capHeight = 130;
@@ -101,7 +101,7 @@ function bottle() {
         bottleWidth / 2,
         capHeight + bottleNeckHeight * 0.5,
         bottleWidth / 2,
-        capHeight + bottleNeckHeight
+        capHeight + bottleNeckHeight,
     );
     ctx.lineTo(bottleWidth / 2, capHeight + bottleHeight - round);
     ctx.arc(bottleWidth / 2 - round, capHeight + bottleHeight - round, round, 0, Math.PI * 0.5);
@@ -114,7 +114,7 @@ function bottle() {
         -bottleWidth / 2 + bottleNeck,
         capHeight + bottleNeckHeight * 0.5,
         -bottleWidth / 2 + bottleNeck,
-        capHeight
+        capHeight,
     );
     ctx.closePath();
     ctx.strokeStyle = "black";

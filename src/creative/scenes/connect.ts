@@ -1,7 +1,7 @@
-import { setScene, w } from "../../engine/engine";
-import { Background } from "../../engine/objects/background";
-import { ImageObject } from "../../engine/objects/image";
-import { Scene } from "../../engine/scene";
+import { setScene, w } from "../../lib/engine/engine";
+import { Background } from "../../lib/engine/objects/background";
+import { ImageObject } from "../../lib/engine/objects/image";
+import { Scene } from "../../lib/engine/scene";
 import { connect } from "../game";
 import { InGameScene } from "./ingame";
 

@@ -9,8 +9,8 @@ import {
     loadImage,
     setCursorMode,
     setGlobalVolume,
-} from "../../engine/engine";
-import { basicPointInRect, FourNums } from "../../engine/utils";
+} from "../../lib/engine/engine";
+import { basicPointInRect, FourNums } from "../../lib/engine/utils";
 
 let mutedImg: HTMLImageElement;
 let unmutedImg: HTMLImageElement;

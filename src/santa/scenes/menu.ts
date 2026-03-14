@@ -1,4 +1,4 @@
-import { w, h, loadImage, d, loadSounds } from "../../engine/engine";
+import { w, h, loadImage, d, loadSounds } from "../../lib/engine/engine";
 import * as skydark from "../objects/skydark";
 import * as hillsfront from "../objects/hillsfront";
 import * as snow from "../objects/snow";

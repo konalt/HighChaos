@@ -1,6 +1,6 @@
-import { ctx, d, fadeToScene, getKeyDown, getMouse, isFading, playSound } from "../../engine/engine";
+import { ctx, d, fadeToScene, getKeyDown, getMouse, isFading, playSound } from "../../lib/engine/engine";
 import * as scene_game from "../scenes/game";
-import { grey } from "../../engine/utils";
+import { grey } from "../../lib/engine/utils";
 
 export function draw(x: number, y: number) {
     ctx.save();

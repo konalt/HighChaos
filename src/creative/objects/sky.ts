@@ -1,5 +1,5 @@
-import { d, w, h } from "../../engine/engine";
-import { GameObject } from "../../engine/object";
+import { d, w, h } from "../../lib/engine/engine";
+import { GameObject } from "../../lib/engine/object";
 
 export class Sky extends GameObject {
     draw() {

@@ -1,9 +1,9 @@
 import * as cutscene_intro from "../cutscenes/cutscene_intro";
-import { easeInOutCirc } from "../../engine/ease";
-import { ctx, CursorMode, d, font, getKeyDown, getMouse, setCursorMode, startTimer } from "../../engine/engine";
-import { Save, setCurrentSave } from "../../engine/saves";
-import { fadeToScene } from "../../engine/engine";
-import { basicPointInRect, clamp } from "../../engine/utils";
+import { easeInOutCirc } from "../../lib/engine/ease";
+import { ctx, CursorMode, d, font, getKeyDown, getMouse, setCursorMode, startTimer } from "../../lib/engine/engine";
+import { Save, setCurrentSave } from "../../lib/engine/saves";
+import { fadeToScene } from "../../lib/engine/engine";
+import { basicPointInRect, clamp } from "../../lib/engine/utils";
 
 let hovers = [];
 

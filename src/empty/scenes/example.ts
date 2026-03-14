@@ -1,4 +1,4 @@
-import { Scene } from "../../engine/scene";
+import { Scene } from "../../lib/engine/scene";
 import { ExampleObject } from "../objects/example";
 
 export class ExampleScene extends Scene {

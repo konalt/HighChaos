@@ -1,4 +1,4 @@
-import { ctx, d, loadImage, w } from "../../engine/engine";
+import { ctx, d, loadImage, w } from "../../lib/engine/engine";
 import { lives } from "../scenes/game";
 
 let img: HTMLImageElement;

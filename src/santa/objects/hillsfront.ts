@@ -1,4 +1,4 @@
-import { d, h } from "../../engine/engine";
+import { d, h } from "../../lib/engine/engine";
 
 export function draw() {
     d.circ(1500, h + 1300, 1500, "#cfcfcfff");

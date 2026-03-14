@@ -1,4 +1,4 @@
-import { d, loadImage } from "../../engine/engine";
+import { d, loadImage } from "../../lib/engine/engine";
 
 let img: HTMLImageElement;
 

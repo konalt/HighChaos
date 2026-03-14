@@ -1,4 +1,4 @@
-import { w, h, ctx, globalTimer } from "../../engine/engine";
+import { w, h, ctx, globalTimer } from "../../lib/engine/engine";
 
 // TODO: make this work good
 

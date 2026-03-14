@@ -1,8 +1,8 @@
 import { MenuFontTitle } from "../constants";
-import * as c from "../../engine/engine";
-import { ctx, d } from "../../engine/engine";
-import { detail } from "../../engine/options";
-import { isUpperCase } from "../../engine/utils";
+import * as c from "../../lib/engine/engine";
+import { ctx, d } from "../../lib/engine/engine";
+import { detail } from "../../lib/engine/options";
+import { isUpperCase } from "../../lib/engine/utils";
 
 const Title = "HIGH chaos";
 const FontSize = 120;
@@ -16,7 +16,7 @@ const LowerColor = "#ffffffff";
 
 const RandomizedLetterSways = new Array(Title.length).fill(0).map(() => [Math.random(), Math.random()]);
 const SwayOffsets = [0, 1].map(
-    (i) => (RandomizedLetterSways.reduce((a, b) => a + b[i], 0) / Title.length) * LetterSwayDistance
+    (i) => (RandomizedLetterSways.reduce((a, b) => a + b[i], 0) / Title.length) * LetterSwayDistance,
 );
 
 let letters: HTMLImageElement[];
