@@ -4,6 +4,7 @@ import { HCImage } from "../../lib/ui/hcimage";
 import { Scene } from "../../lib/engine/scene";
 import { connect } from "../game";
 import { SpinnerLoader } from "../../lib/ui/loaders/spinner";
+import { InGameScene } from "./ingame";
 
 export class ConnectScene extends Scene {
     constructor() {
@@ -30,7 +31,7 @@ export class ConnectScene extends Scene {
         super.init();
 
         connect().then(() => {
-            //setScene(new InGameScene());
+            setScene(new InGameScene());
         });
     }
 }
