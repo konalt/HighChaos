@@ -30,8 +30,6 @@ export class HCImage extends GameObject {
     }
 
     async load() {
-        console.log("hi :3");
-
         this.image = await loadImage(this.src);
     }
 }
