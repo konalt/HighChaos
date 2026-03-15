@@ -1,11 +1,9 @@
-import { h } from "../../lib/engine/engine";
 import { Scene } from "../../lib/engine/scene";
-import { GradientType } from "../../lib/engine/utils";
-import { GradientBackground } from "../../lib/ui/background/gradientbackground";
+import { Background } from "../../lib/ui/background/background";
 import { PlayerObject } from "../objects/player";
 
 export class InGameScene extends Scene {
-    background: GradientBackground;
+    background: Background;
     players: Map<string, PlayerObject>;
 
     testPlayer: PlayerObject;
@@ -15,11 +13,8 @@ export class InGameScene extends Scene {
 
         this.players = new Map();
 
-        this.background = new GradientBackground();
-        this.background.type = GradientType.Radial;
-        this.background.colors = ["#3098fa", "#184fe6"];
-        this.background.scale = 1.5;
-        this.background.y = h / 2;
+        this.background = new Background();
+        this.background.color = "#184fe6";
         this.add(this.background, -1);
 
         this.testPlayer = new PlayerObject();
