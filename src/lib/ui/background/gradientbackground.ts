@@ -72,8 +72,8 @@ export class GradientBackground extends Background {
         ctx.translate(w / 2, h / 2);
 
         ctx.scale(sx, sy);
-
         ctx.translate(-w / 2, -h / 2);
+
         d.rect(0, 0, w, h, this._gradient);
         ctx.restore();
     }

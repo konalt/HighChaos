@@ -1,5 +1,12 @@
 import { compressGzip, decompressGzip } from "../../wasm_gzip/wasm_gzip.js";
-import { textDecoder } from "../game.js";
+import { textDecoder, textEncoder } from "../game.js";
+
+export function pkt(evt: string, data?: any) {
+    if (data) {
+        return `${evt}\uE001${data}`;
+    }
+    return evt;
+}
 
 export class GameSocket {
     private socket: WebSocket;
@@ -40,13 +47,29 @@ export class GameSocket {
                 console.log("Error decoding packet:", e);
             }
         };
+
+        this.socket = socket;
     }
 
     on(evt: string, cb: (data?: string) => void) {
         this.events.set(evt, cb);
     }
 
-    emit(evt: string, data?: string) {
-        // emit
+    emit(evt: string | number, data?: string) {
+        if (typeof evt == "number") evt = String.fromCharCode(evt);
+        let _d = data;
+        try {
+            _d = JSON.stringify(data);
+        } catch (_) {}
+        if (data) {
+            this._send(pkt(evt, _d));
+        } else {
+            this._send(pkt(evt));
+        }
+    }
+
+    private _send(packet: string) {
+        let zipped = compressGzip(textEncoder.encode(packet));
+        this.socket.send(zipped);
     }
 }

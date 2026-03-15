@@ -155,7 +155,7 @@ function roundRect(
     h: number,
     r: number,
     fill: CanvasStyle,
-    stroke: CanvasStyle = "transparent",
+    stroke: CanvasStyle = "",
     strokeWidth = 0,
     anchor: Anchor = "tl",
 ): void {
@@ -163,7 +163,7 @@ function roundRect(
     if (!anchor) anchor = "tl";
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;
-    if (stroke !== "transparent") {
+    if (stroke !== "") {
         if (strokeWidth) {
             ctx.lineWidth = strokeWidth;
         } else {
@@ -538,12 +538,16 @@ export let deltaTime = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
 const fpscc = 30;
+let targetFramerate = 75;
+export function setTargetFramerate(fps: number) {
+    targetFramerate = fps;
+}
 function calculateFPS() {
     const thisLoop = Date.now();
     const fps = 1000 / (thisLoop - lastLoop);
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
-    deltaTime = (thisLoop - lastLoop) / 75;
+    deltaTime = (thisLoop - lastLoop) / targetFramerate;
     lastLoop = thisLoop;
 }
 
@@ -562,10 +566,10 @@ function handleDebugKeys() {
         debugCamera.y = h / 2;
         debugCamera.zoom = 1;
     }
-    if (getKey("numpad4")) debugCamera.x -= cameraSpeed * deltaTime * debugCamera.zoom;
-    if (getKey("numpad6")) debugCamera.x += cameraSpeed * deltaTime * debugCamera.zoom;
-    if (getKey("numpad5")) debugCamera.y += cameraSpeed * deltaTime * debugCamera.zoom;
-    if (getKey("numpad8")) debugCamera.y -= cameraSpeed * deltaTime * debugCamera.zoom;
+    if (getKey("numpad4")) debugCamera.x -= (cameraSpeed * deltaTime) / debugCamera.zoom;
+    if (getKey("numpad6")) debugCamera.x += (cameraSpeed * deltaTime) / debugCamera.zoom;
+    if (getKey("numpad5")) debugCamera.y += (cameraSpeed * deltaTime) / debugCamera.zoom;
+    if (getKey("numpad8")) debugCamera.y -= (cameraSpeed * deltaTime) / debugCamera.zoom;
     if (getKeyDown("numpad9")) debugCamera.zoom *= 1.1;
     if (getKeyDown("numpad3")) debugCamera.zoom /= 1.1;
 }
@@ -593,8 +597,11 @@ function drawDebugInfo() {
     debugText.push(HEAD("Scene"));
     debugText.push(`Name: ${currentScene.constructor.name}`);
     debugText.push(HEAD("Camera"));
-    debugText.push(`Center: ${currentScene.camera.x} ${currentScene.camera.y}`);
-    debugText.push(`Zoom: ${currentScene.camera.zoom}x`);
+    debugText.push(`Center: ${Math.floor(currentScene.camera.x)} ${Math.floor(currentScene.camera.y)}`);
+    debugText.push(`Zoom: ${Math.floor(currentScene.camera.zoom * 1e4) / 1e4}x`);
+    debugText.push(HEAD("Debug Camera"));
+    debugText.push(`Center: ${Math.floor(debugCamera.x)} ${Math.floor(debugCamera.y)}`);
+    debugText.push(`Zoom: ${Math.floor(debugCamera.zoom * 1e4) / 1e4}x`);
     debugText.push(HEAD("Sound"));
     debugText.push(`Current volume: ${Math.round(volume * 100)}%`);
     debugText.push(`Sounds playing: ${gains.length}`);
@@ -622,7 +629,12 @@ function draw() {
             handleDebugKeys();
         }
         currentScene.update();
-        currentScene.draw();
+        ctx.clearRect(0, 0, w, h);
+        if (debugMode) {
+            currentScene.debugDraw();
+        } else {
+            currentScene.draw();
+        }
         let fadeTimer = timer("__scene_fade_out") || timer("__scene_fade_in");
         if (fadeTimer > 0) {
             fade(fadeTimer);
@@ -695,6 +707,9 @@ let currentScene: Scene;
 export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<string, any> = {}) {
     await scene.init(sceneInit);
     currentScene = scene;
+    debugCamera.x = scene.camera.x;
+    debugCamera.y = scene.camera.y;
+    debugCamera.zoom = scene.camera.zoom / 1.1;
     if (fadeIn) {
         startTimer("__scene_fade_in", FadeDuration, true);
     }

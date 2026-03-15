@@ -56,22 +56,12 @@ export class Scene {
         }
 
         ctx.save();
-        if (debugMode) {
-            debugCamera.transform();
-        } else {
-            this.camera.transform();
-        }
+        this.camera.transform();
 
         for (const [i] of this.layers) {
             if (i < 0) continue;
             if (i >= UI_LAYER) continue;
             this.drawLayer(i);
-        }
-
-        if (debugMode) {
-            d.rect(0, 0, w, h, "transparent", "red", 4, "tl");
-            ctx.textBaseline = "bottom";
-            d.text(w - 2, h - 2, this.camera.constructor.name, "red", "48px monospace", "right");
         }
 
         ctx.restore();
@@ -81,6 +71,72 @@ export class Scene {
             if (i >= UI_LAYER) continue;
             this.drawLayer(i);
         }
+    }
+
+    debugDraw() {
+        let cw = w / this.camera.zoom;
+        let ch = h / this.camera.zoom;
+
+        ctx.save();
+        debugCamera.transform();
+
+        ctx.translate(this.camera.x - cw / 2, this.camera.y - ch / 2);
+        ctx.scale(1 / this.camera.zoom, 1 / this.camera.zoom);
+        for (const [i] of this.layers) {
+            if (i >= 0) break;
+            this.drawLayer(i);
+        }
+        ctx.restore();
+
+        ctx.save();
+        debugCamera.transform();
+
+        for (const [i] of this.layers) {
+            if (i < 0) continue;
+            if (i >= UI_LAYER) continue;
+            this.drawLayer(i);
+        }
+
+        d.circ(debugCamera.x, debugCamera.y, 10 / debugCamera.zoom, "blue");
+        d.circ(0, 0, 10, "#aaa");
+        d.rect(
+            this.camera.x - cw / 2,
+            this.camera.y - ch / 2,
+            cw,
+            ch,
+            "transparent",
+            "red",
+            4 / this.camera.zoom,
+            "tl",
+        );
+        ctx.textBaseline = "bottom";
+        d.text(
+            this.camera.x + cw / 2 - 5 / this.camera.zoom,
+            this.camera.y + ch / 2 - 5 / this.camera.zoom,
+            this.camera.constructor.name,
+            "red",
+            `${108 / this.camera.zoom}px monospace`,
+            "right",
+        );
+        ctx.textBaseline = "top";
+        d.text(
+            this.camera.x + cw / 2 - 5 / this.camera.zoom,
+            this.camera.y - ch / 2 + 5 / this.camera.zoom,
+            `Zoom: ${Math.round(this.camera.zoom * 1e4) / 1e4}`,
+            "red",
+            `${108 / this.camera.zoom}px monospace`,
+            "right",
+        );
+        ctx.restore();
+
+        ctx.save();
+        this.camera.transform();
+        for (const [i] of this.layers) {
+            if (i < UI_LAYER) continue;
+            if (i >= UI_LAYER) continue;
+            this.drawLayer(i);
+        }
+        ctx.restore();
     }
 
     drawLayer(layer: number) {
