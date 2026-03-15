@@ -1,5 +1,5 @@
 import { SceneCamera } from "./camera";
-import { ctx } from "./engine";
+import { ctx, d, debugCamera, debugMode, h, w } from "./engine";
 import { GameObject } from "./object";
 
 export const UI_LAYER = 1000;
@@ -56,12 +56,22 @@ export class Scene {
         }
 
         ctx.save();
-        this.camera.transform();
+        if (debugMode) {
+            debugCamera.transform();
+        } else {
+            this.camera.transform();
+        }
 
         for (const [i] of this.layers) {
             if (i < 0) continue;
             if (i >= UI_LAYER) continue;
             this.drawLayer(i);
+        }
+
+        if (debugMode) {
+            d.rect(0, 0, w, h, "transparent", "red", 4, "tl");
+            ctx.textBaseline = "bottom";
+            d.text(w - 2, h - 2, this.camera.constructor.name, "red", "48px monospace", "right");
         }
 
         ctx.restore();

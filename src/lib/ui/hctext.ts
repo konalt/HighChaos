@@ -28,6 +28,17 @@ export class HCText extends GameObject {
                 align = "right";
                 break;
         }
+        switch (this.anchor.split("")[0]) {
+            case "b":
+                ctx.textBaseline = "bottom";
+                break;
+            case "c":
+                ctx.textBaseline = "middle";
+                break;
+            case "t":
+                ctx.textBaseline = "top";
+                break;
+        }
         d.text(this.x, this.y, this.text, this.color, this.font, align);
     }
 }

@@ -1,3 +1,4 @@
+import { SceneCamera } from "./camera";
 import { FadeDuration } from "./constants";
 import { log } from "./log";
 import { Scene } from "./scene";
@@ -545,8 +546,67 @@ function calculateFPS() {
     deltaTime = (thisLoop - lastLoop) / 75;
     lastLoop = thisLoop;
 }
+
 export function getFPS() {
     return Math.round(fpsc.reduce((a, b) => a + b, 0) / fpsc.length);
+}
+
+export let debugMode = localStorage.getItem("debug") == "1";
+export let debugCamera = new SceneCamera();
+let debugLines: string[] = [];
+
+function handleDebugKeys() {
+    const cameraSpeed = 50;
+    if (getKeyDown("numpad0")) {
+        debugCamera.x = w / 2;
+        debugCamera.y = h / 2;
+        debugCamera.zoom = 1;
+    }
+    if (getKey("numpad4")) debugCamera.x -= cameraSpeed * deltaTime * debugCamera.zoom;
+    if (getKey("numpad6")) debugCamera.x += cameraSpeed * deltaTime * debugCamera.zoom;
+    if (getKey("numpad5")) debugCamera.y += cameraSpeed * deltaTime * debugCamera.zoom;
+    if (getKey("numpad8")) debugCamera.y -= cameraSpeed * deltaTime * debugCamera.zoom;
+    if (getKeyDown("numpad9")) debugCamera.zoom *= 1.1;
+    if (getKeyDown("numpad3")) debugCamera.zoom /= 1.1;
+}
+
+function drawDebugInfo() {
+    const LINEBREAK = "---";
+    const HEAD = (h: string) => {
+        return `${LINEBREAK} ${h} ${LINEBREAK}`;
+    };
+    const debugText = ["Konalt Engine Debug Mode"];
+    debugText.push(`FPS: ${getFPS()}`);
+    debugText.push(`Viewport: ${canvas.width}x${canvas.height}`);
+    debugText.push(`Scaled: ${w}x${h}`);
+    debugText.push(`AR: ${Math.floor((w / h) * 1e4) / 1e4}`);
+    debugText.push(HEAD(`Held Keys (${heldKeys.length})`));
+    if (heldKeys.length > 0) {
+        for (const key of heldKeys) {
+            debugText.push(key);
+        }
+    } else {
+        debugText.push(`[None]`);
+    }
+    debugText.push(HEAD(`Mouse`));
+    debugText.push(`Position: ${Math.round(mouseX)} ${Math.round(mouseY)}`);
+    debugText.push(HEAD("Scene"));
+    debugText.push(`Name: ${currentScene.constructor.name}`);
+    debugText.push(HEAD("Camera"));
+    debugText.push(`Center: ${currentScene.camera.x} ${currentScene.camera.y}`);
+    debugText.push(`Zoom: ${currentScene.camera.zoom}x`);
+    debugText.push(HEAD("Sound"));
+    debugText.push(`Current volume: ${Math.round(volume * 100)}%`);
+    debugText.push(`Sounds playing: ${gains.length}`);
+    if (debugLines.length > 0) {
+        debugText.push(HEAD("Game Debug"));
+        debugText.push(...debugLines);
+    }
+    debugLines = [];
+    ctx.textBaseline = "top";
+    const textWidth = Math.max(...debugText.map((l) => ctx.measureText(l).width));
+    rect(w, 0, textWidth + 8, h, "rgba(0,0,0,0.4)", "transparent", 0, "tr");
+    text(w - 4, 4, debugText.join("\n"), "white", "18px monospace", "right", textWidth);
 }
 
 function draw() {
@@ -554,6 +614,13 @@ function draw() {
     try {
         calculateFPS();
         setCursorMode(CursorMode.Default);
+        if (getKeyDown("F3")) {
+            debugMode = !debugMode;
+            localStorage.setItem("debug", Number(debugMode).toString());
+        }
+        if (debugMode) {
+            handleDebugKeys();
+        }
         currentScene.update();
         currentScene.draw();
         let fadeTimer = timer("__scene_fade_out") || timer("__scene_fade_in");
@@ -573,6 +640,9 @@ function draw() {
             isFading = false;
         });
         ctx.restore();
+        if (debugMode) {
+            drawDebugInfo();
+        }
     } catch (e) {
         ctx.restore();
         useCanvas(0);
