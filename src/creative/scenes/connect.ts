@@ -28,7 +28,7 @@ export class ConnectScene extends Scene {
     }
 
     async init() {
-        super.init();
+        await super.init();
 
         connect().then(() => {
             setScene(new InGameScene());
