@@ -1,5 +1,5 @@
 import { h, setScene, w } from "../../lib/engine/engine";
-import { Background } from "../../lib/ui/background";
+import { Background } from "../../lib/ui/background/background";
 import { HCImage } from "../../lib/ui/hcimage";
 import { Scene } from "../../lib/engine/scene";
 import { connect } from "../game";
