@@ -7,6 +7,6 @@ export class InGameScene extends Scene {
         super();
 
         let background = new Background();
-        background.color;
+        background.color = "red";
     }
 }
