@@ -62,11 +62,11 @@ export function onResize() {
         elHeight = parent.clientWidth / aspect;
     }
 
-    canvasMain.width = elWidth * resolutionMultiplier;
-    canvasMain.height = elHeight * resolutionMultiplier;
+    canvasMain.width = Math.floor(elWidth) * resolutionMultiplier;
+    canvasMain.height = Math.floor(elHeight) * resolutionMultiplier;
 
-    canvasMain.style.width = `${elWidth}px`;
-    canvasMain.style.height = `${elHeight}px`;
+    canvasMain.style.width = `${Math.floor(elWidth)}px`;
+    canvasMain.style.height = `${Math.floor(elHeight)}px`;
 
     ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
 }
@@ -554,6 +554,7 @@ function draw() {
     try {
         calculateFPS();
         setCursorMode(CursorMode.Default);
+        currentScene.update();
         currentScene.draw();
         let fadeTimer = timer("__scene_fade_out") || timer("__scene_fade_in");
         if (fadeTimer > 0) {
