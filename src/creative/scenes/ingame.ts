@@ -27,15 +27,13 @@ export class InGameScene extends Scene {
         this.testPlayer.y = 400;
         this.players.set("test", this.testPlayer);
 
-        this.camera.x = -1000;
-
         this.add(this.testPlayer);
     }
 
     update(): void {
         super.update();
 
-        this.camera.x += 2;
-        //this.camera.y = this.testPlayer.y;
+        this.camera.x = this.testPlayer.x;
+        this.camera.y = this.testPlayer.y;
     }
 }
