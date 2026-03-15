@@ -1,5 +1,5 @@
-import { CanvasStyle, d, h, w } from "../engine";
-import { GameObject } from "../object";
+import { CanvasStyle, d, h, w } from "../engine/engine";
+import { GameObject } from "../engine/object";
 
 export class Background extends GameObject {
     color: CanvasStyle;

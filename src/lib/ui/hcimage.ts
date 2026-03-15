@@ -1,6 +1,6 @@
-import { d, loadImage } from "../engine";
-import { GameObject } from "../object";
-import { Anchor } from "../utils";
+import { d, loadImage } from "../engine/engine";
+import { GameObject } from "../engine/object";
+import { Anchor } from "../engine/utils";
 
 const MISSINGTEXTUREURL =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALElEQVQYV2P8z/D/PwMQMAIhCAD5YBrGZySoAKwJi06ESYQUELSCoAKK3QAAUtcn+TTvDwYAAAAASUVORK5CYII=";
@@ -12,7 +12,7 @@ img.onload = () => {
 };
 img.src = MISSINGTEXTUREURL;
 
-export class ImageObject extends GameObject {
+export class HCImage extends GameObject {
     src: string;
     scale: number;
     anchor: Anchor;
@@ -30,6 +30,8 @@ export class ImageObject extends GameObject {
     }
 
     async load() {
+        console.log("hi :3");
+
         this.image = await loadImage(this.src);
     }
 }
