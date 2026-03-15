@@ -12,7 +12,7 @@ Promise.all([init(), loadFonts()]).then(() => {
 
     c.setResolution(1);
 
-    c.setScene(new ConnectScene(), false);
-
-    c.init("creative");
+    c.setScene(new ConnectScene(), false).then(() => {
+        c.init("creative");
+    });
 });
