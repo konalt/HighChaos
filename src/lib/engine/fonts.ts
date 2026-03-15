@@ -1,7 +1,7 @@
 const FontWeights = ["ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold"];
 const FontsWithWeights = ["Oxanium"];
 
-let fontNames = ["Futuristic-Armour", "Le Cristal de Line"];
+let fontNames = ["Futuristic-Armour", "LeCristaldeLune"];
 
 for (const wt of FontWeights) {
     for (const f of FontsWithWeights) {
