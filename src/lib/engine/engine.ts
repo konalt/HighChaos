@@ -85,7 +85,7 @@ function rect(
     w: number,
     h: number,
     fill: CanvasStyle,
-    stroke: CanvasStyle = "transparent",
+    stroke: CanvasStyle = "",
     strokeWidth = 0,
     anchor: Anchor = "tl",
 ): void {
@@ -94,7 +94,7 @@ function rect(
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;
     ctx.lineWidth = Number.EPSILON;
-    if (stroke !== "transparent") {
+    if (stroke !== "") {
         if (strokeWidth) {
             ctx.lineWidth = strokeWidth;
         } else {
@@ -103,7 +103,7 @@ function rect(
     }
     const [bx, by] = anchorToCoords(anchor, x, y, w, h);
     ctx.fillRect(bx + ctx.lineWidth / 2, by + ctx.lineWidth / 2, w - ctx.lineWidth, h - ctx.lineWidth);
-    if (stroke !== "transparent") {
+    if (stroke !== "") {
         ctx.strokeRect(bx + ctx.lineWidth / 2, by + ctx.lineWidth / 2, w - ctx.lineWidth, h - ctx.lineWidth);
     }
 }
@@ -548,9 +548,9 @@ function calculateFPS() {
 export function getFPS() {
     return Math.round(fpsc.reduce((a, b) => a + b, 0) / fpsc.length);
 }
+
 function draw() {
     globalTimer = performance.now();
-    ctx.save();
     try {
         calculateFPS();
         setCursorMode(CursorMode.Default);
