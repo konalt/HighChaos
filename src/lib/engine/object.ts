@@ -6,11 +6,14 @@ export class GameObject {
     y: number;
     color: CanvasStyle;
     scene: Scene;
+    sceneLayer: number;
+    enabled: boolean;
 
     constructor() {
         this.x = 0;
         this.y = 0;
         this.color = "#ffffff";
+        this.enabled = true;
     }
 
     draw() {
