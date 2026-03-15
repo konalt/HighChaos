@@ -3,7 +3,7 @@ import { Background } from "../../lib/ui/background";
 import { HCImage } from "../../lib/ui/hcimage";
 import { Scene } from "../../lib/engine/scene";
 import { connect } from "../game";
-import { InGameScene } from "./ingame";
+import { SpinnerLoader } from "../../lib/ui/loaders/spinner";
 
 export class ConnectScene extends Scene {
     constructor() {
@@ -19,6 +19,11 @@ export class ConnectScene extends Scene {
         titleImage.scale = 1.5;
         titleImage.src = "creative/txt/title.png";
         this.add(titleImage);
+
+        let loader = new SpinnerLoader();
+        loader.x = w / 2;
+        loader.y = h / 2;
+        this.add(loader);
     }
 
     async init() {

@@ -5,6 +5,8 @@ export type TwoNums = [number, number]; // we have fun here
 export type ThreeNums = [number, number, number];
 export type FourNums = [number, number, number, number];
 
+export const TAU = Math.PI * 2;
+
 export function anchorToCoords(anchor: Anchor, x: number, y: number, w: number, h: number) {
     let bx = 0;
     let by = 0;
