@@ -1,12 +1,15 @@
-import { ctx, d, font, since } from "../../lib/engine/engine";
+import { ctx, d, font, loadImage, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { lerp } from "../../lib/engine/utils";
 import { gameSettings, Player } from "../game";
 import { lastPlayerUpdatePacket } from "../handlers";
 
+const playerHeight = 150;
+
 export class PlayerObject extends GameObject {
     name: string = "unnamed";
     ply: Player;
+    img: HTMLImageElement;
 
     constructor() {
         super();
@@ -20,7 +23,8 @@ export class PlayerObject extends GameObject {
         ctx.save();
         ctx.translate(drawX, drawY);
 
-        d.rect(0, 0, 30, 100, "white", "", 0, "bc");
+        //d.rect(0, 0, 30, 100, "white", "", 0, "bc");
+        d.quickImage(this.img, 0, 0, playerHeight / this.img.height, "bc");
 
         ctx.font = font(24);
         ctx.textBaseline = "alphabetic";
@@ -32,7 +36,7 @@ export class PlayerObject extends GameObject {
         const nameBoxMarginY = 6;
         d.roundRect(
             0,
-            -120,
+            -playerHeight - nameBoxMarginY * 2,
             nameWidth + nameBoxMarginX * 2,
             nameHeight + nameBoxMarginY * 2,
             5,
@@ -42,8 +46,14 @@ export class PlayerObject extends GameObject {
             "bc",
         );
 
-        d.text(0, -120 - nameBoxMarginY, this.name, "#fff", ctx.font, "center");
+        d.text(0, -playerHeight - nameBoxMarginY * 4, this.name, "#fff", ctx.font, "center");
 
         ctx.restore();
+    }
+
+    async load() {
+        await super.load();
+
+        this.img = await loadImage("creative/testplayer.png");
     }
 }
