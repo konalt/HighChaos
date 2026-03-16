@@ -596,11 +596,9 @@ function handleDebugKeys() {
     }
     if (getKeyDown("numpad9")) {
         debugCamera.zoom *= 1.1;
-        debugCameraFollowsSceneCamera = false;
     }
     if (getKeyDown("numpad3")) {
         debugCamera.zoom /= 1.1;
-        debugCameraFollowsSceneCamera = false;
     }
 }
 
@@ -664,7 +662,6 @@ function draw() {
         if (debugCameraFollowsSceneCamera && debugMode) {
             debugCamera.x = currentScene.camera.x;
             debugCamera.y = currentScene.camera.y;
-            debugCamera.zoom = currentScene.camera.zoom;
         }
         ctx.clearRect(0, 0, w, h);
         if (debugMode) {

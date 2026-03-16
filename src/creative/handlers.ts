@@ -87,3 +87,13 @@ export function pingSendHandler(t: string) {
 export function pingTableHandler(d: string) {
     setPingTable(JSON.parse(d));
 }
+
+export function chatHandler(d: string) {
+    console.log(d);
+
+    let msg = JSON.parse(d);
+
+    if (currentScene instanceof InGameScene) {
+        currentScene.chat.messages.push(msg);
+    }
+}

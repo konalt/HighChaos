@@ -25,4 +25,6 @@ export enum PACKET {
     SC_PING_SEND = npua(),
     CS_PING_RESP = npua(),
     SC_PING_TABLE = npua(),
+    CS_CHAT_SEND = npua(),
+    SC_CHAT_RECV = npua(),
 }

@@ -8,6 +8,7 @@ import { lastPlayerUpdate } from "../handlers";
 import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
+import { Chat } from "../objects/ui/chat";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
 
@@ -16,8 +17,8 @@ export let testPlayerImage: HTMLImageElement;
 let maxCameraY = 0;
 
 export class InGameScene extends Scene {
-    background: Background;
     players: Map<string, PlayerObject>;
+    chat: Chat;
 
     localPlayer: PlayerObject;
 
@@ -34,6 +35,9 @@ export class InGameScene extends Scene {
 
         let pb = new PlayerBoard();
         this.add(pb, UI_LAYER);
+
+        this.chat = new Chat();
+        this.add(this.chat, UI_LAYER);
 
         this._loadPlayers();
 

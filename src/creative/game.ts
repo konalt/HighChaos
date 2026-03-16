@@ -3,6 +3,7 @@ import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
 import {
     ackHandler,
+    chatHandler,
     lastPlayerUpdate,
     pingSendHandler,
     pingTableHandler,
@@ -119,6 +120,8 @@ export function connect(): Promise<void> {
 
         socket.on(PACKET.SC_PING_SEND, pingSendHandler);
         socket.on(PACKET.SC_PING_TABLE, pingTableHandler);
+
+        socket.on(PACKET.SC_CHAT_RECV, chatHandler);
     });
 }
 

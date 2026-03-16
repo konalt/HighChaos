@@ -61,7 +61,7 @@ export class GameSocket {
         if (data) {
             let _d = data;
             // janky ass way: fix if it breaks
-            if (data.toString().startsWith("[")) {
+            if (data.toString().startsWith("[object")) {
                 _d = JSON.stringify(data);
             }
             this._send(pkt(evt, _d));
