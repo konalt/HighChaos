@@ -7,6 +7,8 @@ import { gameSettings, localPlayerUpdate, players, ply, socket } from "../game";
 import { lastPlayerUpdatePacket } from "../handlers";
 import { PlayerObject } from "../objects/player";
 
+export let testPlayerImage: HTMLImageElement;
+
 export class InGameScene extends Scene {
     background: Background;
     players: Map<string, PlayerObject>;
