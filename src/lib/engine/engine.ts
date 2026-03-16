@@ -557,6 +557,7 @@ export function getFPS() {
 
 export let debugMode = localStorage.getItem("debug") == "1";
 export let debugCamera = new SceneCamera();
+export let debugCameraFollowsSceneCamera = true;
 let debugLines: string[] = [];
 
 export function addDebugLine(line: string) {
@@ -569,13 +570,32 @@ function handleDebugKeys() {
         debugCamera.x = currentScene.camera.x;
         debugCamera.y = currentScene.camera.y;
         debugCamera.zoom = currentScene.camera.zoom;
+        debugCameraFollowsSceneCamera = true;
     }
-    if (getKey("numpad4")) debugCamera.x -= (cameraSpeed * deltaTime) / debugCamera.zoom;
-    if (getKey("numpad6")) debugCamera.x += (cameraSpeed * deltaTime) / debugCamera.zoom;
-    if (getKey("numpad5")) debugCamera.y += (cameraSpeed * deltaTime) / debugCamera.zoom;
-    if (getKey("numpad8")) debugCamera.y -= (cameraSpeed * deltaTime) / debugCamera.zoom;
-    if (getKeyDown("numpad9")) debugCamera.zoom *= 1.1;
-    if (getKeyDown("numpad3")) debugCamera.zoom /= 1.1;
+    if (getKey("numpad4")) {
+        debugCamera.x -= (cameraSpeed * deltaTime) / debugCamera.zoom;
+        debugCameraFollowsSceneCamera = false;
+    }
+    if (getKey("numpad6")) {
+        debugCamera.x += (cameraSpeed * deltaTime) / debugCamera.zoom;
+        debugCameraFollowsSceneCamera = false;
+    }
+    if (getKey("numpad5")) {
+        debugCamera.y += (cameraSpeed * deltaTime) / debugCamera.zoom;
+        debugCameraFollowsSceneCamera = false;
+    }
+    if (getKey("numpad8")) {
+        debugCamera.y -= (cameraSpeed * deltaTime) / debugCamera.zoom;
+        debugCameraFollowsSceneCamera = false;
+    }
+    if (getKeyDown("numpad9")) {
+        debugCamera.zoom *= 1.1;
+        debugCameraFollowsSceneCamera = false;
+    }
+    if (getKeyDown("numpad3")) {
+        debugCamera.zoom /= 1.1;
+        debugCameraFollowsSceneCamera = false;
+    }
 }
 
 function drawDebugInfo() {
@@ -627,15 +647,20 @@ function draw() {
         setCursorMode(CursorMode.Default);
         if (getKeyDown("F3")) {
             debugMode = !debugMode;
-            debugCamera.x = currentScene.camera.x;
-            debugCamera.y = currentScene.camera.y;
-            debugCamera.zoom = currentScene.camera.zoom;
+            debugCameraFollowsSceneCamera = true;
             localStorage.setItem("debug", Number(debugMode).toString());
         }
         if (debugMode) {
             handleDebugKeys();
         }
         currentScene.update();
+        if (debugCameraFollowsSceneCamera && debugMode) {
+            console.log("lhelloehjdsg");
+
+            debugCamera.x = currentScene.camera.x;
+            debugCamera.y = currentScene.camera.y;
+            debugCamera.zoom = currentScene.camera.zoom;
+        }
         ctx.clearRect(0, 0, w, h);
         if (debugMode) {
             currentScene.debugDraw();
