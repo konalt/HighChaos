@@ -4,6 +4,7 @@ export interface AckPacket {
     players: [string, Player][];
     settings: GameSettings;
     blocks: BlockStruct[];
+    pingTable: Record<string, number>;
 }
 
 let cpua = 0;
@@ -21,4 +22,7 @@ export enum PACKET {
     CS_PLAYER_USERNAME = npua(),
     SC_PLAYER_USERNAME = npua(),
     CS_PLAYER_JUMP = npua(),
+    SC_PING_SEND = npua(),
+    CS_PING_RESP = npua(),
+    SC_PING_TABLE = npua(),
 }

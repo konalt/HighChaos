@@ -1,6 +1,34 @@
-import { currentScene, globalTimer } from "../lib/engine/engine";
-import { addPlayer, Player, players, socket } from "./game";
+import { currentScene, globalTimer, setTargetFramerate } from "../lib/engine/engine";
+import {
+    addPlayer,
+    gameSettings,
+    pingTable,
+    Player,
+    players,
+    setBlocks,
+    setPingTable,
+    setSettings,
+    socket,
+} from "./game";
+import { AckPacket, PACKET } from "./net/packets";
 import { InGameScene } from "./scenes/ingame";
+
+export function ackHandler(packetStr: string) {
+    let packet: AckPacket = JSON.parse(packetStr);
+
+    players.clear();
+    for (const [i, p] of packet.players) {
+        addPlayer(p);
+    }
+
+    setBlocks(packet.blocks);
+    setSettings(packet.settings);
+    setPingTable(packet.pingTable);
+
+    setTargetFramerate(1000 / gameSettings.updateRate);
+
+    socket.emit(PACKET.CS_PLAYER_JOIN);
+}
 
 export let lastPlayerUpdate: Record<string, number> = {};
 export function playerUpdateHandler(fullPacket: string) {
@@ -50,4 +78,12 @@ export function playerLeaveHandler(id: string) {
     if (currentScene instanceof InGameScene) {
         currentScene.removePlayer(id);
     }
+}
+
+export function pingSendHandler(t: string) {
+    socket.emit(PACKET.CS_PING_RESP, t);
+}
+
+export function pingTableHandler(d: string) {
+    setPingTable(JSON.parse(d));
 }

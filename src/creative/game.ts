@@ -1,7 +1,15 @@
 import { Axis, deltaTime, getAxis, getKeyDown, setTargetFramerate, since } from "../lib/engine/engine";
 import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
-import { lastPlayerUpdate, playerJoinHandler, playerLeaveHandler, playerUpdateHandler } from "./handlers";
+import {
+    ackHandler,
+    lastPlayerUpdate,
+    pingSendHandler,
+    pingTableHandler,
+    playerJoinHandler,
+    playerLeaveHandler,
+    playerUpdateHandler,
+} from "./handlers";
 import { GameSocket } from "./net/network";
 import { AckPacket, PACKET } from "./net/packets";
 
@@ -53,6 +61,10 @@ export let socket: GameSocket;
 export let players: Map<string, Player> = new Map();
 export let blocks: BlockStruct[] = [];
 
+export function setBlocks(bs: BlockStruct[]) {
+    blocks = bs;
+}
+
 export interface GameSettings {
     playerSpeed: number;
     updateRate: number;
@@ -77,6 +89,15 @@ export let gameSettings: GameSettings = {
     playerWidth: 75,
 };
 
+export function setSettings(s: GameSettings) {
+    gameSettings = s;
+}
+
+export let pingTable: Record<string, number> = {};
+export function setPingTable(t: Record<string, number>) {
+    pingTable = t;
+}
+
 export let textDecoder = new TextDecoder();
 export let textEncoder = new TextEncoder();
 
@@ -84,22 +105,7 @@ export function connect(): Promise<void> {
     return new Promise<void>((res, rej) => {
         socket = new GameSocket();
         socket.on(PACKET.SC_ACK, (packetStr) => {
-            let packet: AckPacket = JSON.parse(packetStr);
-
-            players = new Map();
-            for (const [i, p] of packet.players) {
-                addPlayer(p);
-            }
-
-            blocks = packet.blocks;
-
-            gameSettings = packet.settings;
-
-            console.log(1000 / gameSettings.updateRate);
-
-            setTargetFramerate(1000 / gameSettings.updateRate);
-
-            socket.emit(PACKET.CS_PLAYER_JOIN);
+            ackHandler(packetStr);
 
             res();
         });
@@ -108,6 +114,9 @@ export function connect(): Promise<void> {
 
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
         socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
+
+        socket.on(PACKET.SC_PING_SEND, pingSendHandler);
+        socket.on(PACKET.SC_PING_TABLE, pingTableHandler);
     });
 }
 

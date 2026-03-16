@@ -1,7 +1,7 @@
-import { ctx, d, font, loadImage, since } from "../../lib/engine/engine";
+import { ctx, d, debugMode, font, loadImage, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { lerp } from "../../lib/engine/utils";
-import { gameSettings, Player } from "../game";
+import { gameSettings, pingTable, Player } from "../game";
 import { lastPlayerUpdate } from "../handlers";
 import { testPlayerImage } from "../scenes/ingame";
 
@@ -23,7 +23,6 @@ export class PlayerObject extends GameObject {
         ctx.save();
         ctx.translate(drawX, drawY);
 
-        //d.rect(0, 0, 30, 100, "white", "", 0, "bc");
         d.quickImage(testPlayerImage, 0, 0, playerHeight / testPlayerImage.height, "bc");
 
         ctx.font = font(24);
@@ -47,6 +46,17 @@ export class PlayerObject extends GameObject {
         );
 
         d.text(0, -playerHeight - nameBoxMarginY * 4, this.name, "#fff", ctx.font, "center");
+
+        if (debugMode) {
+            d.text(
+                0,
+                -playerHeight - nameBoxMarginY * 10,
+                "Ping: " + Math.round(pingTable[this.ply.id]).toString() + "ms",
+                "red",
+                ctx.font,
+                "center",
+            );
+        }
 
         ctx.restore();
     }
