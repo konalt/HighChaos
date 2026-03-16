@@ -156,7 +156,7 @@ export class Scene {
 
     drawLayer(layer: number) {
         for (const o of this.layers.get(layer)) {
-            if (!o.enabled) continue;
+            if (!o.enabled || !o.visible) continue;
             o.draw();
         }
     }

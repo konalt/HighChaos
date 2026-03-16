@@ -8,12 +8,14 @@ export class GameObject {
     scene: Scene;
     sceneLayer: number;
     enabled: boolean;
+    visible: boolean;
 
     constructor() {
         this.x = 0;
         this.y = 0;
         this.color = "#ffffff";
         this.enabled = true;
+        this.visible = true;
     }
 
     draw() {
