@@ -300,20 +300,26 @@ function handleKeyDown(event: KeyboardEvent) {
     const code = event.code.toLowerCase();
     if (event.code != "F5" && event.code != "F12" && event.code != "F11" && !(event.ctrlKey && event.code == "KeyV"))
         event.preventDefault();
-    if (event.repeat) return;
-    if (!heldKeys.includes(code)) {
-        justPressed.push(code);
-        heldKeys.push(code);
+    if (typing) {
+        typingKeys.push(event.key);
+    } else {
+        if (event.repeat) return;
+        if (!heldKeys.includes(code)) {
+            justPressed.push(code);
+            heldKeys.push(code);
+        }
     }
 }
 function handleKeyUp(event: KeyboardEvent) {
     const code = event.code.toLowerCase();
     event.preventDefault();
-    if (heldKeys.includes(code)) {
-        justReleased.push(code);
-        heldKeys = heldKeys.filter((hk) => {
-            return hk != code;
-        });
+    if (!typing) {
+        if (heldKeys.includes(code)) {
+            justReleased.push(code);
+            heldKeys = heldKeys.filter((hk) => {
+                return hk != code;
+            });
+        }
     }
 }
 let mouseX = 0;
@@ -653,6 +659,7 @@ function draw() {
         if (debugMode) {
             handleDebugKeys();
         }
+        handleTyping();
         currentScene.update();
         if (debugCameraFollowsSceneCamera && debugMode) {
             debugCamera.x = currentScene.camera.x;
@@ -694,6 +701,7 @@ function draw() {
     }
     justPressed = [];
     justReleased = [];
+    typingKeys = [];
     const thisLoop = performance.now();
     deltaTime = thisLoop - lastLoop;
     requestAnimationFrame(draw);
@@ -757,3 +765,139 @@ export const d = {
     button,
     quickImage,
 };
+
+//#region typing shit
+export type TypeEvent = (text: string) => void;
+export type TypeCheckEvent = (text: string) => boolean;
+let typing = false;
+let typingId = "";
+let typingKeys: string[] = [];
+let typingCursorFlashTime: number = 0;
+let typingTexts: Record<string, string> = {};
+let typingTypeEvents: Record<string, TypeCheckEvent> = {};
+let typingFinishEvents: Record<string, TypeEvent> = {};
+let typingCancelEvents: Record<string, TypeEvent> = {};
+let typingCursorPositions: Record<string, number> = {};
+
+const TYPING_IGNORE_KEYS = [
+    "Shift",
+    "Control",
+    "Enter",
+    "CapsLock",
+    "ArrowUp",
+    "ArrowDown",
+    "Escape",
+    "Tab",
+    "OS",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+];
+const TYPING_CURSOR_FLASH_INTERVAL = 500;
+
+export function startTyping(id: string, clear = true) {
+    typing = true;
+    typingId = id;
+    if (clear) {
+        typingTexts[id] = "";
+        typingCursorPositions[id] = 0;
+    }
+}
+
+export function finishTyping(id: string) {
+    if (typingFinishEvents[id]) typingFinishEvents[id](typingTexts[id]);
+    typing = false;
+}
+
+export function cancelTyping(id: string) {
+    if (typingCancelEvents[id]) typingCancelEvents[id](typingTexts[id]);
+    typing = false;
+}
+
+export function onTypingType(id: string, cb: TypeCheckEvent) {
+    typingTypeEvents[id] = cb;
+}
+
+export function onTypingFinish(id: string, cb: TypeEvent) {
+    typingFinishEvents[id] = cb;
+}
+
+export function onTypingCancel(id: string, cb: TypeEvent) {
+    typingCancelEvents[id] = cb;
+}
+
+function handleTyping() {
+    if (!typing) return;
+
+    let id = typingId;
+    let text = typingTexts[id];
+    let typeEvent = typingTypeEvents[id];
+    let finishEvent = typingFinishEvents[id];
+    let cancelEvent = typingCancelEvents[id];
+    let cursor = typingCursorPositions[id];
+
+    for (const key of typingKeys) {
+        if (TYPING_IGNORE_KEYS.includes(key)) continue;
+
+        let _text = `${text}`;
+        let _cursor = parseInt(cursor.toString());
+        let _exit = false;
+
+        switch (key) {
+            case "Enter":
+                if (finishEvent) finishEvent(text);
+                _exit = true;
+                break;
+            case "Escape":
+                if (cancelEvent) cancelEvent(text);
+                _exit = true;
+                break;
+            case "Backspace":
+                text = text.slice(0, cursor - 1) + text.slice(cursor);
+                break;
+            case "Delete":
+                text = text.slice(0, cursor) + text.slice(cursor + 1);
+                break;
+            case "ArrowLeft":
+                if (cursor > 0) cursor--;
+                break;
+            case "ArrowRight":
+                if (cursor < text.length) cursor++;
+                break;
+            case "End":
+                cursor = text.length;
+                break;
+            case "Home":
+                cursor = 0;
+                break;
+            default:
+                text = text.slice(0, cursor) + key + text.slice(cursor);
+                if (cursor < text.length) cursor++;
+                break;
+        }
+
+        if (_exit) {
+            typing = false;
+        } else {
+            typingCursorFlashTime = globalTimer;
+
+            if (typeEvent) {
+                let e = typeEvent(text);
+                if (!e) {
+                    text = _text;
+                    cursor = _cursor;
+                }
+            }
+        }
+    }
+}
+//#endregion
