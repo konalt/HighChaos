@@ -782,11 +782,9 @@ let typingCursorPositions: Record<string, number> = {};
 const TYPING_IGNORE_KEYS = [
     "Shift",
     "Control",
-    "Enter",
     "CapsLock",
     "ArrowUp",
     "ArrowDown",
-    "Escape",
     "Tab",
     "OS",
     "F1",
@@ -805,6 +803,8 @@ const TYPING_IGNORE_KEYS = [
 export const TYPING_CURSOR_FLASH_INTERVAL = 500;
 
 export function startTyping(id: string, clear = true) {
+    heldKeys = [];
+    typingCursorFlashTime = globalTimer;
     typing = true;
     typingId = id;
     if (clear) {
@@ -835,8 +835,26 @@ export function onTypingCancel(id: string, cb: TypeEvent) {
     typingCancelEvents[id] = cb;
 }
 
+export function getTyping() {
+    return typing;
+}
+
+export function getTypingCursorFlashTime() {
+    return typingCursorFlashTime;
+}
+
 export function getTypingText(id: string) {
     return typingTexts[id];
+}
+export function setTypingText(id: string, text: string) {
+    typingTexts[id] = text;
+}
+
+export function getTypingCursor(id: string) {
+    return typingCursorPositions[id];
+}
+export function setTypingCursor(id: string, pos: number) {
+    typingCursorPositions[id] = pos;
 }
 
 function handleTyping() {
@@ -852,8 +870,6 @@ function handleTyping() {
     for (const key of typingKeys) {
         if (TYPING_IGNORE_KEYS.includes(key)) continue;
 
-        let _text = `${text}`;
-        let _cursor = parseInt(cursor.toString());
         let _exit = false;
 
         switch (key) {
@@ -867,6 +883,7 @@ function handleTyping() {
                 break;
             case "Backspace":
                 text = text.slice(0, cursor - 1) + text.slice(cursor);
+                if (cursor > 0) cursor--;
                 break;
             case "Delete":
                 text = text.slice(0, cursor) + text.slice(cursor + 1);
@@ -896,10 +913,13 @@ function handleTyping() {
 
             if (typeEvent) {
                 let e = typeEvent(text);
-                if (!e) {
-                    text = _text;
-                    cursor = _cursor;
+                if (e) {
+                    typingTexts[id] = text;
+                    typingCursorPositions[id] = cursor;
                 }
+            } else {
+                typingTexts[id] = text;
+                typingCursorPositions[id] = cursor;
             }
         }
     }
