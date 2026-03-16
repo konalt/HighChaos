@@ -1,8 +1,9 @@
-import { GameSettings, Player } from "../game";
+import { BlockStruct, GameSettings, Player } from "../game";
 
 export interface AckPacket {
     players: [string, Player][];
     settings: GameSettings;
+    blocks: BlockStruct[];
 }
 
 let cpua = 0;

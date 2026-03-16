@@ -33,6 +33,20 @@ export interface GameSettings {
 
 export let ply: Player;
 
+export enum Block {
+    DIRT,
+    GRASS,
+    STONE,
+}
+
+export class BlockStruct {
+    type: Block = Block.DIRT;
+    gx: number = 0;
+    gy: number = 0;
+
+    constructor() {}
+}
+
 export function setPly(p: Player) {
     ply = p;
 }
@@ -40,6 +54,7 @@ export function setPly(p: Player) {
 export let socket: GameSocket;
 
 export let players: Map<string, Player> = new Map();
+export let blocks: BlockStruct[] = [];
 
 export let gameSettings: GameSettings = {
     playerSpeed: 5,
@@ -60,6 +75,8 @@ export function connect(): Promise<void> {
             for (const [i, p] of packet.players) {
                 addPlayer(p);
             }
+
+            blocks = packet.blocks;
 
             gameSettings = packet.settings;
 

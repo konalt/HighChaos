@@ -186,7 +186,7 @@ function roundRect(
     ctx.lineTo(bx + ctx.lineWidth / 2, by + ctx.lineWidth / 2 + r);
     ctx.arc(bx + ctx.lineWidth / 2 + r, by + ctx.lineWidth / 2 + r, r, Math.PI * 1.0, Math.PI * 1.5);
     ctx.fill();
-    if (stroke !== "transparent") {
+    if (stroke !== "") {
         ctx.stroke();
     }
 }

@@ -1,14 +1,8 @@
 import { ctx } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { gameSettings } from "../game";
+import { Block, gameSettings } from "../game";
 import { SPRITES } from "../sprites";
-
-export enum Block {
-    DIRT,
-    GRASS,
-    STONE,
-}
 
 export class BlockObject extends GameObject {
     type: Block = Block.DIRT;

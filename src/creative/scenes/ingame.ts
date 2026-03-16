@@ -1,4 +1,4 @@
-import { addDebugLine, loadImage, since } from "../../lib/engine/engine";
+import { addDebugLine, h, loadImage, since } from "../../lib/engine/engine";
 import { Scene } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
@@ -7,8 +7,12 @@ import { gameSettings, localPlayerUpdate, Player, players, ply, socket } from ".
 import { lastPlayerUpdate } from "../handlers";
 import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
+import { Sky } from "../objects/sky";
+import { World } from "../objects/world";
 
 export let testPlayerImage: HTMLImageElement;
+
+let maxCameraY = 0;
 
 export class InGameScene extends Scene {
     background: Background;
@@ -21,20 +25,23 @@ export class InGameScene extends Scene {
 
         this.players = new Map();
 
-        this.background = new Background();
+        /* this.background = new Background();
         this.background.color = "#184fe6";
-        this.add(this.background, -1);
+        this.add(this.background, -1); */
 
-        let rect = new HCRect();
+        let sky = new Sky();
+        this.add(sky);
+
+        /* let rect = new HCRect();
         rect.color = "#694f05";
-        this.add(rect);
+        this.add(rect); */
 
-        let blk = new BlockObject();
-        blk.x = 400;
-        blk.y = 20;
-        this.add(blk);
+        let world = new World();
+        this.add(world);
 
         this._loadPlayers();
+
+        maxCameraY = 4.5 * gameSettings.blockSize - h / 2;
     }
 
     private _createPlayerObject(ply: Player) {
@@ -84,7 +91,7 @@ export class InGameScene extends Scene {
         let drawY = lerp(t, ply.old_y, ply.y);
 
         this.camera.x = drawX;
-        this.camera.y = drawY;
+        this.camera.y = Math.min(drawY, maxCameraY);
 
         addDebugLine(`Name: ${ply.name}`);
         addDebugLine(`ID: ${ply.id}`);
