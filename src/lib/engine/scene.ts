@@ -68,7 +68,6 @@ export class Scene {
 
         for (const [i] of this.layers) {
             if (i < UI_LAYER) continue;
-            if (i >= UI_LAYER) continue;
             this.drawLayer(i);
         }
     }
@@ -96,7 +95,21 @@ export class Scene {
             if (i >= UI_LAYER) continue;
             this.drawLayer(i);
         }
+        ctx.restore();
 
+        ctx.save();
+        debugCamera.transform();
+
+        ctx.translate(this.camera.x - cw / 2, this.camera.y - ch / 2);
+        ctx.scale(1 / this.camera.zoom, 1 / this.camera.zoom);
+        for (const [i] of this.layers) {
+            if (i < UI_LAYER) continue;
+            this.drawLayer(i);
+        }
+        ctx.restore();
+
+        ctx.save();
+        debugCamera.transform();
         d.circ(0, 0, 10, "#aaa");
         d.rect(
             this.camera.x - cw / 2,
@@ -126,15 +139,6 @@ export class Scene {
             `${108 / this.camera.zoom}px monospace`,
             "right",
         );
-        ctx.restore();
-
-        ctx.save();
-        this.camera.transform();
-        for (const [i] of this.layers) {
-            if (i < UI_LAYER) continue;
-            if (i >= UI_LAYER) continue;
-            this.drawLayer(i);
-        }
         ctx.restore();
 
         ctx.lineWidth = 1;
