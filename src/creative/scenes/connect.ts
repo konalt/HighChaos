@@ -8,6 +8,7 @@ import { InGameScene } from "./ingame";
 import { GradientBackground } from "../../lib/ui/background/gradientbackground";
 import { GradientType, sleep } from "../../lib/engine/utils";
 import { LoadingText } from "../objects/menu/loadingtext";
+import { loadBlockSprites } from "../sprites";
 
 export class ConnectScene extends Scene {
     loader: SpinnerLoader;
@@ -41,12 +42,12 @@ export class ConnectScene extends Scene {
 
     async init() {
         await super.init();
-
+        await loadBlockSprites();
         connect().then(async () => {
             //await sleep(1000);
             this.loadingText.overrideText = "Ready!";
             this.loader.enabled = false;
-            fadeToScene(new InGameScene());
+            setScene(new InGameScene());
         });
     }
 }

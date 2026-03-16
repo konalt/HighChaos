@@ -28,6 +28,7 @@ export interface Player {
 export interface GameSettings {
     playerSpeed: number;
     updateRate: number;
+    blockSize: number;
 }
 
 export let ply: Player;
@@ -43,6 +44,7 @@ export let players: Map<string, Player> = new Map();
 export let gameSettings: GameSettings = {
     playerSpeed: 5,
     updateRate: 1000 / 60,
+    blockSize: 80,
 };
 
 export let textDecoder = new TextDecoder();

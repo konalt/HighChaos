@@ -5,6 +5,7 @@ import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
 import { gameSettings, localPlayerUpdate, Player, players, ply, socket } from "../game";
 import { lastPlayerUpdate } from "../handlers";
+import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
 
 export let testPlayerImage: HTMLImageElement;
@@ -27,6 +28,11 @@ export class InGameScene extends Scene {
         let rect = new HCRect();
         rect.color = "#694f05";
         this.add(rect);
+
+        let blk = new BlockObject();
+        blk.x = 400;
+        blk.y = 20;
+        this.add(blk);
 
         this._loadPlayers();
     }
