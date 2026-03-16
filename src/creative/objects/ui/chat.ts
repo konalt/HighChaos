@@ -2,6 +2,7 @@ import {
     ctx,
     d,
     font,
+    getKey,
     getKeyDown,
     getTyping,
     getTypingCursor,
@@ -49,6 +50,8 @@ export class Chat extends GameObject {
     }
 
     update(): void {
+        this.visible = !getKey("tab");
+
         if (getKeyDown("keyt")) {
             startTyping("chat");
         }
