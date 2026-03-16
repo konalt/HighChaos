@@ -8,6 +8,7 @@ import { lastPlayerUpdate } from "../handlers";
 import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
+import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
 
 export let testPlayerImage: HTMLImageElement;
@@ -30,6 +31,9 @@ export class InGameScene extends Scene {
 
         let world = new World();
         this.add(world);
+
+        let pb = new PlayerBoard();
+        this.add(pb, UI_LAYER);
 
         this._loadPlayers();
 
