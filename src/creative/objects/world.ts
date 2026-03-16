@@ -4,7 +4,7 @@ import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { Block, blocks, BlockStruct, gameSettings, ply } from "../game";
 import { SPRITES } from "../sprites";
 
-const drawMargin = 1;
+const drawMargin = 0.5;
 
 export function drawBlock(blk: BlockStruct) {
     let x = blk.gx * gameSettings.blockSize - drawMargin;
