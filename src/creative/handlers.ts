@@ -34,6 +34,7 @@ export function playerUpdateHandler(fullPacket: string) {
 
 export function playerJoinHandler(data: string) {
     let p = JSON.parse(data) as Player;
+    if (p.id == socket.id) return;
     addPlayer(p);
 }
 
