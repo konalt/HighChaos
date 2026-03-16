@@ -29,10 +29,7 @@ const bh = 350;
 const bg = "rgba(0,0,0,0.75)";
 
 export class Chat extends GameObject {
-    messages: [string, string][] = [
-        ["test", "bluh bluh bluh bluh ! ! ! ! ! ! ! ! !"],
-        ["a", "bcdefg"],
-    ];
+    messages: [string, string][] = [];
 
     constructor() {
         super();
