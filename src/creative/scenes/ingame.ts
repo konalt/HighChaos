@@ -1,5 +1,5 @@
-import { addDebugLine, h, loadImage, since } from "../../lib/engine/engine";
-import { Scene } from "../../lib/engine/scene";
+import { addDebugLine, h, loadImage, since, w } from "../../lib/engine/engine";
+import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
@@ -25,16 +25,8 @@ export class InGameScene extends Scene {
 
         this.players = new Map();
 
-        /* this.background = new Background();
-        this.background.color = "#184fe6";
-        this.add(this.background, -1); */
-
         let sky = new Sky();
         this.add(sky);
-
-        /* let rect = new HCRect();
-        rect.color = "#694f05";
-        this.add(rect); */
 
         let world = new World();
         this.add(world);
