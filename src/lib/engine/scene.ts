@@ -97,7 +97,6 @@ export class Scene {
             this.drawLayer(i);
         }
 
-        d.circ(debugCamera.x, debugCamera.y, 10 / debugCamera.zoom, "blue");
         d.circ(0, 0, 10, "#aaa");
         d.rect(
             this.camera.x - cw / 2,
@@ -137,6 +136,18 @@ export class Scene {
             this.drawLayer(i);
         }
         ctx.restore();
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "lime";
+        ctx.beginPath();
+        ctx.moveTo(w / 2, 0);
+        ctx.lineTo(w / 2, h);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, h / 2);
+        ctx.lineTo(w, h / 2);
+        ctx.stroke();
     }
 
     drawLayer(layer: number) {

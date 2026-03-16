@@ -562,9 +562,9 @@ let debugLines: string[] = [];
 function handleDebugKeys() {
     const cameraSpeed = 50;
     if (getKeyDown("numpad0")) {
-        debugCamera.x = w / 2;
-        debugCamera.y = h / 2;
-        debugCamera.zoom = 1;
+        debugCamera.x = currentScene.camera.x;
+        debugCamera.y = currentScene.camera.y;
+        debugCamera.zoom = currentScene.camera.zoom;
     }
     if (getKey("numpad4")) debugCamera.x -= (cameraSpeed * deltaTime) / debugCamera.zoom;
     if (getKey("numpad6")) debugCamera.x += (cameraSpeed * deltaTime) / debugCamera.zoom;
@@ -623,6 +623,9 @@ function draw() {
         setCursorMode(CursorMode.Default);
         if (getKeyDown("F3")) {
             debugMode = !debugMode;
+            debugCamera.x = currentScene.camera.x;
+            debugCamera.y = currentScene.camera.y;
+            debugCamera.zoom = currentScene.camera.zoom;
             localStorage.setItem("debug", Number(debugMode).toString());
         }
         if (debugMode) {
