@@ -802,7 +802,7 @@ const TYPING_IGNORE_KEYS = [
     "F11",
     "F12",
 ];
-const TYPING_CURSOR_FLASH_INTERVAL = 500;
+export const TYPING_CURSOR_FLASH_INTERVAL = 500;
 
 export function startTyping(id: string, clear = true) {
     typing = true;
@@ -833,6 +833,10 @@ export function onTypingFinish(id: string, cb: TypeEvent) {
 
 export function onTypingCancel(id: string, cb: TypeEvent) {
     typingCancelEvents[id] = cb;
+}
+
+export function getTypingText(id: string) {
+    return typingTexts[id];
 }
 
 function handleTyping() {
