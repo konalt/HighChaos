@@ -75,6 +75,7 @@ export interface GameSettings {
     airControl: number;
     playerWidth: number;
     playerHeight: number;
+    maxClientDesync: number;
 }
 
 export let gameSettings: GameSettings = {
@@ -87,6 +88,7 @@ export let gameSettings: GameSettings = {
     airControl: 1,
     playerHeight: 150,
     playerWidth: 75,
+    maxClientDesync: 20,
 };
 
 export function setSettings(s: GameSettings) {

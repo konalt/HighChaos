@@ -43,7 +43,7 @@ export function playerUpdateHandler(fullPacket: string) {
                 if (Object.hasOwn(ply, "old_" + k)) {
                     let d = Math.abs(ply[k] - s);
                     if (id == socket.id) {
-                        if (d > 20) {
+                        if (d > gameSettings.maxClientDesync) {
                             console.warn(`Client desync too large (${d}) - snapping!`);
                             ply["old_" + k] = parseInt(ply[k].toString());
                             ply[k] = s;

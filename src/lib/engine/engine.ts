@@ -655,8 +655,6 @@ function draw() {
         }
         currentScene.update();
         if (debugCameraFollowsSceneCamera && debugMode) {
-            console.log("lhelloehjdsg");
-
             debugCamera.x = currentScene.camera.x;
             debugCamera.y = currentScene.camera.y;
             debugCamera.zoom = currentScene.camera.zoom;
