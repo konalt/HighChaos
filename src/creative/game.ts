@@ -41,7 +41,7 @@ export let textEncoder = new TextEncoder();
 export function connect(): Promise<void> {
     return new Promise<void>((res, rej) => {
         socket = new GameSocket();
-        socket.on("ack", (packetStr) => {
+        socket.on(PACKET.ACK, (packetStr) => {
             let packet: AckPacket = JSON.parse(packetStr);
 
             players = new Map();
@@ -49,6 +49,8 @@ export function connect(): Promise<void> {
                 players.set(i, p);
                 if (i == socket.id) ply = p;
             }
+
+            gameSettings = packet.settings;
 
             res();
         });

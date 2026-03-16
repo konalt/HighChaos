@@ -1,7 +1,8 @@
-import { Player } from "../game";
+import { GameSettings, Player } from "../game";
 
 export interface AckPacket {
     players: [string, Player][];
+    settings: GameSettings;
 }
 
 let cpua = 0;
