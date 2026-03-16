@@ -1,7 +1,10 @@
+import { since } from "../../lib/engine/engine";
 import { Scene } from "../../lib/engine/scene";
+import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
-import { localPlayerUpdate, players, ply, socket } from "../game";
+import { gameSettings, localPlayerUpdate, players, ply, socket } from "../game";
+import { lastPlayerUpdatePacket } from "../handlers";
 import { PlayerObject } from "../objects/player";
 
 export class InGameScene extends Scene {
@@ -32,6 +35,7 @@ export class InGameScene extends Scene {
             plyo.x = ply.x;
             plyo.y = ply.y;
             plyo.name = ply.name;
+            plyo.ply = ply;
             this.add(plyo);
 
             this.players.set(k, plyo);
@@ -48,10 +52,18 @@ export class InGameScene extends Scene {
 
         localPlayerUpdate();
 
-        this.localPlayer.x = ply.x;
-        this.localPlayer.y = ply.y;
+        for (const [k, ply] of players) {
+            let plyo = this.players.get(k);
+            plyo.x = ply.x;
+            plyo.y = ply.y;
+        }
 
-        this.camera.x = this.localPlayer.x;
-        this.camera.y = this.localPlayer.y;
+        let t = Math.min(since(lastPlayerUpdatePacket) / gameSettings.updateRate, 1);
+
+        let drawX = lerp(t, ply.old_x, ply.x);
+        let drawY = lerp(t, ply.old_y, ply.y);
+
+        this.camera.x = drawX;
+        this.camera.y = drawY;
     }
 }

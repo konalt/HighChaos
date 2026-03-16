@@ -715,6 +715,10 @@ export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<s
     }
 }
 
+export function since(timestamp: number) {
+    return globalTimer - timestamp;
+}
+
 export const d = {
     rect,
     circ,

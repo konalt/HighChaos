@@ -1,16 +1,24 @@
-import { ctx, d, font } from "../../lib/engine/engine";
+import { ctx, d, font, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
+import { lerp } from "../../lib/engine/utils";
+import { gameSettings, Player } from "../game";
+import { lastPlayerUpdatePacket } from "../handlers";
 
 export class PlayerObject extends GameObject {
     name: string = "unnamed";
+    ply: Player;
 
     constructor() {
         super();
     }
 
     draw() {
+        let t = Math.min(since(lastPlayerUpdatePacket) / gameSettings.updateRate, 1);
+
+        let drawX = lerp(t, this.ply.old_x, this.ply.x);
+        let drawY = lerp(t, this.ply.old_y, this.ply.y);
         ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.translate(drawX, drawY);
 
         d.rect(0, 0, 30, 100, "white", "", 0, "bc");
 
