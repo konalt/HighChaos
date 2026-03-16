@@ -559,6 +559,10 @@ export let debugMode = localStorage.getItem("debug") == "1";
 export let debugCamera = new SceneCamera();
 let debugLines: string[] = [];
 
+export function addDebugLine(line: string) {
+    debugLines.push(line);
+}
+
 function handleDebugKeys() {
     const cameraSpeed = 50;
     if (getKeyDown("numpad0")) {

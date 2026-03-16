@@ -1,4 +1,4 @@
-import { loadImage, since } from "../../lib/engine/engine";
+import { addDebugLine, loadImage, since } from "../../lib/engine/engine";
 import { Scene } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
@@ -79,6 +79,9 @@ export class InGameScene extends Scene {
 
         this.camera.x = drawX;
         this.camera.y = drawY;
+
+        addDebugLine(`Name: ${ply.name}`);
+        addDebugLine(`ID: ${ply.id}`);
     }
 
     async init() {
