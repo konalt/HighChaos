@@ -58,12 +58,12 @@ export class GameSocket {
 
     emit(evt: string | number, data?: string) {
         if (typeof evt == "number") evt = String.fromCharCode(evt);
-        let _d = data;
-        // janky ass way: fix if it breaks
-        if (data.toString().startsWith("[")) {
-            _d = JSON.stringify(data);
-        }
         if (data) {
+            let _d = data;
+            // janky ass way: fix if it breaks
+            if (data.toString().startsWith("[")) {
+                _d = JSON.stringify(data);
+            }
             this._send(pkt(evt, _d));
         } else {
             this._send(pkt(evt));

@@ -43,7 +43,7 @@ export class ConnectScene extends Scene {
         await super.init();
 
         connect().then(async () => {
-            await sleep(1000);
+            //await sleep(1000);
             this.loadingText.overrideText = "Ready!";
             this.loader.enabled = false;
             fadeToScene(new InGameScene());

@@ -705,7 +705,7 @@ export function init(_g: string) {
     draw();
 }
 
-let currentScene: Scene;
+export let currentScene: Scene;
 
 export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<string, any> = {}) {
     await scene.init(sceneInit);

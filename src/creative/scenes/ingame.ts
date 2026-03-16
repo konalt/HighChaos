@@ -1,10 +1,10 @@
-import { since } from "../../lib/engine/engine";
+import { loadImage, since } from "../../lib/engine/engine";
 import { Scene } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
-import { gameSettings, localPlayerUpdate, players, ply, socket } from "../game";
-import { lastPlayerUpdatePacket } from "../handlers";
+import { gameSettings, localPlayerUpdate, Player, players, ply, socket } from "../game";
+import { lastPlayerUpdate } from "../handlers";
 import { PlayerObject } from "../objects/player";
 
 export let testPlayerImage: HTMLImageElement;
@@ -31,20 +31,31 @@ export class InGameScene extends Scene {
         this._loadPlayers();
     }
 
-    private _loadPlayers() {
-        for (const [k, ply] of players) {
-            let plyo = new PlayerObject();
-            plyo.x = ply.x;
-            plyo.y = ply.y;
-            plyo.name = ply.name;
-            plyo.ply = ply;
-            this.add(plyo);
+    private _createPlayerObject(ply: Player) {
+        let plyo = new PlayerObject();
+        plyo.x = ply.x;
+        plyo.y = ply.y;
+        plyo.name = ply.name;
+        plyo.ply = ply;
+        this.add(plyo);
 
-            this.players.set(k, plyo);
-            if (k == socket.id) {
-                this.localPlayer = plyo;
-            }
+        this.players.set(ply.id, plyo);
+        if (ply.id == socket.id) {
+            this.localPlayer = plyo;
         }
+
+        return plyo;
+    }
+
+    private _loadPlayers() {
+        for (const [_, ply] of players) {
+            this._createPlayerObject(ply);
+        }
+    }
+
+    removePlayer(id: string) {
+        let plyo = this.players.get(id);
+        this.remove(plyo);
     }
 
     update(): void {
@@ -56,16 +67,21 @@ export class InGameScene extends Scene {
 
         for (const [k, ply] of players) {
             let plyo = this.players.get(k);
+            if (!plyo) plyo = this._createPlayerObject(ply);
             plyo.x = ply.x;
             plyo.y = ply.y;
         }
 
-        let t = Math.min(since(lastPlayerUpdatePacket) / gameSettings.updateRate, 1);
+        let t = Math.min(since(lastPlayerUpdate[ply.id]) / gameSettings.updateRate, 1);
 
         let drawX = lerp(t, ply.old_x, ply.x);
         let drawY = lerp(t, ply.old_y, ply.y);
 
         this.camera.x = drawX;
         this.camera.y = drawY;
+    }
+
+    async init() {
+        testPlayerImage = await loadImage("creative/testplayer.png");
     }
 }

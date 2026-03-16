@@ -2,21 +2,21 @@ import { ctx, d, font, loadImage, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { lerp } from "../../lib/engine/utils";
 import { gameSettings, Player } from "../game";
-import { lastPlayerUpdatePacket } from "../handlers";
+import { lastPlayerUpdate } from "../handlers";
+import { testPlayerImage } from "../scenes/ingame";
 
 const playerHeight = 150;
 
 export class PlayerObject extends GameObject {
     name: string = "unnamed";
     ply: Player;
-    img: HTMLImageElement;
 
     constructor() {
         super();
     }
 
     draw() {
-        let t = Math.min(since(lastPlayerUpdatePacket) / gameSettings.updateRate, 1);
+        let t = Math.min(since(lastPlayerUpdate[this.ply.id]) / gameSettings.updateRate, 1);
 
         let drawX = lerp(t, this.ply.old_x, this.ply.x);
         let drawY = lerp(t, this.ply.old_y, this.ply.y);
@@ -24,7 +24,7 @@ export class PlayerObject extends GameObject {
         ctx.translate(drawX, drawY);
 
         //d.rect(0, 0, 30, 100, "white", "", 0, "bc");
-        d.quickImage(this.img, 0, 0, playerHeight / this.img.height, "bc");
+        d.quickImage(testPlayerImage, 0, 0, playerHeight / testPlayerImage.height, "bc");
 
         ctx.font = font(24);
         ctx.textBaseline = "alphabetic";
@@ -53,7 +53,5 @@ export class PlayerObject extends GameObject {
 
     async load() {
         await super.load();
-
-        this.img = await loadImage("creative/testplayer.png");
     }
 }

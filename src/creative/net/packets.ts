@@ -11,7 +11,12 @@ let npua = () => {
 };
 
 export enum PACKET {
-    ACK = npua(),
+    SC_ACK = npua(),
     CS_PLAYER_MOVE = npua(),
     SC_PLAYER_UPDATE = npua(),
+    CS_PLAYER_JOIN = npua(),
+    SC_PLAYER_JOIN = npua(),
+    SC_PLAYER_LEAVE = npua(),
+    CS_PLAYER_USERNAME = npua(),
+    SC_PLAYER_USERNAME = npua(),
 }

@@ -1,7 +1,8 @@
-import { globalTimer } from "../lib/engine/engine";
-import { players, socket } from "./game";
+import { currentScene, globalTimer } from "../lib/engine/engine";
+import { addPlayer, Player, players, ply, setPly, socket } from "./game";
+import { InGameScene } from "./scenes/ingame";
 
-export let lastPlayerUpdatePacket = 0;
+export let lastPlayerUpdate: Record<string, number> = {};
 export function playerUpdateHandler(fullPacket: string) {
     for (const pkt of fullPacket.split("|").map((e) => e.split(" "))) {
         let id = pkt[0];
@@ -27,6 +28,24 @@ export function playerUpdateHandler(fullPacket: string) {
                 ply[k] = s;
             }
         }
+        lastPlayerUpdate[id] = globalTimer;
     }
-    lastPlayerUpdatePacket = globalTimer;
+}
+
+export function playerJoinHandler(data: string) {
+    let p = JSON.parse(data) as Player;
+    addPlayer(p);
+}
+
+export function playerLeaveHandler(id: string) {
+    console.log("leave: " + id);
+
+    if (id == socket.id) {
+        console.error("Error?????? Tried to leave self????");
+        return;
+    }
+    players.delete(id);
+    if (currentScene instanceof InGameScene) {
+        currentScene.removePlayer(id);
+    }
 }

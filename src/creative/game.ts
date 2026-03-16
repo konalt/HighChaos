@@ -1,5 +1,5 @@
 import { Axis, deltaTime, getAxis, setTargetFramerate } from "../lib/engine/engine";
-import { playerUpdateHandler } from "./handlers";
+import { lastPlayerUpdate, playerJoinHandler, playerLeaveHandler, playerUpdateHandler } from "./handlers";
 import { GameSocket } from "./net/network";
 import { AckPacket, PACKET } from "./net/packets";
 
@@ -31,9 +31,14 @@ export interface GameSettings {
 }
 
 export let ply: Player;
+
+export function setPly(p: Player) {
+    ply = p;
+}
+
 export let socket: GameSocket;
 
-export let players: Map<string, Player>;
+export let players: Map<string, Player> = new Map();
 
 export let gameSettings: GameSettings = {
     playerSpeed: 5,
@@ -46,18 +51,12 @@ export let textEncoder = new TextEncoder();
 export function connect(): Promise<void> {
     return new Promise<void>((res, rej) => {
         socket = new GameSocket();
-        socket.on(PACKET.ACK, (packetStr) => {
+        socket.on(PACKET.SC_ACK, (packetStr) => {
             let packet: AckPacket = JSON.parse(packetStr);
-
-            console.log(packet);
 
             players = new Map();
             for (const [i, p] of packet.players) {
-                let _p = p;
-                _p.old_x = 0;
-                _p.old_y = 0;
-                players.set(i, _p);
-                if (i == socket.id) ply = _p;
+                addPlayer(p);
             }
 
             gameSettings = packet.settings;
@@ -66,11 +65,25 @@ export function connect(): Promise<void> {
 
             setTargetFramerate(1000 / gameSettings.updateRate);
 
+            socket.emit(PACKET.CS_PLAYER_JOIN);
+
             res();
         });
 
         socket.on(PACKET.SC_PLAYER_UPDATE, playerUpdateHandler);
+
+        socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
+        socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
     });
+}
+
+export function addPlayer(ply: Player) {
+    let _p = ply;
+    _p.old_x = 0;
+    _p.old_y = 0;
+    lastPlayerUpdate[ply.id] = 0;
+    players.set(ply.id, _p);
+    if (ply.id == socket.id) setPly(_p);
 }
 
 let lastMove = 0;
