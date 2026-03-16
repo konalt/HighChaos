@@ -1,4 +1,6 @@
-import { Axis, deltaTime, getAxis, setTargetFramerate } from "../lib/engine/engine";
+import { Axis, deltaTime, getAxis, getKeyDown, setTargetFramerate, since } from "../lib/engine/engine";
+import { FourNums } from "../lib/engine/utils";
+import { checkBlockIntersection } from "./collision";
 import { lastPlayerUpdate, playerJoinHandler, playerLeaveHandler, playerUpdateHandler } from "./handlers";
 import { GameSocket } from "./net/network";
 import { AckPacket, PACKET } from "./net/packets";
@@ -23,12 +25,7 @@ export interface Player {
     old_y: number;
     move: MoveData;
     state: PlayerState;
-}
-
-export interface GameSettings {
-    playerSpeed: number;
-    updateRate: number;
-    blockSize: number;
+    grounded: boolean;
 }
 
 export let ply: Player;
@@ -56,10 +53,28 @@ export let socket: GameSocket;
 export let players: Map<string, Player> = new Map();
 export let blocks: BlockStruct[] = [];
 
+export interface GameSettings {
+    playerSpeed: number;
+    updateRate: number;
+    blockSize: number;
+    gravity: number;
+    jumpVelocity: number;
+    playerTerminalVelocity: number;
+    airControl: number;
+    playerWidth: number;
+    playerHeight: number;
+}
+
 export let gameSettings: GameSettings = {
-    playerSpeed: 5,
-    updateRate: 1000 / 60,
-    blockSize: 80,
+    playerSpeed: 20,
+    updateRate: 100,
+    blockSize: 64,
+    gravity: 1,
+    jumpVelocity: 20,
+    playerTerminalVelocity: 19,
+    airControl: 1,
+    playerHeight: 150,
+    playerWidth: 75,
 };
 
 export let textDecoder = new TextDecoder();
@@ -108,13 +123,52 @@ export function addPlayer(ply: Player) {
 let lastMove = 0;
 
 export function localPlayerUpdate() {
+    const _ply = { ...ply };
+
     let dx = getAxis(Axis.Horizontal);
-    //ply.old_x = parseInt(ply.x.toString());
+
+    ply.old_x = parseInt(ply.x.toString());
     ply.x += dx * gameSettings.playerSpeed * deltaTime;
-    ply.old_x = ply.x;
+    let plyRect: FourNums = [
+        ply.x - gameSettings.playerWidth / 2,
+        ply.y - gameSettings.playerHeight,
+        gameSettings.playerWidth,
+        gameSettings.playerHeight,
+    ];
+    let check = checkBlockIntersection(plyRect);
+    if (check) {
+        ply.x = _ply.x;
+    }
+
+    ply.old_y = parseInt(ply.y.toString());
+    ply.dy += gameSettings.gravity * deltaTime;
+    if (ply.dy > gameSettings.playerTerminalVelocity) ply.dy = gameSettings.playerTerminalVelocity;
+    ply.y += ply.dy * deltaTime;
+
+    plyRect = [
+        ply.x - gameSettings.playerWidth / 2,
+        ply.y - gameSettings.playerHeight,
+        gameSettings.playerWidth,
+        gameSettings.playerHeight,
+    ];
+    check = checkBlockIntersection(plyRect);
+    if (check) {
+        ply.dy = 0;
+        ply.y = -check.gy * gameSettings.blockSize;
+    }
+
+    if (ply.y > 5 * gameSettings.blockSize) {
+        ply.dy = 0;
+        ply.y = 5 * gameSettings.blockSize;
+    }
 
     if (dx != lastMove) {
         socket.emit(PACKET.CS_PLAYER_MOVE, (dx + 1).toString());
         lastMove = dx;
+    }
+
+    if (getKeyDown("space")) {
+        socket.emit(PACKET.CS_PLAYER_JUMP);
+        ply.dy = -gameSettings.jumpVelocity;
     }
 }

@@ -20,4 +20,5 @@ export enum PACKET {
     SC_PLAYER_LEAVE = npua(),
     CS_PLAYER_USERNAME = npua(),
     SC_PLAYER_USERNAME = npua(),
+    CS_PLAYER_JUMP = npua(),
 }

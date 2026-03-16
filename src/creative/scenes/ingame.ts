@@ -41,7 +41,7 @@ export class InGameScene extends Scene {
 
         this._loadPlayers();
 
-        maxCameraY = 4.5 * gameSettings.blockSize - h / 2;
+        maxCameraY = 5 * gameSettings.blockSize - h / 2;
     }
 
     private _createPlayerObject(ply: Player) {

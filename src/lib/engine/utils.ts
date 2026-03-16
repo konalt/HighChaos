@@ -49,8 +49,31 @@ export function grey(fraction: number) {
     return `rgb(${val}, ${val}, ${val})`;
 }
 
+export function distance(x1: number, y1: number, x2: number, y2: number) {
+    return Math.hypot(x2 - x1, y2 - y1);
+}
+export function getAngle(a: number, b: number, c: number, d: number) {
+    const x = c - a;
+    const y = d - b;
+    return Math.atan2(y, x);
+}
+export function rectIntersect(
+    x1: number,
+    y1: number,
+    w1: number,
+    h1: number,
+    x2: number,
+    y2: number,
+    w2: number,
+    h2: number,
+) {
+    let x = valueInRange(x1, x2, x2 + w2) || valueInRange(x2, x1, x1 + w1);
+    let y = valueInRange(y1, y2, y2 + h2) || valueInRange(y2, y1, y1 + h1);
+
+    return x && y;
+}
 export function valueInRange(val: number, min: number, max: number) {
-    return val >= min && val <= max;
+    return val > min && val < max;
 }
 export function basicPointInRect(px: number, py: number, x: number, y: number, w: number, h: number) {
     return valueInRange(px, x, x + w) && valueInRange(py, y, y + h);
