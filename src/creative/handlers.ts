@@ -1,10 +1,13 @@
 import { currentScene, globalTimer, setTargetFramerate } from "../lib/engine/engine";
 import {
     addPlayer,
+    BlockStruct,
     gameSettings,
     pingTable,
     Player,
     players,
+    removeBlock,
+    setBlock,
     setBlocks,
     setMessages,
     setPingTable,
@@ -106,4 +109,24 @@ export function chatClearHandler() {
     if (currentScene instanceof InGameScene) {
         currentScene.chat.messages = [];
     }
+}
+
+export function blockUpdateHandler(data: string) {
+    let upd = JSON.parse(data);
+    let x = upd[0];
+    let y = upd[1];
+    let type = upd[2];
+
+    let blk = new BlockStruct();
+    blk.gx = x;
+    blk.gy = y;
+    blk.type = type;
+
+    setBlock(blk);
+}
+
+export function blockRemoveHandler(cString: string) {
+    let [x, y] = cString.split(",").map((n) => parseInt(n));
+
+    removeBlock(x, y);
 }

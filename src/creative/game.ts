@@ -3,6 +3,8 @@ import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
 import {
     ackHandler,
+    blockRemoveHandler,
+    blockUpdateHandler,
     chatClearHandler,
     chatHandler,
     lastPlayerUpdate,
@@ -67,6 +69,20 @@ export function setBlocks(bs: BlockStruct[]) {
     blocks = bs;
 }
 
+export function setBlock(bs: BlockStruct) {
+    let cBlock = blocks.find((b) => b.gx == bs.gx && b.gy == bs.gy);
+
+    if (cBlock) {
+        cBlock = bs;
+    } else {
+        blocks.push(bs);
+    }
+}
+
+export function removeBlock(x: number, y: number) {
+    blocks = blocks.filter((b) => b.gx != x || b.gy != y);
+}
+
 export interface GameSettings {
     playerSpeed: number;
     updateRate: number;
@@ -129,6 +145,9 @@ export function connect(): Promise<void> {
 
         socket.on(PACKET.SC_CHAT_RECV, chatHandler);
         socket.on(PACKET.SC_CHAT_CLEAR, chatClearHandler);
+
+        socket.on(PACKET.SC_BLOCK_UPDATE, blockUpdateHandler);
+        socket.on(PACKET.SC_BLOCK_REMOVE, blockRemoveHandler);
     });
 }
 

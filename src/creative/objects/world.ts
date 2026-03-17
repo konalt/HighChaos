@@ -1,11 +1,13 @@
-import { ctx, d, getMouse, h, w } from "../../lib/engine/engine";
+import { ctx, d, getKeyDown, getMouse, h, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
-import { TwoNums } from "../../lib/engine/utils";
+import { distance, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { Block, blocks, BlockStruct, gameSettings, ply } from "../game";
+import { Block, blocks, BlockStruct, gameSettings, ply, socket } from "../game";
+import { PACKET } from "../net/packets";
 import { SPRITES } from "../sprites";
 
 const drawMargin = 0.5;
+const REACH = 7 * 64;
 
 export function drawBlock(blk: BlockStruct) {
     let x = blk.gx * gameSettings.blockSize - drawMargin;
@@ -49,6 +51,8 @@ export class World extends GameObject {
     private mouse: TwoNums;
     private gridPos: TwoNums;
     private worldPos: TwoNums;
+    private hasReach: boolean;
+
     constructor() {
         super();
     }
@@ -58,6 +62,11 @@ export class World extends GameObject {
         this.mouse = [m[0] + this.scene.camera.x - w / 2, m[1] + this.scene.camera.y - h / 2];
         this.gridPos = getGridPos(this.mouse);
         this.worldPos = getWorldPos(this.gridPos);
+        this.hasReach = distance(...this.worldPos, ply.x, ply.y) < REACH;
+
+        if (getKeyDown("mouse1") && this.hasReach) {
+            socket.emit(PACKET.CS_BLOCK_REMOVE, this.gridPos.join(","));
+        }
     }
 
     draw() {
@@ -65,6 +74,15 @@ export class World extends GameObject {
             drawBlock(blk);
         }
 
-        d.rect(...this.worldPos, gameSettings.blockSize, gameSettings.blockSize, "transparent", "rgba(0,0,0,0.5)", 2);
+        if (this.hasReach) {
+            d.rect(
+                ...this.worldPos,
+                gameSettings.blockSize,
+                gameSettings.blockSize,
+                "transparent",
+                "rgba(0,0,0,0.5)",
+                2,
+            );
+        }
     }
 }
