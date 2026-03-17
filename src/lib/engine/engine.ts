@@ -347,6 +347,9 @@ function handleMouseDown(event: MouseEvent) {
     } else if (event.button == 2) {
         justPressed.push("mouse2");
         heldKeys.push("mouse2");
+    } else if (event.button == 1) {
+        justPressed.push("mouse3");
+        heldKeys.push("mouse3");
     }
     mouseX = event.offsetX;
     mouseY = event.offsetY;
@@ -358,6 +361,9 @@ function handleMouseUp(event: MouseEvent) {
     } else if (event.button == 2) {
         justReleased.push("mouse2");
         heldKeys = heldKeys.filter((hk) => hk !== "mouse2");
+    } else if (event.button == 1) {
+        justReleased.push("mouse3");
+        heldKeys = heldKeys.filter((hk) => hk !== "mouse3");
     }
     mouseX = event.offsetX;
     mouseY = event.offsetY;

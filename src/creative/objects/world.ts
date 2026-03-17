@@ -1,4 +1,4 @@
-import { ctx, d, getMouse, w } from "../../lib/engine/engine";
+import { ctx, d, getMouse, h, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
@@ -54,7 +54,8 @@ export class World extends GameObject {
     }
 
     update() {
-        this.mouse = getMouse();
+        let m = getMouse();
+        this.mouse = [m[0] + this.scene.camera.x - w / 2, m[1] + this.scene.camera.y - h / 2];
         this.gridPos = getGridPos(this.mouse);
         this.worldPos = getWorldPos(this.gridPos);
     }
