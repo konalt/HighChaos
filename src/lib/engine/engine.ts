@@ -942,7 +942,6 @@ export function wrap(text: string, width: number) {
                 if (i == sws.length - 1) {
                     if (curLine.length > 0) lines.push(curLine.join(" "));
                     curLine = [sw];
-                    //lines.push(sw);
                 } else {
                     let _curLine = [...curLine, sw];
                     if (txtW(_curLine.join(" ")) > width) {
