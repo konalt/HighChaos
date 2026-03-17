@@ -1,5 +1,6 @@
-import { ctx, w } from "../../lib/engine/engine";
+import { ctx, d, getMouse, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
+import { TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { Block, blocks, BlockStruct, gameSettings, ply } from "../game";
 import { SPRITES } from "../sprites";
@@ -36,14 +37,33 @@ export function drawBlock(blk: BlockStruct) {
     ctx.imageSmoothingEnabled = _s;
 }
 
+export function getGridPos(pos: TwoNums): TwoNums {
+    return [Math.floor(pos[0] / gameSettings.blockSize), -Math.floor(pos[1] / gameSettings.blockSize)] as TwoNums;
+}
+
+export function getWorldPos(pos: TwoNums): TwoNums {
+    return [pos[0] * gameSettings.blockSize, -pos[1] * gameSettings.blockSize] as TwoNums;
+}
+
 export class World extends GameObject {
+    private mouse: TwoNums;
+    private gridPos: TwoNums;
+    private worldPos: TwoNums;
     constructor() {
         super();
+    }
+
+    update() {
+        this.mouse = getMouse();
+        this.gridPos = getGridPos(this.mouse);
+        this.worldPos = getWorldPos(this.gridPos);
     }
 
     draw() {
         for (const blk of blocks) {
             drawBlock(blk);
         }
+
+        d.rect(...this.worldPos, gameSettings.blockSize, gameSettings.blockSize, "transparent", "rgba(0,0,0,0.5)", 2);
     }
 }
