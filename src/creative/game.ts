@@ -3,6 +3,7 @@ import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
 import {
     ackHandler,
+    chatClearHandler,
     chatHandler,
     lastPlayerUpdate,
     pingSendHandler,
@@ -96,6 +97,11 @@ export function setSettings(s: GameSettings) {
     gameSettings = s;
 }
 
+export let messages: [string, string][];
+export function setMessages(m: [string, string][]) {
+    messages = m;
+}
+
 export let pingTable: Record<string, number> = {};
 export function setPingTable(t: Record<string, number>) {
     pingTable = t;
@@ -122,6 +128,7 @@ export function connect(): Promise<void> {
         socket.on(PACKET.SC_PING_TABLE, pingTableHandler);
 
         socket.on(PACKET.SC_CHAT_RECV, chatHandler);
+        socket.on(PACKET.SC_CHAT_CLEAR, chatClearHandler);
     });
 }
 

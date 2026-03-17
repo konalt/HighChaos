@@ -5,6 +5,7 @@ export interface AckPacket {
     settings: GameSettings;
     blocks: BlockStruct[];
     pingTable: Record<string, number>;
+    messages: [string, string][];
 }
 
 let cpua = 0;
@@ -27,4 +28,5 @@ export enum PACKET {
     SC_PING_TABLE = npua(),
     CS_CHAT_SEND = npua(),
     SC_CHAT_RECV = npua(),
+    SC_CHAT_CLEAR = npua(),
 }

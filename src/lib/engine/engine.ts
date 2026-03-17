@@ -206,11 +206,11 @@ function text(
     ctx.font = font;
     if (outline > 0) ctx.lineWidth = outline;
     ctx.strokeStyle = "black";
-    const lines = text.split("\n");
+    const lines = wrap(text, maxWidth);
     const lineheight = ctx.measureText("X").fontBoundingBoxAscent + ctx.measureText("X").fontBoundingBoxDescent;
     let maxLineWidth = 0;
     for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], x, y + i * lineheight, maxWidth);
+        ctx.fillText(lines[i], x, y + i * lineheight);
         if (outline > 0) ctx.strokeText(lines[i], x, y + i * lineheight, maxWidth);
         const calculatedWidth = Math.min(ctx.measureText(lines[i]).width, maxWidth);
         if (calculatedWidth > maxLineWidth) maxLineWidth = calculatedWidth;
@@ -540,6 +540,7 @@ export function setGlobalVolume(newVolume: number) {
 }
 //#endregion
 
+//#region drawing shit
 export let deltaTime = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
@@ -703,6 +704,7 @@ function draw() {
     deltaTime = thisLoop - lastLoop;
     requestAnimationFrame(draw);
 }
+//#endregion
 
 export let game = "unknown";
 
@@ -922,3 +924,38 @@ function handleTyping() {
     }
 }
 //#endregion
+
+export function wrap(text: string, width: number) {
+    function txtW(txt: string) {
+        return ctx.measureText(txt).width;
+    }
+    let lines = [];
+    let curLine = [];
+
+    text.split(" ").forEach((word) => {
+        if (word.includes("\n")) {
+            let i = 0;
+            let sws = word.split("\n");
+            for (const sw of sws) {
+                if (i == sws.length - 1) {
+                    curLine.push(sw);
+                } else {
+                    lines.push([...curLine, sw].join(" "));
+                    curLine = [];
+                }
+                i++;
+            }
+            return;
+        }
+        let _curLine = [...curLine, word];
+        if (txtW(_curLine.join(" ")) > width) {
+            lines.push(curLine.join(" "));
+            curLine = [word];
+        } else {
+            curLine.push(word);
+        }
+    });
+    lines.push(curLine.join(" "));
+
+    return lines;
+}

@@ -6,6 +6,7 @@ import {
     Player,
     players,
     setBlocks,
+    setMessages,
     setPingTable,
     setSettings,
     socket,
@@ -23,6 +24,7 @@ export function ackHandler(packetStr: string) {
 
     setBlocks(packet.blocks);
     setSettings(packet.settings);
+    setMessages(packet.messages);
     setPingTable(packet.pingTable);
 
     setTargetFramerate(1000 / gameSettings.updateRate);
@@ -89,11 +91,19 @@ export function pingTableHandler(d: string) {
 }
 
 export function chatHandler(d: string) {
-    console.log(d);
-
     let msg = JSON.parse(d);
 
     if (currentScene instanceof InGameScene) {
         currentScene.chat.messages.push(msg);
+    }
+}
+
+export function chatClearHandler() {
+    console.log("clearing");
+
+    setMessages([]);
+
+    if (currentScene instanceof InGameScene) {
+        currentScene.chat.messages = [];
     }
 }

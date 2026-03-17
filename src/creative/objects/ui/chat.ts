@@ -1,7 +1,6 @@
 import {
     ctx,
     d,
-    font,
     getKey,
     getKeyDown,
     getTyping,
@@ -9,19 +8,19 @@ import {
     getTypingCursorFlashTime,
     getTypingText,
     onTypingFinish,
-    setFont,
+    setTypingCursor,
     setTypingText,
     since,
     startTyping,
     w,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { socket } from "../../game";
+import { messages, socket } from "../../game";
 import { PACKET } from "../../net/packets";
 
 const margin = 15;
 const padding = 10;
-const fontsize = 24;
+const fontsize = 20;
 
 const bw = 350;
 const bh = 350;
@@ -29,7 +28,7 @@ const bh = 350;
 const bg = "rgba(0,0,0,0.75)";
 
 export class Chat extends GameObject {
-    messages: [string, string][] = [];
+    messages: [string, string][] = messages;
 
     constructor() {
         super();
@@ -49,8 +48,12 @@ export class Chat extends GameObject {
     update(): void {
         this.visible = !getKey("tab");
 
-        if (getKeyDown("keyt")) {
+        if (getKeyDown("keyt") || getKeyDown("slash")) {
             startTyping("chat");
+            if (getKeyDown("slash")) {
+                setTypingText("chat", "/");
+                setTypingCursor("chat", 1);
+            }
         }
     }
 
