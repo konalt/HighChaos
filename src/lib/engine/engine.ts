@@ -200,14 +200,16 @@ function text(
     align: CanvasTextAlign,
     maxWidth = 99999,
     outline = 0,
+    maxHeight = 99999,
 ) {
     ctx.fillStyle = col;
     ctx.textAlign = align;
     ctx.font = font;
     if (outline > 0) ctx.lineWidth = outline;
     ctx.strokeStyle = "black";
-    const lines = wrap(text, maxWidth);
-    const lineheight = ctx.measureText("X").fontBoundingBoxAscent + ctx.measureText("X").fontBoundingBoxDescent;
+    let lines = wrap(text, maxWidth);
+    let lineheight = ctx.measureText("X").fontBoundingBoxAscent + ctx.measureText("X").fontBoundingBoxDescent + 2.5;
+    lines = lines.slice(-(maxHeight / lineheight));
     let maxLineWidth = 0;
     for (let i = 0; i < lines.length; i++) {
         ctx.fillText(lines[i], x, y + i * lineheight);
@@ -938,10 +940,18 @@ export function wrap(text: string, width: number) {
             let sws = word.split("\n");
             for (const sw of sws) {
                 if (i == sws.length - 1) {
-                    curLine.push(sw);
+                    if (curLine.length > 0) lines.push(curLine.join(" "));
+                    curLine = [sw];
+                    //lines.push(sw);
                 } else {
-                    lines.push([...curLine, sw].join(" "));
-                    curLine = [];
+                    let _curLine = [...curLine, sw];
+                    if (txtW(_curLine.join(" ")) > width) {
+                        lines.push(curLine.join(" "));
+                        curLine = [sw];
+                    } else {
+                        lines.push(_curLine.join(" "));
+                        curLine = [];
+                    }
                 }
                 i++;
             }

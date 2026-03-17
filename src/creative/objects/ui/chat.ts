@@ -23,7 +23,7 @@ const padding = 10;
 const fontsize = 20;
 
 const bw = 350;
-const bh = 350;
+const bh = 365;
 
 const bg = "rgba(0,0,0,0.75)";
 
@@ -73,19 +73,30 @@ export class Chat extends GameObject {
             ctx.font,
             "left",
             bw - padding * 2,
+            0,
+            bh - padding * 2,
         );
 
         let text = getTypingText("chat") ?? "";
+        let overflow = false;
         while (ctx.measureText(text).width > bw - padding * 2) {
             text = text.slice(1);
+            overflow = true;
         }
-        d.text(w - margin - bw + padding, margin + bh + padding + 2.5, text, "white", ctx.font, "left");
+        if (overflow) {
+            d.text(w - margin - padding, margin + bh + padding + 2.5, text, "white", ctx.font, "right");
+        } else {
+            d.text(w - margin - bw + padding, margin + bh + padding + 2.5, text, "white", ctx.font, "left");
+        }
 
         if (getTyping() && since(getTypingCursorFlashTime()) % 1000 < 500) {
-            let cx = ctx.measureText(text.substring(0, getTypingCursor("chat"))).width;
+            let cx = w - margin - padding;
+            if (!overflow) {
+                cx = w - margin - bw + padding + ctx.measureText(text.substring(0, getTypingCursor("chat"))).width;
+            }
             ctx.beginPath();
-            ctx.moveTo(w - margin - bw + padding + cx, margin + bh + padding + 2.5);
-            ctx.lineTo(w - margin - bw + padding + cx, margin + bh + padding + fontsize);
+            ctx.moveTo(cx, margin + bh + padding + 2.5);
+            ctx.lineTo(cx, margin + bh + padding + fontsize);
             ctx.lineWidth = 2;
             ctx.strokeStyle = "white";
             ctx.stroke();
