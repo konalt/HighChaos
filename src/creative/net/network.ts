@@ -1,5 +1,6 @@
 import { compressGzip, decompressGzip } from "../../wasm_gzip/wasm_gzip.js";
 import { textDecoder, textEncoder } from "../game.js";
+import { PACKET } from "./packets.js";
 
 export function pkt(evt: string, data?: any) {
     if (data) {
@@ -36,6 +37,7 @@ export class GameSocket {
                 let evt = decomp[0];
                 let cb = this.events.get(evt);
                 if (cb) {
+                    //console.log(PACKET[evt.charCodeAt(0)]);
                     let data = decomp[1];
                     if (data) {
                         cb(data);

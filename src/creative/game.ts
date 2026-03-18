@@ -11,7 +11,9 @@ import {
     pingSendHandler,
     pingTableHandler,
     playerJoinHandler,
+    playerJumpHandler,
     playerLeaveHandler,
+    playerMoveHandler,
     playerUpdateHandler,
 } from "./handlers";
 import { GameSocket } from "./net/network";
@@ -135,9 +137,10 @@ export function connect(): Promise<void> {
             res();
         });
 
-        socket.on(PACKET.SC_PLAYER_UPDATE, playerUpdateHandler);
-
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
+        socket.on(PACKET.SC_PLAYER_UPDATE, playerUpdateHandler);
+        socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
+        socket.on(PACKET.SC_PLAYER_MOVE, playerMoveHandler);
         socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
 
         socket.on(PACKET.SC_PING_SEND, pingSendHandler);
@@ -163,47 +166,11 @@ export function addPlayer(ply: Player) {
 let lastMove = 0;
 
 export function localPlayerUpdate() {
-    const _ply = { ...ply };
-
     let dx = getAxis(Axis.Horizontal);
-
-    ply.old_x = parseInt(ply.x.toString());
-    ply.x += dx * gameSettings.playerSpeed * deltaTime;
-    let plyRect: FourNums = [
-        ply.x - gameSettings.playerWidth / 2,
-        ply.y - gameSettings.playerHeight,
-        gameSettings.playerWidth,
-        gameSettings.playerHeight,
-    ];
-    let check = checkBlockIntersection(plyRect);
-    if (check) {
-        ply.x = _ply.x;
-    }
-
-    ply.old_y = parseInt(ply.y.toString());
-    ply.dy += gameSettings.gravity * deltaTime;
-    if (ply.dy > gameSettings.playerTerminalVelocity) ply.dy = gameSettings.playerTerminalVelocity;
-    ply.y += ply.dy * deltaTime;
-
-    plyRect = [
-        ply.x - gameSettings.playerWidth / 2,
-        ply.y - gameSettings.playerHeight,
-        gameSettings.playerWidth,
-        gameSettings.playerHeight,
-    ];
-    check = checkBlockIntersection(plyRect);
-    if (check) {
-        ply.dy = 0;
-        ply.y = -check.gy * gameSettings.blockSize;
-    }
-
-    if (ply.y > 5 * gameSettings.blockSize) {
-        ply.dy = 0;
-        ply.y = 5 * gameSettings.blockSize;
-    }
 
     if (dx != lastMove) {
         socket.emit(PACKET.CS_PLAYER_MOVE, (dx + 1).toString());
+        ply.dx = dx;
         lastMove = dx;
     }
 

@@ -35,28 +35,44 @@ export function ackHandler(packetStr: string) {
     socket.emit(PACKET.CS_PLAYER_JOIN);
 }
 
+const PLAYER_DATA_ALWAYS_UPDATE = ["dx", "dy"];
+const PLAYER_DATA_UPDATE_GROUP: Record<string, string[]> = {
+    x: ["y"],
+    y: ["x"],
+};
+
 export let lastPlayerUpdate: Record<string, number> = {};
 export function playerUpdateHandler(fullPacket: string) {
     for (const pkt of fullPacket.split("|").map((e) => e.split(" "))) {
         let id = pkt[0];
         let ply = players.get(id);
         if (!ply) continue;
-        for (const [k, v] of pkt.slice(1).map((e) => e.split("="))) {
+        let ent = pkt.slice(1).map((e) => e.split("="));
+        let _pkt = Object.fromEntries(ent);
+        for (const [k, v] of ent) {
             let s: string | number = v;
             if (v.startsWith("@@")) {
                 s = parseInt(v.substring(2), 36) / 100;
-                if (Object.hasOwn(ply, "old_" + k)) {
-                    let d = Math.abs(ply[k] - s);
-                    if (id == socket.id) {
-                        if (d > gameSettings.maxClientDesync) {
-                            console.warn(`Client desync too large (${d}) - snapping!`);
-                            ply["old_" + k] = parseInt(ply[k].toString());
-                            ply[k] = s;
+                let set = () => {
+                    /* let g = PLAYER_DATA_UPDATE_GROUP[k];
+                    if (g) {
+                        for (const d of g) {
+                            if (_pkt[d]) {
+                                if (Object.hasOwn(ply, "old_" + d)) ply["old_" + d] = parseInt(ply[d].toString());
+                                ply[d] = parseInt(_pkt[d].substring(2), 36) / 100;
+                            }
                         }
-                    } else {
-                        ply["old_" + k] = parseInt(ply[k].toString());
-                        ply[k] = s;
-                    }
+                    } */
+                    if (Object.hasOwn(ply, "old_" + k)) ply["old_" + k] = parseInt(ply[k].toString());
+                    ply[k] = s;
+                };
+                let d = Math.abs(ply[k] - s);
+                if (PLAYER_DATA_ALWAYS_UPDATE.includes(k)) {
+                    set();
+                }
+                if (d > gameSettings.maxClientDesync) {
+                    if (d > gameSettings.maxClientDesync) console.warn(`Client desync too large (${d}) - snapping!`);
+                    set();
                 }
             } else {
                 ply[k] = s;
@@ -64,6 +80,17 @@ export function playerUpdateHandler(fullPacket: string) {
         }
         lastPlayerUpdate[id] = globalTimer;
     }
+}
+
+export function playerMoveHandler(data: string) {
+    let [id, dx] = data.split(" ");
+    if (id == socket.id) return;
+    players.get(id).dx = parseInt(dx) - 1;
+}
+
+export function playerJumpHandler(id: string) {
+    //if (id == socket.id) return;
+    players.get(id).dy = -gameSettings.jumpVelocity;
 }
 
 export function playerJoinHandler(data: string) {

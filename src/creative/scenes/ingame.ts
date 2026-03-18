@@ -11,6 +11,7 @@ import { Sky } from "../objects/sky";
 import { Chat } from "../objects/ui/chat";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
+import { updatePlayer } from "../shared";
 
 export let testPlayerImage: HTMLImageElement;
 
@@ -72,8 +73,6 @@ export class InGameScene extends Scene {
     }
 
     update(): void {
-        super.update();
-
         if (!this.localPlayer) return;
 
         localPlayerUpdate();
@@ -81,6 +80,7 @@ export class InGameScene extends Scene {
         for (const [k, ply] of players) {
             let plyo = this.players.get(k);
             if (!plyo) plyo = this._createPlayerObject(ply);
+            updatePlayer(ply);
             plyo.x = ply.x;
             plyo.y = ply.y;
         }
@@ -95,6 +95,8 @@ export class InGameScene extends Scene {
 
         addDebugLine(`Name: ${ply.name}`);
         addDebugLine(`ID: ${ply.id}`);
+
+        super.update();
     }
 
     async init() {
