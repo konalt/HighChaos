@@ -7,6 +7,7 @@ import {
     blockUpdateHandler,
     chatClearHandler,
     chatHandler,
+    deltaTimeHandler,
     lastPlayerUpdate,
     pingSendHandler,
     pingTableHandler,
@@ -37,6 +38,8 @@ export interface Player {
     dy: number;
     old_x: number;
     old_y: number;
+    sv_x: number;
+    sv_y: number;
     move: MoveData;
     state: PlayerState;
     grounded: boolean;
@@ -86,6 +89,7 @@ export function removeBlock(x: number, y: number) {
 }
 
 export interface GameSettings {
+    physSteps: number;
     playerSpeed: number;
     updateRate: number;
     blockSize: number;
@@ -96,6 +100,7 @@ export interface GameSettings {
     playerWidth: number;
     playerHeight: number;
     maxClientDesync: number;
+    tickRate: number;
 }
 
 export let gameSettings: GameSettings = {
@@ -109,6 +114,8 @@ export let gameSettings: GameSettings = {
     playerHeight: 150,
     playerWidth: 75,
     maxClientDesync: 20,
+    physSteps: 8,
+    tickRate: 50,
 };
 
 export function setSettings(s: GameSettings) {
@@ -136,6 +143,8 @@ export function connect(): Promise<void> {
 
             res();
         });
+
+        socket.on(PACKET.SC_DELTA_TIME, deltaTimeHandler);
 
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
         socket.on(PACKET.SC_PLAYER_UPDATE, playerUpdateHandler);
@@ -178,4 +187,10 @@ export function localPlayerUpdate() {
         socket.emit(PACKET.CS_PLAYER_JUMP);
         ply.dy = -gameSettings.jumpVelocity;
     }
+}
+
+export let serverDeltaTime = 0;
+
+export function setSDT(n: number) {
+    serverDeltaTime = n;
 }

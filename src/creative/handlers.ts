@@ -1,4 +1,4 @@
-import { currentScene, globalTimer, setTargetFramerate } from "../lib/engine/engine";
+import { currentScene, deltaTime, globalTimer, setTargetFramerate } from "../lib/engine/engine";
 import {
     addPlayer,
     BlockStruct,
@@ -11,6 +11,7 @@ import {
     setBlocks,
     setMessages,
     setPingTable,
+    setSDT,
     setSettings,
     socket,
 } from "./game";
@@ -41,6 +42,8 @@ const PLAYER_DATA_UPDATE_GROUP: Record<string, string[]> = {
     y: ["x"],
 };
 
+let lastDesync = 0;
+
 export let lastPlayerUpdate: Record<string, number> = {};
 export function playerUpdateHandler(fullPacket: string) {
     for (const pkt of fullPacket.split("|").map((e) => e.split(" "))) {
@@ -50,29 +53,40 @@ export function playerUpdateHandler(fullPacket: string) {
         let ent = pkt.slice(1).map((e) => e.split("="));
         let _pkt = Object.fromEntries(ent);
         for (const [k, v] of ent) {
+            if (k.startsWith("old_")) continue; // used for interpolation, handled automatically by client. ignore
             let s: string | number = v;
             if (v.startsWith("@@")) {
-                s = parseInt(v.substring(2), 36) / 100;
-                let set = () => {
-                    /* let g = PLAYER_DATA_UPDATE_GROUP[k];
+                s = parseInt(v.substring(2), 36);
+                let set = (setold = true) => {
+                    let g = PLAYER_DATA_UPDATE_GROUP[k];
                     if (g) {
                         for (const d of g) {
                             if (_pkt[d]) {
-                                if (Object.hasOwn(ply, "old_" + d)) ply["old_" + d] = parseInt(ply[d].toString());
-                                ply[d] = parseInt(_pkt[d].substring(2), 36) / 100;
+                                if (Object.hasOwn(ply, "old_" + d) && setold)
+                                    ply["old_" + d] = parseInt(ply[d].toString());
+                                ply[d] = parseInt(_pkt[d].substring(2), 36);
                             }
                         }
-                    } */
-                    if (Object.hasOwn(ply, "old_" + k)) ply["old_" + k] = parseInt(ply[k].toString());
+                    }
+                    if (Object.hasOwn(ply, "old_" + k) && setold) ply["old_" + k] = parseInt(ply[k].toString());
                     ply[k] = s;
                 };
-                let d = Math.abs(ply[k] - s);
+                if ((k == "x" || k == "y") && currentScene instanceof InGameScene) {
+                    ply["sv_" + k] = s;
+                }
                 if (PLAYER_DATA_ALWAYS_UPDATE.includes(k)) {
                     set();
                 }
-                if (d > gameSettings.maxClientDesync) {
-                    if (d > gameSettings.maxClientDesync) console.warn(`Client desync too large (${d}) - snapping!`);
+                let d1 = ply[k] - s;
+                let d2 = Math.abs(d1);
+                if (d2 > gameSettings.maxClientDesync) {
+                    console.warn(
+                        `Client desync too large, snapping!\n${k}: ${ply[k]} => ${s} (${d1})\nlast desync was ${performance.now() - lastDesync}ms`,
+                    );
+                    lastDesync = performance.now();
                     set();
+                } else {
+                    console.debug(`${k}: ${ply[k]} => ${s} (${d1})`);
                 }
             } else {
                 ply[k] = s;
@@ -156,4 +170,8 @@ export function blockRemoveHandler(cString: string) {
     let [x, y] = cString.split(",").map((n) => parseInt(n));
 
     removeBlock(x, y);
+}
+
+export function deltaTimeHandler(n: string) {
+    setSDT(parseFloat(n));
 }

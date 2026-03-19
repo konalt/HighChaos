@@ -558,12 +558,20 @@ export function setTargetFramerate(fps: number) {
     targetFramerate = fps;
 }
 function calculateFPS() {
-    const thisLoop = Date.now();
+    const thisLoop = performance.now();
     const fps = 1000 / (thisLoop - lastLoop);
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
     deltaTime = (thisLoop - lastLoop) / targetFramerate;
     lastLoop = thisLoop;
+}
+
+/**
+ * Must be called after calculateFPS()
+ * @param dt {number}
+ */
+export function overrideDeltaTime(dt: number) {
+    deltaTime = dt;
 }
 
 export function getFPS() {
@@ -708,8 +716,6 @@ function draw() {
     justPressed = [];
     justReleased = [];
     typingKeys = [];
-    const thisLoop = performance.now();
-    deltaTime = thisLoop - lastLoop;
     requestAnimationFrame(draw);
 }
 //#endregion

@@ -7,7 +7,6 @@ import { ConnectScene } from "./scenes/connect";
 
 Promise.all([init(), loadFonts()]).then(() => {
     c.setFont("'Le Cristal de Lune', cursive");
-    c.setTargetFramerate(60);
 
     loadSettings();
 

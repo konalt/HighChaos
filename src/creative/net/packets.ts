@@ -15,6 +15,7 @@ let npua = () => {
 
 export enum PACKET {
     SC_ACK = npua(),
+    SC_DELTA_TIME = npua(),
     CS_PLAYER_MOVE = npua(),
     SC_PLAYER_UPDATE = npua(),
     SC_PLAYER_MOVE = npua(),

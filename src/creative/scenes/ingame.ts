@@ -1,9 +1,9 @@
-import { addDebugLine, h, loadImage, since, w } from "../../lib/engine/engine";
+import { addDebugLine, h, loadImage, overrideDeltaTime, setTargetFramerate, since, w } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
-import { gameSettings, localPlayerUpdate, Player, players, ply, socket } from "../game";
+import { serverDeltaTime, gameSettings, localPlayerUpdate, Player, players, ply, socket } from "../game";
 import { lastPlayerUpdate } from "../handlers";
 import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
@@ -81,8 +81,6 @@ export class InGameScene extends Scene {
             let plyo = this.players.get(k);
             if (!plyo) plyo = this._createPlayerObject(ply);
             updatePlayer(ply);
-            plyo.x = ply.x;
-            plyo.y = ply.y;
         }
 
         let t = Math.min(since(lastPlayerUpdate[ply.id]) / gameSettings.updateRate, 1);
