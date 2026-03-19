@@ -35,6 +35,19 @@ export class Scene {
         );
     }
 
+    fixedUpdate() {
+        for (const [i] of this.layers) {
+            this.fixedUpdateLayer(i);
+        }
+    }
+
+    fixedUpdateLayer(layer: number) {
+        for (const o of this.layers.get(layer)) {
+            if (!o.enabled) continue;
+            o.fixedUpdate();
+        }
+    }
+
     update() {
         for (const [i] of this.layers) {
             this.updateLayer(i);

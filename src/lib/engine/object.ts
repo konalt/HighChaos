@@ -26,6 +26,10 @@ export class GameObject {
         // Update code here
     }
 
+    fixedUpdate() {
+        // Fixed update goes here
+    }
+
     init() {
         // Init code here
     }

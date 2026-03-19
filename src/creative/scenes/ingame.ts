@@ -72,7 +72,7 @@ export class InGameScene extends Scene {
         this.remove(plyo);
     }
 
-    update(): void {
+    fixedUpdate(): void {
         if (!this.localPlayer) return;
 
         localPlayerUpdate();
@@ -94,6 +94,10 @@ export class InGameScene extends Scene {
         addDebugLine(`Name: ${ply.name}`);
         addDebugLine(`ID: ${ply.id}`);
 
+        super.fixedUpdate();
+    }
+
+    update(): void {
         super.update();
     }
 

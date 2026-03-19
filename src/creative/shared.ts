@@ -4,14 +4,14 @@ import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
 import { Player, gameSettings } from "./game";
 
+const svDiffFactor = 0.1;
+
 export function updatePlayer(ply: Player) {
-    let deltaTime = realDeltaTime;
+    let deltaTime = serverDeltaTime;
     for (let i = 0; i < gameSettings.physSteps; i++) {
         let ox = parseFloat(ply.x.toString());
         let cx = parseFloat(ply.x.toString());
         cx += (ply.dx * gameSettings.playerSpeed * deltaTime) / gameSettings.physSteps;
-        let serverDiff = ply.sv_x - cx;
-        cx += (serverDiff * 0.05) / gameSettings.physSteps;
 
         let plyRect: FourNums = [
             cx - gameSettings.playerWidth / 2,
@@ -39,8 +39,6 @@ export function updatePlayer(ply: Player) {
             cdy = gameSettings.playerTerminalVelocity;
         }
         cy += (cdy * deltaTime) / gameSettings.physSteps;
-        let serverDiff = ply.sv_y - cy;
-        cy += (serverDiff * 0.05) / gameSettings.physSteps;
 
         if (cy > 5 * gameSettings.blockSize) {
             ply.dy = 0;

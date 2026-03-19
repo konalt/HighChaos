@@ -18,7 +18,7 @@ export class PlayerObject extends GameObject {
     draw() {
         let t = Math.min(since(lastPlayerUpdate[this.ply.id]) / gameSettings.updateRate, 1);
 
-        if (debugMode) d.circ(this.ply.sv_x, this.ply.sv_y, 3, "rgb(255, 0, 0)");
+        d.circ(this.ply.sv_x, this.ply.sv_y, 3, "rgb(255, 0, 0)");
 
         let drawX = lerp(t, this.ply.old_x, this.ply.x);
         let drawY = lerp(t, this.ply.old_y, this.ply.y);

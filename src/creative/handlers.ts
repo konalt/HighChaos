@@ -7,6 +7,7 @@ import {
     Player,
     players,
     removeBlock,
+    serverDeltaTime,
     setBlock,
     setBlocks,
     setMessages,
@@ -173,5 +174,9 @@ export function blockRemoveHandler(cString: string) {
 }
 
 export function deltaTimeHandler(n: string) {
+    console.log(
+        `new delta time: ${n}\nold: ${serverDeltaTime}\ndiff:${serverDeltaTime - parseFloat(n)}\nclient: ${deltaTime}`,
+    );
+
     setSDT(parseFloat(n));
 }
