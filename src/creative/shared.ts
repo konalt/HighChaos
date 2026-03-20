@@ -1,8 +1,8 @@
-import { serverDeltaTime } from "./game";
+import { serverDeltaTime } from "./game/game";
 import { deltaTime as realDeltaTime } from "../lib/engine/engine";
 import { FourNums } from "../lib/engine/utils";
 import { checkBlockIntersection } from "./collision";
-import { Player, gameSettings } from "./game";
+import { Player, gameSettings } from "./game/game";
 
 const svDiffFactor = 0.1;
 

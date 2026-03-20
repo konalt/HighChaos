@@ -1,6 +1,7 @@
 import { ctx, d, font, w, h, getFPS, getKey } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { pingTable, players, ply } from "../../game";
+import { socket } from "../../game/game";
+import { pingTable } from "../../game/ping";
 
 const marginTop = 60;
 const padding = 20;
@@ -33,11 +34,11 @@ export class PlayerBoard extends GameObject {
         let y = marginTop + padding;
 
         d.text(left, y, `FPS: ${getFPS()}`, "white", font(28), "left");
-        d.text(right, y, `Ping: ${Math.round(pingTable[ply.id])}ms`, "white", font(28), "right");
+        d.text(right, y, `Ping: ${Math.round(pingTable[socket.id])}ms`, "white", font(28), "right");
 
         d.text(center, y, "Konalt Creative", "white", font(48), "center");
         y += 48;
-        let onlineText: string;
+        /* let onlineText: string;
         if (players.size == 1) {
             onlineText = `1 user online :(`;
         } else {
@@ -70,6 +71,6 @@ export class PlayerBoard extends GameObject {
                 "left",
             );
             y += entryHeight + entryGap;
-        }
+        } */
     }
 }

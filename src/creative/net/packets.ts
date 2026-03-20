@@ -1,7 +1,9 @@
-import { BlockStruct, GameSettings, Player } from "../game";
+import { BlockStruct } from "../game/blocks";
+import { GameSettings } from "../game/settings";
+import { ClientPlayerState, ServerPlayerState } from "./interp";
 
 export interface AckPacket {
-    players: [string, Player][];
+    players: ServerPlayerState[];
     settings: GameSettings;
     blocks: BlockStruct[];
     pingTable: Record<string, number>;

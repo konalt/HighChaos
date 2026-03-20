@@ -2,7 +2,10 @@ import { ctx, d, getKeyDown, getMouse, h, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { distance, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { Block, blocks, BlockStruct, gameSettings, ply, socket } from "../game";
+import { blocks, BlockStruct, BlockType } from "../game/blocks";
+import { socket } from "../game/game";
+import { ply } from "../game/player";
+import { gameSettings } from "../game/settings";
 import { PACKET } from "../net/packets";
 import { SPRITES } from "../sprites";
 
@@ -18,14 +21,14 @@ export function drawBlock(blk: BlockStruct) {
     let base: HTMLImageElement = NULLTEXTURE;
     let overlay: HTMLImageElement;
     switch (blk.type) {
-        case Block.DIRT:
+        case BlockType.DIRT:
             base = SPRITES.get("dirt");
             break;
-        case Block.GRASS:
+        case BlockType.GRASS:
             base = SPRITES.get("dirt");
             overlay = SPRITES.get("grass_overlay");
             break;
-        case Block.STONE:
+        case BlockType.STONE:
             base = SPRITES.get("stone");
             break;
     }
@@ -58,6 +61,8 @@ export class World extends GameObject {
     }
 
     update() {
+        if (!ply) return;
+
         let m = getMouse();
         this.mouse = [m[0] + this.scene.camera.x - w / 2, m[1] + this.scene.camera.y - h / 2];
         this.gridPos = getGridPos(this.mouse);
@@ -70,6 +75,8 @@ export class World extends GameObject {
     }
 
     draw() {
+        if (!ply) return;
+
         for (const blk of blocks) {
             drawBlock(blk);
         }

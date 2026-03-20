@@ -15,7 +15,8 @@ import {
     w,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { messages, socket } from "../../game";
+import { messages } from "../../game/chat";
+import { socket } from "../../game/game";
 import { PACKET } from "../../net/packets";
 
 const margin = 15;

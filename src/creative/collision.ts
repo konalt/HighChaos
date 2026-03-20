@@ -1,5 +1,5 @@
 import { FourNums, distance, rectIntersect } from "../lib/engine/utils";
-import { blocks, BlockStruct, gameSettings } from "./game";
+import { blocks, BlockStruct, gameSettings } from "./game/game";
 
 export function checkBlockIntersection(r: FourNums): BlockStruct | null {
     let filt = blocks.filter(

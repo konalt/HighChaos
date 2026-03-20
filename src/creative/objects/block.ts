@@ -1,7 +1,7 @@
 import { ctx } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { Block, gameSettings } from "../game";
+import { Block, gameSettings } from "../game/game";
 import { SPRITES } from "../sprites";
 
 export class BlockObject extends GameObject {

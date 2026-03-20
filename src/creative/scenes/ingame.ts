@@ -3,8 +3,11 @@ import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
-import { serverDeltaTime, gameSettings, localPlayerUpdate, Player, players, ply, socket } from "../game";
-import { lastPlayerUpdate } from "../handlers";
+import { socket } from "../game/game";
+import { handleInput } from "../game/input";
+import { players, ply, updatePlayers } from "../game/player";
+import { gameSettings } from "../game/settings";
+import { ClientPlayerState } from "../net/interp";
 import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
@@ -45,11 +48,11 @@ export class InGameScene extends Scene {
         maxCameraY = 5 * gameSettings.blockSize - h / 2;
     }
 
-    private _createPlayerObject(ply: Player) {
+    private _createPlayerObject(ply: ClientPlayerState) {
         let plyo = new PlayerObject();
         plyo.x = ply.x;
         plyo.y = ply.y;
-        plyo.name = ply.name;
+        plyo.name = ply.id;
         plyo.ply = ply;
         this.add(plyo);
 
@@ -72,33 +75,20 @@ export class InGameScene extends Scene {
         this.remove(plyo);
     }
 
-    fixedUpdate(): void {
-        if (!this.localPlayer) return;
-
-        localPlayerUpdate();
-
-        for (const [k, ply] of players) {
-            let plyo = this.players.get(k);
-            if (!plyo) plyo = this._createPlayerObject(ply);
-            updatePlayer(ply);
-        }
-
-        let t = Math.min(since(lastPlayerUpdate[ply.id]) / gameSettings.updateRate, 1);
-
-        let drawX = lerp(t, ply.old_x, ply.x);
-        let drawY = lerp(t, ply.old_y, ply.y);
-
-        this.camera.x = drawX;
-        this.camera.y = Math.min(drawY, maxCameraY);
-
-        addDebugLine(`Name: ${ply.name}`);
-        addDebugLine(`ID: ${ply.id}`);
-
-        super.fixedUpdate();
-    }
-
     update(): void {
         super.update();
+
+        handleInput();
+
+        updatePlayers();
+
+        if (!ply) return;
+
+        this.camera.x = ply.x;
+        this.camera.y = Math.min(ply.y, maxCameraY);
+
+        addDebugLine(`Name: ${ply.id}`);
+        addDebugLine(`ID: ${ply.id}`);
     }
 
     async init() {

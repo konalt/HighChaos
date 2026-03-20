@@ -169,6 +169,8 @@ function roundRect(
         } else {
             ctx.lineWidth = defaultStrokeWidth;
         }
+    } else {
+        ctx.lineWidth = Number.EPSILON;
     }
     ctx.beginPath();
     const [bx, by] = anchorToCoords(anchor, x, y, w, h);
@@ -562,7 +564,7 @@ function calculateFPS() {
     const fps = 1000 / (thisLoop - lastLoop);
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
-    deltaTime = (thisLoop - lastLoop) / targetFramerate;
+    deltaTime = (thisLoop - lastLoop) / 1000;
     lastLoop = thisLoop;
 }
 
@@ -711,6 +713,7 @@ function draw() {
         useCanvas(0);
         canvasMain.width = w;
         ctx.textBaseline = "top";
+        console.error(e);
         text(0, 0, e.message, "red", "24px monospace", "left", w);
     }
     justPressed = [];

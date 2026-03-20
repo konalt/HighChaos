@@ -2,7 +2,7 @@ import { fadeToScene, font, h, setScene, w } from "../../lib/engine/engine";
 import { Background } from "../../lib/ui/background/background";
 import { HCImage } from "../../lib/ui/hcimage";
 import { Scene } from "../../lib/engine/scene";
-import { connect } from "../game";
+import { connect } from "../game/game";
 import { SpinnerLoader } from "../../lib/ui/loaders/spinner";
 import { InGameScene } from "./ingame";
 import { GradientBackground } from "../../lib/ui/background/gradientbackground";

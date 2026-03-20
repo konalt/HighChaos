@@ -1,5 +1,5 @@
 import { compressGzip, decompressGzip } from "../../wasm_gzip/wasm_gzip.js";
-import { textDecoder, textEncoder } from "../game.js";
+import { textDecoder, textEncoder } from "../game/game.js";
 import { PACKET } from "./packets.js";
 
 export function pkt(evt: string, data?: any) {
