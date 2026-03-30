@@ -14,7 +14,9 @@ export function updatePlayers() {
 
     for (const player of players.values()) {
         if (player.id == socket.id) {
-            ply.x += ply.vx * gameSettings.playerSpeed * deltaTime;
+            console.log(gameSettings.playerSpeed, deltaTime);
+
+            player.x += player.vx * gameSettings.playerSpeed * deltaTime;
             continue;
         }
 
@@ -37,6 +39,7 @@ export function updatePlayers() {
 
         // smooth interpolation
         player.x = lerp(prev.x, next.x, t);
+        console.log(player.id, prev.x, next.x, prev.time, next.time, renderTime - prev.time, t);
     }
 }
 

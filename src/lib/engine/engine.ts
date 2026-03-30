@@ -555,8 +555,10 @@ export let deltaTime = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
 const fpscc = 30;
-let targetFramerate = 75;
+let targetFramerate = 1000;
 export function setTargetFramerate(fps: number) {
+    console.log("SETTING IT TO " + fps);
+
     targetFramerate = fps;
 }
 function calculateFPS() {
@@ -564,7 +566,9 @@ function calculateFPS() {
     const fps = 1000 / (thisLoop - lastLoop);
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
-    deltaTime = (thisLoop - lastLoop) / 1000;
+    console.log(targetFramerate);
+
+    deltaTime = (thisLoop - lastLoop) / targetFramerate;
     lastLoop = thisLoop;
 }
 
@@ -666,6 +670,7 @@ function drawDebugInfo() {
 function draw() {
     globalTimer = performance.now();
     try {
+        if (!currentScene) throw new Error("No scene");
         calculateFPS();
         setCursorMode(CursorMode.Default);
         if (getKeyDown("F3")) {

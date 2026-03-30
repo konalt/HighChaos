@@ -38,6 +38,7 @@ export let inputSeq = 0;
 export let pendingInputs: Input[] = [];
 
 export const INTERP_DELAY = 100; // ms
+export const INTERP_ERROR_CORRECT = 0.05;
 
 export function handleUpdatePacket(pktString: string) {
     const packet = JSON.parse(pktString);
@@ -51,14 +52,14 @@ export function handleUpdatePacket(pktString: string) {
         const player = players.get(p.id);
 
         player.snapshots.push({
-            time: packet.time,
+            time: performance.now(),
             x: p.x,
             vx: p.vx,
             y: p.y,
             vy: p.vy,
         });
 
-        if (player.snapshots.length > 10) {
+        if (player.snapshots.length > 30) {
             player.snapshots.shift();
         }
 
@@ -71,8 +72,8 @@ export function handleUpdatePacket(pktString: string) {
 export function reconcile(player: ClientPlayerState, serverX: number, serverY: number) {
     const errorX = serverX - player.x;
     const errorY = serverY - player.y;
-    player.x += errorX * 0.1;
-    player.y += errorY * 0.1;
+    player.x += errorX * INTERP_ERROR_CORRECT;
+    player.y += errorY * INTERP_ERROR_CORRECT;
 
     // optional: clear acknowledged inputs if you track seq from server
 }

@@ -21,14 +21,11 @@ export function ackHandler(packetStr: string) {
     setMessages(packet.messages);
     setPingTable(packet.pingTable);
 
-    setTargetFramerate(1000 / gameSettings.updateRate);
-
     socket.emit(PACKET.CS_PLAYER_JOIN);
 }
 
 export function playerJoinHandler(data: string) {
     let p = JSON.parse(data) as ClientPlayerState;
-
     addPlayer(p);
 }
 
@@ -92,7 +89,7 @@ export function blockRemoveHandler(cString: string) {
 }
 
 export function deltaTimeHandler(n: string) {
-    console.log(
+    console.debug(
         `new delta time: ${n}\nold: ${serverDeltaTime}\ndiff:${serverDeltaTime - parseFloat(n)}\nclient: ${deltaTime}`,
     );
 

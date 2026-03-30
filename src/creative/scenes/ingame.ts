@@ -80,6 +80,12 @@ export class InGameScene extends Scene {
 
         handleInput();
 
+        for (const [id, ply] of players) {
+            if (!this.players.has(id)) {
+                this._createPlayerObject(ply);
+            }
+        }
+
         updatePlayers();
 
         if (!ply) return;
