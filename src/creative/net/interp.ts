@@ -78,8 +78,6 @@ export function reconcile(player: ClientPlayerState, serverX: number, serverY: n
     const errorY = serverY - player.y;
     player.x += errorX * INTERP_ERROR_CORRECT;
     player.y += errorY * INTERP_ERROR_CORRECT;
-
-    // optional: clear acknowledged inputs if you track seq from server
 }
 
 export function sendInput(dir: -1 | 0 | 1) {
