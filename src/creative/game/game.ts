@@ -8,6 +8,8 @@ import {
     pingSendHandler,
     pingTableHandler,
     playerJoinHandler,
+    playerJumpHandler,
+    playerLeaveHandler,
 } from "../handlers";
 import { handleUpdatePacket } from "../net/interp";
 import { GameSocket } from "../net/network";
@@ -22,6 +24,8 @@ export function connect(): Promise<void> {
     return new Promise<void>((res, rej) => {
         socket = new GameSocket();
         socket.on(PACKET.SC_ACK, (packetStr) => {
+            if (!packetStr) return;
+
             ackHandler(packetStr);
 
             res();
@@ -32,8 +36,8 @@ export function connect(): Promise<void> {
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
         socket.on(PACKET.SC_PLAYER_UPDATE, handleUpdatePacket); // new player system
         //socket.on(PACKET.SC_PLAYER_MOVE, playerMoveHandler);
-        /* socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
-        socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler); */
+        socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
+        socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
 
         socket.on(PACKET.SC_PING_SEND, pingSendHandler);
         socket.on(PACKET.SC_PING_TABLE, pingTableHandler);

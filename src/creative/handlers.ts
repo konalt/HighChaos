@@ -7,9 +7,14 @@ import { gameSettings, setSettings } from "./game/settings";
 import { AckPacket, PACKET } from "./net/packets";
 import { InGameScene } from "./scenes/ingame";
 import { ClientPlayerState } from "./net/interp";
-import { addPlayer } from "./game/player";
+import { addPlayer, players } from "./game/player";
 
-export function ackHandler(packetStr: string) {
+// typescript started complaining so i have to add this now :/
+export type PacketString = string | undefined;
+
+export function ackHandler(packetStr: PacketString) {
+    if (!packetStr) return;
+
     let packet: AckPacket = JSON.parse(packetStr);
 
     for (const p of packet.players) {
@@ -24,12 +29,25 @@ export function ackHandler(packetStr: string) {
     socket.emit(PACKET.CS_PLAYER_JOIN);
 }
 
-export function playerJoinHandler(data: string) {
+export function playerJoinHandler(data: PacketString) {
+    if (!data) return;
+
     let p = JSON.parse(data) as ClientPlayerState;
     addPlayer(p);
 }
 
-/* export function playerLeaveHandler(id: string) {
+export function playerJumpHandler(data: PacketString) {
+    if (!data) return;
+
+    let player = players.get(data);
+    if (!player) return;
+
+    player.vy = -gameSettings.jumpVelocity;
+}
+
+export function playerLeaveHandler(id: PacketString) {
+    if (!id) return;
+
     console.log("leave: " + id);
 
     if (id == socket.id) {
@@ -40,17 +58,21 @@ export function playerJoinHandler(data: string) {
     if (currentScene instanceof InGameScene) {
         currentScene.removePlayer(id);
     }
-} */
+}
 
-export function pingSendHandler(t: string) {
+export function pingSendHandler(t: PacketString) {
     socket.emit(PACKET.CS_PING_RESP, t);
 }
 
-export function pingTableHandler(d: string) {
+export function pingTableHandler(d: PacketString) {
+    if (!d) return;
+
     setPingTable(JSON.parse(d));
 }
 
-export function chatHandler(d: string) {
+export function chatHandler(d: PacketString) {
+    if (!d) return;
+
     let msg = JSON.parse(d);
 
     if (currentScene instanceof InGameScene) {
@@ -59,8 +81,6 @@ export function chatHandler(d: string) {
 }
 
 export function chatClearHandler() {
-    console.log("clearing");
-
     setMessages([]);
 
     if (currentScene instanceof InGameScene) {
@@ -68,7 +88,9 @@ export function chatClearHandler() {
     }
 }
 
-export function blockUpdateHandler(data: string) {
+export function blockUpdateHandler(data: PacketString) {
+    if (!data) return;
+
     let upd = JSON.parse(data);
     let x = upd[0];
     let y = upd[1];
@@ -82,16 +104,16 @@ export function blockUpdateHandler(data: string) {
     setBlock(blk);
 }
 
-export function blockRemoveHandler(cString: string) {
+export function blockRemoveHandler(cString: PacketString) {
+    if (!cString) return;
     let [x, y] = cString.split(",").map((n) => parseInt(n));
 
     removeBlock(x, y);
 }
 
-export function deltaTimeHandler(n: string) {
-    console.debug(
+export function deltaTimeHandler(n: PacketString) {
+    /* console.debug(
         `new delta time: ${n}\nold: ${serverDeltaTime}\ndiff:${serverDeltaTime - parseFloat(n)}\nclient: ${deltaTime}`,
-    );
-
+    ); */
     //setSDT(parseFloat(n));
 }

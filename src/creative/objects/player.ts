@@ -11,8 +11,9 @@ export class PlayerObject extends GameObject {
     name: string = "unnamed";
     ply: ClientPlayerState;
 
-    constructor() {
+    constructor(ply: ClientPlayerState) {
         super();
+        this.ply = ply;
     }
 
     draw() {
@@ -48,8 +49,6 @@ export class PlayerObject extends GameObject {
         d.text(0, -playerHeight - nameBoxMarginY * 4, this.name ?? ":3", "#fff", ctx.font, "center");
 
         if (debugMode) {
-            //console.log(this.ply.x);
-
             d.text(
                 0,
                 -playerHeight - nameBoxMarginY * 10 - 80,

@@ -23,7 +23,7 @@ export class InGameScene extends Scene {
     players: Map<string, PlayerObject>;
     chat: Chat;
 
-    localPlayer: PlayerObject;
+    localPlayer: PlayerObject | undefined;
 
     constructor() {
         super();
@@ -48,11 +48,10 @@ export class InGameScene extends Scene {
     }
 
     private _createPlayerObject(ply: ClientPlayerState) {
-        let plyo = new PlayerObject();
+        let plyo = new PlayerObject(ply);
         plyo.x = ply.x;
         plyo.y = ply.y;
         plyo.name = ply.id;
-        plyo.ply = ply;
         this.add(plyo);
 
         this.players.set(ply.id, plyo);
@@ -71,6 +70,7 @@ export class InGameScene extends Scene {
 
     removePlayer(id: string) {
         let plyo = this.players.get(id);
+        if (!plyo) return;
         this.remove(plyo);
     }
 

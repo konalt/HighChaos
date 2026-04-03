@@ -20,13 +20,19 @@ export function checkBlockIntersection(r: FourNums): BlockStruct | null {
 }
 
 export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", prev: TwoNums) {
-    let block = checkBlockIntersection([
-        ply.x - gameSettings.playerWidth / 2,
-        ply.y - gameSettings.playerHeight,
-        gameSettings.playerWidth,
-        gameSettings.playerHeight,
-    ]);
-    if (!block) return false;
+    let collided = false;
+    if (dir == "y" && ply.y > 5 * gameSettings.blockSize) {
+        collided = true;
+    } else {
+        let block = checkBlockIntersection([
+            ply.x - gameSettings.playerWidth / 2,
+            ply.y - gameSettings.playerHeight,
+            gameSettings.playerWidth,
+            gameSettings.playerHeight,
+        ]);
+        collided = !!block;
+    }
+    if (!collided) return false;
     if (dir == "x") {
         ply.x = prev[0];
     } else {

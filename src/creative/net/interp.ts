@@ -2,6 +2,7 @@ import { deltaTime } from "../../lib/engine/engine";
 import { socket } from "../game/game";
 import { players, ply } from "../game/player";
 import { gameSettings } from "../game/settings";
+import { PacketString } from "../handlers";
 import { PACKET } from "./packets";
 
 export type NetworkedSnapshot = {
@@ -40,7 +41,9 @@ export let pendingInputs: Input[] = [];
 export const INTERP_DELAY = 120; // ms
 export const INTERP_ERROR_CORRECT = 0.05;
 
-export function handleUpdatePacket(pktString: string) {
+export function handleUpdatePacket(pktString: PacketString) {
+    if (!pktString) return;
+
     const packet = JSON.parse(pktString);
 
     for (const p of packet.players) {

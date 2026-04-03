@@ -14,7 +14,9 @@ function updatePlayer(ply: ClientPlayerState) {
         let originalPosition = structuredClone([ply.x, ply.y] as TwoNums);
         ply.x += (ply.vx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
         playerCollisionCheck(ply, "x", originalPosition);
+        ply.vy += (gameSettings.gravity * deltaTime) / gameSettings.physSteps;
         ply.y += (ply.vy * deltaTime) / gameSettings.physSteps;
+        playerCollisionCheck(ply, "y", originalPosition);
     }
 }
 
@@ -48,10 +50,14 @@ export function updatePlayers() {
         // smooth interpolation
         player.x = lerp(t, prev.x, next.x);
         player.vx = next.vx;
+        player.y = lerp(t, prev.y, next.y);
+        player.vy = next.vy;
     }
 }
 
 export function addPlayer(_ply: ServerPlayerState) {
+    if (players.get(_ply.id)) return;
+
     let cp: ClientPlayerState = {
         ..._ply,
         snapshots: [],
