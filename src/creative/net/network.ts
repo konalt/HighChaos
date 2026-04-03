@@ -1,6 +1,5 @@
 import { compressGzip, decompressGzip } from "../../wasm_gzip/wasm_gzip.js";
 import { textDecoder, textEncoder } from "../game/game.js";
-import { PACKET } from "./packets.js";
 
 export function pkt(evt: string, data?: any) {
     if (data) {
@@ -11,8 +10,8 @@ export function pkt(evt: string, data?: any) {
 
 export class GameSocket {
     private socket: WebSocket;
-    private events: Map<string, (data?: any) => void>;
-    id: string;
+    private events: Map<string, (data?: string) => void>;
+    id: string | undefined;
 
     constructor() {
         this.events = new Map();

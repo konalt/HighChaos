@@ -14,7 +14,6 @@ import { Sky } from "../objects/sky";
 import { Chat } from "../objects/ui/chat";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
-import { updatePlayer } from "../shared";
 
 export let testPlayerImage: HTMLImageElement;
 

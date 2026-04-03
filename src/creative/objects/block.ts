@@ -1,11 +1,12 @@
 import { ctx } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { Block, gameSettings } from "../game/game";
 import { SPRITES } from "../sprites";
+import { BlockType } from "../game/blocks";
+import { gameSettings } from "../game/settings";
 
 export class BlockObject extends GameObject {
-    type: Block = Block.DIRT;
+    type: BlockType = BlockType.DIRT;
 
     constructor() {
         super();
@@ -13,17 +14,17 @@ export class BlockObject extends GameObject {
 
     draw() {
         let base: HTMLImageElement = NULLTEXTURE;
-        let overlay: HTMLImageElement;
+        let overlay: HTMLImageElement | undefined;
         switch (this.type) {
-            case Block.DIRT:
-                base = SPRITES.get("dirt");
+            case BlockType.DIRT:
+                base = SPRITES.get("dirt") ?? NULLTEXTURE;
                 break;
-            case Block.GRASS:
-                base = SPRITES.get("dirt");
+            case BlockType.GRASS:
+                base = SPRITES.get("dirt") ?? NULLTEXTURE;
                 overlay = SPRITES.get("grass_overlay");
                 break;
-            case Block.STONE:
-                base = SPRITES.get("stone");
+            case BlockType.STONE:
+                base = SPRITES.get("stone") ?? NULLTEXTURE;
                 break;
         }
 

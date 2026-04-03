@@ -1,22 +1,30 @@
-import { lerp } from "../../lib/engine/utils";
+import { lerp, TwoNums } from "../../lib/engine/utils";
 import { socket } from "./game";
-import { INTERP_DELAY, ClientPlayerState, ServerPlayerState } from "../net/interp";
+import { INTERP_DELAY, ClientPlayerState, ServerPlayerState, reconcile } from "../net/interp";
 import { gameSettings } from "./settings";
 import { deltaTime } from "../../lib/engine/engine";
+import { playerCollisionCheck } from "../collision";
 
 export let players = new Map<string, ClientPlayerState>();
 
 export let ply: ClientPlayerState;
+
+function updatePlayer(ply: ClientPlayerState) {
+    for (let i = 0; i < gameSettings.physSteps; i++) {
+        let originalPosition = structuredClone([ply.x, ply.y] as TwoNums);
+        ply.x += (ply.vx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
+        playerCollisionCheck(ply, "x", originalPosition);
+        ply.y += (ply.vy * deltaTime) / gameSettings.physSteps;
+    }
+}
 
 export function updatePlayers() {
     const now = performance.now();
     const renderTime = now - INTERP_DELAY;
 
     for (const player of players.values()) {
+        updatePlayer(player);
         if (player.id == socket.id) {
-            console.log(gameSettings.playerSpeed, deltaTime);
-
-            player.x += player.vx * gameSettings.playerSpeed * deltaTime;
             continue;
         }
 
@@ -38,8 +46,8 @@ export function updatePlayers() {
         const t = (renderTime - prev.time) / (next.time - prev.time);
 
         // smooth interpolation
-        player.x = lerp(prev.x, next.x, t);
-        console.log(player.id, prev.x, next.x, prev.time, next.time, renderTime - prev.time, t);
+        player.x = lerp(t, prev.x, next.x);
+        player.vx = next.vx;
     }
 }
 
@@ -48,6 +56,8 @@ export function addPlayer(_ply: ServerPlayerState) {
         ..._ply,
         snapshots: [],
     };
+    console.log(`adding`, cp);
+
     if (_ply.id == socket.id) ply = cp;
     players.set(_ply.id, cp);
 }

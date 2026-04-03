@@ -37,7 +37,7 @@ export type Input = {
 export let inputSeq = 0;
 export let pendingInputs: Input[] = [];
 
-export const INTERP_DELAY = 100; // ms
+export const INTERP_DELAY = 120; // ms
 export const INTERP_ERROR_CORRECT = 0.05;
 
 export function handleUpdatePacket(pktString: string) {
@@ -50,6 +50,7 @@ export function handleUpdatePacket(pktString: string) {
         }
 
         const player = players.get(p.id);
+        if (!player) continue;
 
         player.snapshots.push({
             time: performance.now(),
@@ -63,9 +64,9 @@ export function handleUpdatePacket(pktString: string) {
             player.snapshots.shift();
         }
 
-        if (p.id == socket.id) {
-            reconcile(player, p.x, p.y);
-        }
+        //if (p.id == socket.id) {
+        reconcile(player, p.x, p.y);
+        //}
     }
 }
 

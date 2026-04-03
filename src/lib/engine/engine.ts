@@ -32,6 +32,7 @@ export function useCanvas(id: number) {
     if (!canvases[id]) {
         let cv = document.createElement("canvas");
         let ct = cv.getContext("2d");
+        if (!ct) return;
         canvases[id] = [cv, ct];
     }
     [canvas, ctx] = canvases[id];
@@ -424,7 +425,7 @@ export function setFont(newFont: string) {
 
 //#region timers
 export let globalTimer = 0;
-let timers = {};
+let timers: Record<string, [number, number, boolean]> = {};
 export function startTimer(name: string, duration: number, inverse = false) {
     log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
     timers[name] = [globalTimer, duration, inverse];
@@ -557,8 +558,6 @@ const fpsc: number[] = [];
 const fpscc = 30;
 let targetFramerate = 1000;
 export function setTargetFramerate(fps: number) {
-    console.log("SETTING IT TO " + fps);
-
     targetFramerate = fps;
 }
 function calculateFPS() {
@@ -566,8 +565,6 @@ function calculateFPS() {
     const fps = 1000 / (thisLoop - lastLoop);
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
-    console.log(targetFramerate);
-
     deltaTime = (thisLoop - lastLoop) / targetFramerate;
     lastLoop = thisLoop;
 }
@@ -594,7 +591,7 @@ export function addDebugLine(line: string) {
 }
 
 function handleDebugKeys() {
-    const cameraSpeed = 50;
+    const cameraSpeed = 500;
     if (getKeyDown("numpad0")) {
         debugCamera.x = currentScene.camera.x;
         debugCamera.y = currentScene.camera.y;
@@ -713,7 +710,7 @@ function draw() {
         if (debugMode) {
             drawDebugInfo();
         }
-    } catch (e) {
+    } catch (e: any) {
         ctx.restore();
         useCanvas(0);
         canvasMain.width = w;
@@ -768,7 +765,7 @@ export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<s
     currentScene = scene;
     debugCamera.x = scene.camera.x;
     debugCamera.y = scene.camera.y;
-    debugCamera.zoom = scene.camera.zoom / 1.1;
+    debugCamera.zoom = scene.camera.zoom;
     if (fadeIn) {
         startTimer("__scene_fade_in", FadeDuration, true);
     }
@@ -952,7 +949,7 @@ export function wrap(text: string, width: number) {
         return ctx.measureText(txt).width;
     }
     let lines = [];
-    let curLine = [];
+    let curLine: string[] = [];
 
     text.split(" ").forEach((word) => {
         if (word.includes("\n")) {

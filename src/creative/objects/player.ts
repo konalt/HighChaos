@@ -48,10 +48,15 @@ export class PlayerObject extends GameObject {
         d.text(0, -playerHeight - nameBoxMarginY * 4, this.name ?? ":3", "#fff", ctx.font, "center");
 
         if (debugMode) {
+            //console.log(this.ply.x);
+
             d.text(
                 0,
-                -playerHeight - nameBoxMarginY * 10,
-                "Ping: " + Math.round(pingTable[this.ply.id]).toString() + "ms",
+                -playerHeight - nameBoxMarginY * 10 - 80,
+                "Ping: " +
+                    Math.round(pingTable[this.ply.id]).toString() +
+                    "ms\n" +
+                    `x: ${this.ply.x}, y: ${this.ply.y}, vx: ${this.ply.vx}, vy: ${this.ply.vy}`,
                 "red",
                 ctx.font,
                 "center",

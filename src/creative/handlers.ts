@@ -93,5 +93,5 @@ export function deltaTimeHandler(n: string) {
         `new delta time: ${n}\nold: ${serverDeltaTime}\ndiff:${serverDeltaTime - parseFloat(n)}\nclient: ${deltaTime}`,
     );
 
-    setSDT(parseFloat(n));
+    //setSDT(parseFloat(n));
 }
