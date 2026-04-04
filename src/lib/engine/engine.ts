@@ -464,6 +464,7 @@ export enum CursorMode {
     ResizeNS,
     ResizeNESW,
     ResizeNWSE,
+    Text,
 }
 export function setCursorMode(mode: CursorMode) {
     switch (mode) {
@@ -490,6 +491,9 @@ export function setCursorMode(mode: CursorMode) {
             break;
         case CursorMode.ResizeNWSE:
             canvas.style.cursor = "nwse-resize";
+            break;
+        case CursorMode.Text:
+            canvas.style.cursor = "text";
             break;
     }
 }
@@ -803,6 +807,7 @@ const TYPING_IGNORE_KEYS = [
     "CapsLock",
     "ArrowUp",
     "ArrowDown",
+    "Meta",
     "Tab",
     "OS",
     "F1",
@@ -825,7 +830,7 @@ export function startTyping(id: string, clear = true) {
     typingCursorFlashTime = globalTimer;
     typing = true;
     typingId = id;
-    if (clear) {
+    if (clear || !typingTexts[id]) {
         typingTexts[id] = "";
         typingCursorPositions[id] = 0;
     }
@@ -853,8 +858,8 @@ export function onTypingCancel(id: string, cb: TypeEvent) {
     typingCancelEvents[id] = cb;
 }
 
-export function getTyping() {
-    return typing;
+export function getTyping(id: string) {
+    return typing && id == typingId;
 }
 
 export function getTypingCursorFlashTime() {

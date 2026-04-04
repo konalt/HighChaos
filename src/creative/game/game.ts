@@ -14,6 +14,7 @@ import {
 import { handleUpdatePacket } from "../net/interp";
 import { GameSocket } from "../net/network";
 import { PACKET } from "../net/packets";
+import { handleNameUpdate } from "./extraplayerinfo";
 
 export let socket: GameSocket;
 
@@ -38,6 +39,7 @@ export function connect(): Promise<void> {
         //socket.on(PACKET.SC_PLAYER_MOVE, playerMoveHandler);
         socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
         socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
+        socket.on(PACKET.SC_PLAYER_USERNAME, handleNameUpdate);
 
         socket.on(PACKET.SC_PING_SEND, pingSendHandler);
         socket.on(PACKET.SC_PING_TABLE, pingTableHandler);

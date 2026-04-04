@@ -90,7 +90,7 @@ export class Chat extends GameObject {
             d.text(w - margin - bw + padding, margin + bh + padding + 2.5, text, "white", ctx.font, "left");
         }
 
-        if (getTyping() && since(getTypingCursorFlashTime()) % 1000 < 500) {
+        if (getTyping("chat") && since(getTypingCursorFlashTime()) % 1000 < 500) {
             let cx = w - margin - padding;
             if (!overflow) {
                 cx = w - margin - bw + padding + ctx.measureText(text.substring(0, getTypingCursor("chat"))).width;

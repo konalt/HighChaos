@@ -11,7 +11,7 @@ export let extraPlayerInfo: ExtraPlayerInfo = {
 
 export function initExtraPlayerInfo(ply: ServerPlayerState) {
     let id = ply.id;
-    extraPlayerInfo.names.set(id, `ClientPlayer ${ply.id}`);
+    if (!extraPlayerInfo.names.get(id)) extraPlayerInfo.names.set(id, `ClientPlayer ${ply.id}`);
 }
 
 export function handleNameUpdate(data: PacketString) {

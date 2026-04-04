@@ -65,6 +65,8 @@ export function handleUpdatePacket(pktString: PacketString) {
             vy: p.vy,
         });
 
+        player.ready = p.ready;
+
         if (player.snapshots.length > 30) {
             player.snapshots.shift();
         }

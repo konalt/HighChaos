@@ -8,6 +8,7 @@ export interface AckPacket {
     blocks: BlockStruct[];
     pingTable: Record<string, number>;
     messages: [string, string][];
+    names: [string, string][];
 }
 
 let cpua = 0;

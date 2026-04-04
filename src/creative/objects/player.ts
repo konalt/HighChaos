@@ -30,12 +30,12 @@ export class PlayerObject extends GameObject {
         d.quickImage(testPlayerImage, 0, 0, gameSettings.playerHeight / testPlayerImage.height, "bc");
         if (!this.ply.ready) ctx.globalAlpha = 1;
 
-        ctx.font = font(20);
+        ctx.font = font(20, "600");
         ctx.textBaseline = "alphabetic";
 
         const nameMeasure = ctx.measureText(this.name);
         const nameWidth = nameMeasure.width;
-        const nameHeight = nameMeasure.actualBoundingBoxAscent + nameMeasure.actualBoundingBoxDescent;
+        const nameHeight = nameMeasure.fontBoundingBoxAscent + nameMeasure.fontBoundingBoxDescent;
         const nameBoxMarginX = 8;
         const nameBoxMarginY = 6;
         d.roundRect(
@@ -50,7 +50,7 @@ export class PlayerObject extends GameObject {
             "bc",
         );
 
-        d.text(0, -gameSettings.playerHeight - nameBoxMarginY * 4, this.name ?? ":3", "#fff", ctx.font, "center");
+        d.text(0, -gameSettings.playerHeight - nameBoxMarginY * 3.5, this.name ?? ":3", "#fff", ctx.font, "center");
 
         if (debugMode) {
             d.text(

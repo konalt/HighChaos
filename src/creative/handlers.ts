@@ -8,6 +8,7 @@ import { AckPacket, PACKET } from "./net/packets";
 import { InGameScene } from "./scenes/ingame";
 import { ClientPlayerState } from "./net/interp";
 import { addPlayer, players } from "./game/player";
+import { extraPlayerInfo } from "./game/extraplayerinfo";
 
 // typescript started complaining so i have to add this now :/
 export type PacketString = string | undefined;
@@ -26,7 +27,9 @@ export function ackHandler(packetStr: PacketString) {
     setMessages(packet.messages);
     setPingTable(packet.pingTable);
 
-    socket.emit(PACKET.CS_PLAYER_JOIN);
+    for (const [id, name] of packet.names) {
+        extraPlayerInfo.names.set(id, name);
+    }
 }
 
 export function playerJoinHandler(data: PacketString) {
