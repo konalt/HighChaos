@@ -5,8 +5,10 @@ import { loadSettings } from "../lib/engine/options";
 import init from "../wasm_gzip/wasm_gzip.js";
 import { ConnectScene } from "./scenes/connect";
 
-Promise.all([init(), loadFonts()]).then(() => {
-    c.setFont("'Le Cristal de Lune', cursive");
+let fonts = ["PixelOperator/PixelOperator", "PixelOperator/PixelOperator-Bold"];
+
+Promise.all([init(), loadFonts(fonts)]).then(() => {
+    c.setFont("sans-serif");
     c.setTargetFramerate(1000);
 
     loadSettings();

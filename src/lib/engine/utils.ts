@@ -14,7 +14,7 @@ export enum GradientType {
 
 export const TAU = Math.PI * 2;
 
-export function anchorToCoords(anchor: Anchor, x: number, y: number, w: number, h: number) {
+export function anchorToCoords(anchor: Anchor, x: number, y: number, w: number, h: number): TwoNums {
     let bx = 0;
     let by = 0;
     const locationY = anchor[0];
