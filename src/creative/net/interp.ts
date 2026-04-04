@@ -20,6 +20,7 @@ export type ClientPlayerState = {
     vx: number;
     y: number;
     vy: number;
+    ready: boolean;
 };
 
 export type ServerPlayerState = {
@@ -28,6 +29,7 @@ export type ServerPlayerState = {
     vx: number;
     y: number;
     vy: number;
+    ready: boolean;
 };
 
 export type Input = {
@@ -39,7 +41,7 @@ export let inputSeq = 0;
 export let pendingInputs: Input[] = [];
 
 export const INTERP_DELAY = 120; // ms
-export const INTERP_ERROR_CORRECT = 0.05;
+export const INTERP_ERROR_CORRECT = 0.1;
 
 export function handleUpdatePacket(pktString: PacketString) {
     if (!pktString) return;

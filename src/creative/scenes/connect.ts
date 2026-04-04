@@ -9,6 +9,7 @@ import { GradientBackground } from "../../lib/ui/background/gradientbackground";
 import { GradientType, sleep } from "../../lib/engine/utils";
 import { LoadingText } from "../objects/menu/loadingtext";
 import { loadBlockSprites } from "../sprites";
+import { MenuScene } from "./menu";
 
 export class ConnectScene extends Scene {
     loader: SpinnerLoader;
@@ -47,7 +48,7 @@ export class ConnectScene extends Scene {
             //await sleep(1000);
             this.loadingText.overrideText = "Ready!";
             this.loader.enabled = false;
-            setScene(new InGameScene());
+            setScene(new MenuScene());
         });
     }
 }

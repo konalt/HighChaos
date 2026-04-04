@@ -1,11 +1,11 @@
 import { ctx, d, debugMode, font, loadImage, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { lerp } from "../../lib/engine/utils";
+import { extraPlayerInfo } from "../game/extraplayerinfo";
 import { pingTable } from "../game/ping";
+import { gameSettings } from "../game/settings";
 import { ClientPlayerState } from "../net/interp";
 import { testPlayerImage } from "../scenes/ingame";
-
-const playerHeight = 150;
 
 export class PlayerObject extends GameObject {
     name: string = "unnamed";
@@ -16,17 +16,21 @@ export class PlayerObject extends GameObject {
         this.ply = ply;
     }
 
-    draw() {
-        //d.circ(this.ply.sv_x, this.ply.sv_y, 3, "rgb(255, 0, 0)");
+    update() {
+        this.name = extraPlayerInfo.names.get(this.ply.id) ?? "Unknown";
+    }
 
+    draw() {
         let drawX = this.ply.x;
         let drawY = this.ply.y;
         ctx.save();
         ctx.translate(drawX, drawY);
 
-        d.quickImage(testPlayerImage, 0, 0, playerHeight / testPlayerImage.height, "bc");
+        if (!this.ply.ready) ctx.globalAlpha = 0.5;
+        d.quickImage(testPlayerImage, 0, 0, gameSettings.playerHeight / testPlayerImage.height, "bc");
+        if (!this.ply.ready) ctx.globalAlpha = 1;
 
-        ctx.font = font(24);
+        ctx.font = font(20);
         ctx.textBaseline = "alphabetic";
 
         const nameMeasure = ctx.measureText(this.name);
@@ -36,7 +40,7 @@ export class PlayerObject extends GameObject {
         const nameBoxMarginY = 6;
         d.roundRect(
             0,
-            -playerHeight - nameBoxMarginY * 2,
+            -gameSettings.playerHeight - nameBoxMarginY * 2,
             nameWidth + nameBoxMarginX * 2,
             nameHeight + nameBoxMarginY * 2,
             5,
@@ -46,12 +50,12 @@ export class PlayerObject extends GameObject {
             "bc",
         );
 
-        d.text(0, -playerHeight - nameBoxMarginY * 4, this.name ?? ":3", "#fff", ctx.font, "center");
+        d.text(0, -gameSettings.playerHeight - nameBoxMarginY * 4, this.name ?? ":3", "#fff", ctx.font, "center");
 
         if (debugMode) {
             d.text(
                 0,
-                -playerHeight - nameBoxMarginY * 10 - 80,
+                -gameSettings.playerHeight - nameBoxMarginY * 10 - 80,
                 "Ping: " +
                     Math.round(pingTable[this.ply.id]).toString() +
                     "ms\n" +

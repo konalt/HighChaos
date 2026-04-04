@@ -51,7 +51,6 @@ export class InGameScene extends Scene {
         let plyo = new PlayerObject(ply);
         plyo.x = ply.x;
         plyo.y = ply.y;
-        plyo.name = ply.id;
         this.add(plyo);
 
         this.players.set(ply.id, plyo);

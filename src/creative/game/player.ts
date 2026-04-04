@@ -4,6 +4,7 @@ import { INTERP_DELAY, ClientPlayerState, ServerPlayerState, reconcile } from ".
 import { gameSettings } from "./settings";
 import { deltaTime } from "../../lib/engine/engine";
 import { playerCollisionCheck } from "../collision";
+import { initExtraPlayerInfo } from "./extraplayerinfo";
 
 export let players = new Map<string, ClientPlayerState>();
 
@@ -25,6 +26,7 @@ export function updatePlayers() {
     const renderTime = now - INTERP_DELAY;
 
     for (const player of players.values()) {
+        if (!player.ready) continue;
         updatePlayer(player);
         if (player.id == socket.id) {
             continue;
@@ -66,4 +68,5 @@ export function addPlayer(_ply: ServerPlayerState) {
 
     if (_ply.id == socket.id) ply = cp;
     players.set(_ply.id, cp);
+    initExtraPlayerInfo(_ply);
 }
