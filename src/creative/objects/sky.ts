@@ -1,13 +1,15 @@
 import { d, w, h, ctx } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 
+export const SKY_HEIGHT = 10000;
+
 export class Sky extends GameObject {
     private _gradient: CanvasGradient;
 
     constructor() {
         super();
 
-        this._gradient = ctx.createLinearGradient(0, 0, 0, -10000);
+        this._gradient = ctx.createLinearGradient(0, 0, 0, -SKY_HEIGHT);
         this._gradient.addColorStop(0, "#87d3ff");
         this._gradient.addColorStop(0.03, "#75ccff");
         this._gradient.addColorStop(0.1, "#0076bb");
