@@ -16,14 +16,15 @@ export class MenuScene extends Scene {
         this.background.color = "#2bdfff";
         this.add(this.background, -1);
 
+        this.sidebar = new Sidebar();
+        this.sidebar.width = 820;
+        this.add(this.sidebar, UI_LAYER);
+
         this.title = new Title();
         this.title.x = w / 2;
-        this.title.y = 200;
-        this.title.scale = 1;
+        this.title.y = 180;
+        this.title.scale = 1.2;
         this.title.src = "creative/txt/title.png";
         this.add(this.title, UI_LAYER);
-
-        this.sidebar = new Sidebar();
-        this.add(this.sidebar, UI_LAYER);
     }
 }
