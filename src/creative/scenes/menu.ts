@@ -1,17 +1,20 @@
-import { font, globalTimer, h, setScene, w } from "../../lib/engine/engine";
+import { deltaTime, font, globalTimer, h, setScene, w } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { HCButton } from "../../lib/ui/hcbutton";
 import { HCInput } from "../../lib/ui/hcinput";
 import { HCText } from "../../lib/ui/hctext";
 import { socket } from "../game/game";
+import { gameSettings } from "../game/settings";
 import { PACKET } from "../net/packets";
 import { Sidebar } from "../objects/menu/sidebar";
 import { Sky, SKY_HEIGHT } from "../objects/sky";
 import { Title } from "../objects/ui/title";
+import { World } from "../objects/world";
 import { InGameScene } from "./ingame";
 
 export class MenuScene extends Scene {
     sky: Sky;
+    world: World;
     sidebar: Sidebar;
 
     title: Title;
@@ -71,12 +74,19 @@ export class MenuScene extends Scene {
         this.nameInput.value = localStorage.getItem("creative_username") ?? "Guest";
         this.nameInput.onTextUpdate(this.nameInput.value);
         this.add(this.nameInput, UI_LAYER);
+
+        this.world = new World();
+        this.world.disableControl = true;
+        this.add(this.world);
     }
 
     update(): void {
         super.update();
 
-        this.camera.y = -(Math.cos(globalTimer * 0.00002 + Math.PI) / 2 + 0.5) * SKY_HEIGHT;
+        this.camera.x = Math.cos(globalTimer * 0.0001 - Math.PI) * 500;
+        this.camera.y = 5 * gameSettings.blockSize - h / 2;
+
+        this.world.cullOverride = this.camera.x;
     }
 
     private join() {

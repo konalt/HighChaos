@@ -12,14 +12,14 @@ import { SPRITES } from "../sprites";
 const drawMargin = 0.5;
 const REACH = 7 * 64;
 
-export function drawBlock(blk: BlockStruct) {
+export function drawBlock(blk: BlockStruct, cullLocation: number) {
     let x = blk.gx * gameSettings.blockSize - drawMargin;
     let y = -blk.gy * gameSettings.blockSize - drawMargin;
 
-    let d = Math.abs(x - ply.x);
+    let d = Math.abs(x - cullLocation);
     if (d > w * 0.8) return;
-    let base: HTMLImageElement = NULLTEXTURE;
-    let overlay: HTMLImageElement;
+    let base: HTMLImageElement | undefined = NULLTEXTURE;
+    let overlay: HTMLImageElement | undefined;
     switch (blk.type) {
         case BlockType.DIRT:
             base = SPRITES.get("dirt");
@@ -35,7 +35,13 @@ export function drawBlock(blk: BlockStruct) {
 
     let _s = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(base, x, y, gameSettings.blockSize + drawMargin * 2, gameSettings.blockSize + drawMargin * 2);
+    ctx.drawImage(
+        base ?? NULLTEXTURE,
+        x,
+        y,
+        gameSettings.blockSize + drawMargin * 2,
+        gameSettings.blockSize + drawMargin * 2,
+    );
     if (overlay) {
         ctx.drawImage(overlay, x, y, gameSettings.blockSize + drawMargin * 2, gameSettings.blockSize + drawMargin * 2);
     }
@@ -56,12 +62,20 @@ export class World extends GameObject {
     private worldPos: TwoNums;
     private hasReach: boolean;
 
+    disableControl = false;
+    cullOverride: number | undefined;
+
     constructor() {
         super();
+
+        this.mouse = [0, 0];
+        this.gridPos = [0, 0];
+        this.worldPos = [0, 0];
+        this.hasReach = false;
     }
 
     update() {
-        if (!ply) return;
+        if (!ply || this.disableControl) return;
 
         let m = getMouse();
         this.mouse = [m[0] + this.scene.camera.x - w / 2, m[1] + this.scene.camera.y - h / 2];
@@ -78,10 +92,10 @@ export class World extends GameObject {
         if (!ply) return;
 
         for (const blk of blocks) {
-            drawBlock(blk);
+            drawBlock(blk, this.cullOverride ?? ply.x);
         }
 
-        if (this.hasReach) {
+        if (this.hasReach && !this.disableControl) {
             d.rect(
                 ...this.worldPos,
                 gameSettings.blockSize,
