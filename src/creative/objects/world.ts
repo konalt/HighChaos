@@ -31,6 +31,12 @@ export function drawBlock(blk: BlockStruct, cullLocation: number) {
         case BlockType.STONE:
             base = SPRITES.get("stone");
             break;
+        case BlockType.WOOD:
+            base = SPRITES.get("wood");
+            break;
+        case BlockType.LEAVES:
+            base = SPRITES.get("leaves");
+            break;
     }
 
     let _s = ctx.imageSmoothingEnabled;

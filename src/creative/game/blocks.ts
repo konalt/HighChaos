@@ -2,6 +2,8 @@ export enum BlockType {
     DIRT,
     GRASS,
     STONE,
+    WOOD,
+    LEAVES,
 }
 
 export class BlockStruct {
