@@ -14,6 +14,7 @@ import {
 import { handleUpdatePacket } from "../net/interp";
 import { GameSocket } from "../net/network";
 import { PACKET } from "../net/packets";
+import { BlockType } from "./blocks";
 import { handleNameUpdate } from "./extraplayerinfo";
 
 export let socket: GameSocket;
@@ -56,4 +57,30 @@ export let serverDeltaTime = 0;
 
 export function setSDT(n: number) {
     serverDeltaTime = n;
+}
+
+export let hotbar = [0, 1, 2, 3, -1, -1, -1, -1, -1];
+export let hotbarSlot = 0;
+
+export function selectHotbarSlot(newSlot: number) {
+    if (newSlot < 0) {
+        hotbarSlot = hotbar.length - 1;
+    } else if (newSlot > hotbar.length - 1) {
+        hotbarSlot = 0;
+    } else {
+        hotbarSlot = newSlot;
+    }
+}
+
+export function pickBlock(block: BlockType) {
+    let index = hotbar.indexOf(block);
+    if (index == -1) {
+        let emptyIndex = hotbar.indexOf(-1);
+        if (emptyIndex != -1) {
+            hotbarSlot = emptyIndex;
+        }
+        hotbar[hotbarSlot] = block;
+    } else {
+        hotbarSlot = index;
+    }
 }

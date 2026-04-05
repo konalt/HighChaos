@@ -35,6 +35,7 @@ export enum PACKET {
     CS_CHAT_SEND = npua(),
     SC_CHAT_RECV = npua(),
     SC_CHAT_CLEAR = npua(),
+    CS_BLOCK_UPDATE = npua(),
     CS_BLOCK_REMOVE = npua(),
     SC_BLOCK_UPDATE = npua(),
     SC_BLOCK_REMOVE = npua(),

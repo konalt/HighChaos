@@ -33,3 +33,7 @@ export function setBlock(bs: BlockStruct) {
 export function removeBlock(x: number, y: number) {
     blocks = blocks.filter((b) => b.gx != x || b.gy != y);
 }
+
+export function getBlockAt(x: number, y: number) {
+    return blocks.find((b) => b.gx == x && b.gy == y);
+}

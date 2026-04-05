@@ -94,10 +94,10 @@ export function chatClearHandler() {
 export function blockUpdateHandler(data: PacketString) {
     if (!data) return;
 
-    let upd = JSON.parse(data);
-    let x = upd[0];
-    let y = upd[1];
-    let type = upd[2];
+    let upd = data.split(",");
+    let x = parseInt(upd[0]);
+    let y = parseInt(upd[1]);
+    let type = parseInt(upd[2]);
 
     let blk = new BlockStruct();
     blk.gx = x;

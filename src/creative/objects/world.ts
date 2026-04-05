@@ -2,8 +2,8 @@ import { ctx, d, getKeyDown, getMouse, h, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { distance, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { blocks, BlockStruct, BlockType } from "../game/blocks";
-import { socket } from "../game/game";
+import { blocks, BlockStruct, BlockType, getBlockAt } from "../game/blocks";
+import { hotbar, hotbarSlot, pickBlock, socket } from "../game/game";
 import { ply } from "../game/player";
 import { gameSettings } from "../game/settings";
 import { PACKET } from "../net/packets";
@@ -89,8 +89,24 @@ export class World extends GameObject {
         this.worldPos = getWorldPos(this.gridPos);
         this.hasReach = distance(...this.worldPos, ply.x, ply.y) < REACH;
 
-        if (getKeyDown("mouse1") && this.hasReach) {
-            socket.emit(PACKET.CS_BLOCK_REMOVE, this.gridPos.join(","));
+        if (this.hasReach) {
+            if (getKeyDown("mouse2")) {
+                let block = getBlockAt(...this.gridPos);
+                if (!block || getKeyDown("mouse1"))
+                    socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, hotbar[hotbarSlot]].join(","));
+            } else if (getKeyDown("mouse1")) {
+                socket.emit(PACKET.CS_BLOCK_REMOVE, this.gridPos.join(","));
+            } else if (getKeyDown("mouse3")) {
+                let block = getBlockAt(...this.gridPos);
+                if (block) {
+                    pickBlock(block.type);
+                }
+            }
+        }
+
+        if (getKeyDown("f4")) {
+            let block = getBlockAt(...this.gridPos);
+            console.log(block);
         }
     }
 
