@@ -85,8 +85,6 @@ export class MenuScene extends Scene {
 
         this.camera.x = Math.cos(globalTimer * 0.0001 - Math.PI) * 500;
         this.camera.y = 5 * gameSettings.blockSize - h / 2;
-
-        this.world.cullOverride = this.camera.x;
     }
 
     private join() {

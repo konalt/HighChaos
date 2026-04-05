@@ -16,7 +16,7 @@ import {
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { messages } from "../../game/chat";
-import { socket } from "../../game/game";
+import { socket, UI_COLOR } from "../../game/game";
 import { PACKET } from "../../net/packets";
 
 const margin = 15;
@@ -25,8 +25,6 @@ const fontsize = 20;
 
 const bw = 350;
 const bh = 365;
-
-const bg = "rgba(0,0,0,0.75)";
 
 export class Chat extends GameObject {
     messages: [string, string][] = messages;
@@ -62,8 +60,8 @@ export class Chat extends GameObject {
         ctx.font = `${fontsize}px sans-serif`;
         ctx.textBaseline = "top";
 
-        d.roundRect(w - margin, margin, bw, bh, 5, bg, "", 0, "tr");
-        d.roundRect(w - margin, margin + bh + padding, bw, fontsize + 5, 5, bg, "", 0, "tr");
+        d.roundRect(w - margin, margin, bw, bh, 5, UI_COLOR, "", 0, "tr");
+        d.roundRect(w - margin, margin + bh + padding, bw, fontsize + 5, 5, UI_COLOR, "", 0, "tr");
 
         let chatText = this._getChatText();
         d.text(

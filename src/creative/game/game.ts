@@ -84,3 +84,5 @@ export function pickBlock(block: BlockType) {
         hotbarSlot = index;
     }
 }
+
+export const UI_COLOR = "rgba(0,0,0,0.75)";

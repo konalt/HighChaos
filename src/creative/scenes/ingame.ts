@@ -1,17 +1,14 @@
 import { addDebugLine, h, loadImage, overrideDeltaTime, setTargetFramerate, since, w } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
-import { lerp } from "../../lib/engine/utils";
-import { Background } from "../../lib/ui/background/background";
-import { HCRect } from "../../lib/ui/hcrect";
 import { socket } from "../game/game";
 import { handleInput } from "../game/input";
 import { players, ply, updatePlayers } from "../game/player";
 import { gameSettings } from "../game/settings";
 import { ClientPlayerState } from "../net/interp";
-import { BlockObject } from "../objects/block";
 import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
 import { Chat } from "../objects/ui/chat";
+import { Hotbar } from "../objects/ui/hotbar";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
 
@@ -22,6 +19,9 @@ let maxCameraY = 0;
 export class InGameScene extends Scene {
     players: Map<string, PlayerObject>;
     chat: Chat;
+    hotbar: Hotbar;
+
+    world: World;
 
     localPlayer: PlayerObject | undefined;
 
@@ -33,8 +33,8 @@ export class InGameScene extends Scene {
         let sky = new Sky();
         this.add(sky);
 
-        let world = new World();
-        this.add(world);
+        this.world = new World();
+        this.add(this.world);
 
         let pb = new PlayerBoard();
         this.add(pb, UI_LAYER);
@@ -42,9 +42,14 @@ export class InGameScene extends Scene {
         this.chat = new Chat();
         this.add(this.chat, UI_LAYER);
 
+        this.hotbar = new Hotbar();
+        this.add(this.hotbar, UI_LAYER);
+
+        this.camera.zoom = 0.85;
+
         this._loadPlayers();
 
-        maxCameraY = 5 * gameSettings.blockSize - h / 2;
+        maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
     }
 
     private _createPlayerObject(ply: ClientPlayerState) {

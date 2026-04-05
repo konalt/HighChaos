@@ -1,6 +1,6 @@
 import { ctx, d, getKeyDown, getMouse, h, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
-import { distance, TwoNums } from "../../lib/engine/utils";
+import { basicPointInRect, distance, FourNums, rectIntersect, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { blocks, BlockStruct, BlockType, getBlockAt } from "../game/blocks";
 import { hotbar, hotbarSlot, pickBlock, socket } from "../game/game";
@@ -12,15 +12,10 @@ import { SPRITES } from "../sprites";
 const drawMargin = 0.5;
 const REACH = 7 * 64;
 
-export function drawBlock(blk: BlockStruct, cullLocation: number) {
-    let x = blk.gx * gameSettings.blockSize - drawMargin;
-    let y = -blk.gy * gameSettings.blockSize - drawMargin;
-
-    let d = Math.abs(x - cullLocation);
-    if (d > w * 0.8) return;
+export function drawBlockRaw(x: number, y: number, w: number, h: number, type: BlockType) {
     let base: HTMLImageElement | undefined = NULLTEXTURE;
     let overlay: HTMLImageElement | undefined;
-    switch (blk.type) {
+    switch (type) {
         case BlockType.DIRT:
             base = SPRITES.get("dirt");
             break;
@@ -41,17 +36,21 @@ export function drawBlock(blk: BlockStruct, cullLocation: number) {
 
     let _s = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(
-        base ?? NULLTEXTURE,
-        x,
-        y,
-        gameSettings.blockSize + drawMargin * 2,
-        gameSettings.blockSize + drawMargin * 2,
-    );
+    ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
     if (overlay) {
-        ctx.drawImage(overlay, x, y, gameSettings.blockSize + drawMargin * 2, gameSettings.blockSize + drawMargin * 2);
+        ctx.drawImage(overlay, x, y, w + drawMargin * 2, h);
     }
     ctx.imageSmoothingEnabled = _s;
+}
+
+export function drawBlock(blk: BlockStruct, cullLocation: TwoNums, cullDistance: number) {
+    let x = blk.gx * gameSettings.blockSize - drawMargin;
+    let y = -blk.gy * gameSettings.blockSize - drawMargin;
+
+    let d = Math.max(Math.abs(x - cullLocation[0]), Math.abs(y - cullLocation[1]));
+    if (d > cullDistance) return;
+
+    drawBlockRaw(x, y, gameSettings.blockSize + drawMargin * 2, gameSettings.blockSize + drawMargin * 2, blk.type);
 }
 
 export function getGridPos(pos: TwoNums): TwoNums {
@@ -69,7 +68,7 @@ export class World extends GameObject {
     private hasReach: boolean;
 
     disableControl = false;
-    cullOverride: number | undefined;
+    noclickAreas: Map<string, FourNums> = new Map();
 
     constructor() {
         super();
@@ -80,6 +79,15 @@ export class World extends GameObject {
         this.hasReach = false;
     }
 
+    private _checkNoclickAreas(mouse: TwoNums) {
+        for (const [_, rect] of this.noclickAreas) {
+            if (basicPointInRect(...mouse, ...rect)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     update() {
         if (!ply || this.disableControl) return;
 
@@ -87,7 +95,8 @@ export class World extends GameObject {
         this.mouse = [m[0] + this.scene.camera.x - w / 2, m[1] + this.scene.camera.y - h / 2];
         this.gridPos = getGridPos(this.mouse);
         this.worldPos = getWorldPos(this.gridPos);
-        this.hasReach = distance(...this.worldPos, ply.x, ply.y) < REACH;
+        this.hasReach = distance(...this.mouse, ply.x, ply.y) < REACH;
+        if (this.hasReach) this.hasReach = this._checkNoclickAreas(getMouse(true));
 
         if (this.hasReach) {
             if (getKeyDown("mouse2")) {
@@ -114,7 +123,11 @@ export class World extends GameObject {
         if (!ply) return;
 
         for (const blk of blocks) {
-            drawBlock(blk, this.cullOverride ?? ply.x);
+            drawBlock(
+                blk,
+                [this.scene.camera.x, this.scene.camera.y],
+                (w / this.scene.camera.zoom) * 0.5 + gameSettings.blockSize,
+            );
         }
 
         if (this.hasReach && !this.disableControl) {

@@ -1,7 +1,8 @@
 import { ctx, d, font, w, h, getFPS, getKey } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { socket } from "../../game/game";
+import { socket, UI_COLOR } from "../../game/game";
 import { pingTable } from "../../game/ping";
+import { ply } from "../../game/player";
 
 const marginTop = 60;
 const padding = 20;
@@ -26,7 +27,7 @@ export class PlayerBoard extends GameObject {
     draw() {
         ctx.textBaseline = "top";
 
-        d.roundRect(w / 2, marginTop, bw, bh, 5, "rgba(0,0,0,0.5)", "", 0, "tc");
+        d.roundRect(w / 2, marginTop, bw, bh, 5, UI_COLOR, "", 0, "tc");
 
         let left = w / 2 - bw / 2 + padding;
         let center = w / 2;
@@ -34,7 +35,7 @@ export class PlayerBoard extends GameObject {
         let y = marginTop + padding;
 
         d.text(left, y, `FPS: ${getFPS()}`, "white", font(28), "left");
-        d.text(right, y, `Ping: ${Math.round(pingTable[socket.id])}ms`, "white", font(28), "right");
+        d.text(right, y, `Ping: ${Math.round(pingTable[ply.id])}ms`, "white", font(28), "right");
 
         d.text(center, y, "Konalt Creative", "white", font(48), "center");
         y += 48;

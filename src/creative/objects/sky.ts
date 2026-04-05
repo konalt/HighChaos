@@ -19,6 +19,7 @@ export class Sky extends GameObject {
     }
 
     draw() {
-        d.rect(this.scene.camera.x - w / 2, this.scene.camera.y - h / 2, w, h, this._gradient);
+        let z = this.scene.camera.zoom;
+        d.rect(this.scene.camera.x - w / z / 2, this.scene.camera.y - h / z / 2, w / z, h / z, this._gradient);
     }
 }

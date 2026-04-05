@@ -329,11 +329,23 @@ function handleKeyUp(event: KeyboardEvent) {
 }
 let mouseX = 0;
 let mouseY = 0;
-export function getMouse(): TwoNums {
-    const transform = ctx.getTransform();
-    const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
-    const transformed = p.matrixTransform(transform.inverse());
-    return [transformed.x, transformed.y];
+let screenTransform: DOMMatrix | undefined;
+export function getMouse(screenSpace = false): TwoNums {
+    if (screenSpace) {
+        if (!screenTransform) return [0, 0];
+        const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
+        const transformed = p.matrixTransform(screenTransform.inverse());
+        return [transformed.x, transformed.y];
+    } else {
+        const transform = ctx.getTransform();
+        const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
+        const transformed = p.matrixTransform(transform.inverse());
+        let zoomed: TwoNums = [transformed.x, transformed.y];
+        zoomed = [zoomed[0] - w / 2, zoomed[1] - h / 2]; // offset from center
+        zoomed = [zoomed[0] / currentScene.camera.zoom, zoomed[1] / currentScene.camera.zoom]; // unzoom
+        zoomed = [zoomed[0] + w / 2, zoomed[1] + h / 2]; // put it back
+        return zoomed;
+    }
 }
 export function forceKeyDown(code: string) {
     justPressed.push(code);
@@ -689,6 +701,7 @@ function draw() {
             debugCamera.y = currentScene.camera.y;
         }
         ctx.clearRect(0, 0, w, h);
+        if (!screenTransform) screenTransform = ctx.getTransform();
         if (debugMode) {
             currentScene.debugDraw();
         } else {
