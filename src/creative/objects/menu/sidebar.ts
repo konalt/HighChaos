@@ -13,7 +13,5 @@ export class Sidebar extends GameObject {
 
     draw() {
         d.rect(w / 2, 0, this.width, h, `rgba(0,0,0,${this.opacity})`, "", 0, "tc");
-
-        d.circ(...getMouse(true), 5, "blue");
     }
 }
