@@ -4,7 +4,7 @@ import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { hotbar, hotbarSlot, layer, selectHotbarSlot, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
-import { drawBlockRaw } from "../worldlayer2";
+import { drawBlockRaw } from "../world";
 
 const HOTBAR_ITEM_SIZE = 75;
 const HOTBAR_PADDING_X = 15;
@@ -42,7 +42,7 @@ export class Hotbar extends GameObject {
             if (this.scene instanceof InGameScene) {
                 const [bx, by] = anchorToCoords("bc", w / 2, h, this._width, this._height);
                 const rect: FourNums = [bx, by, this._width, this._height];
-                this.scene.worldLayer2.noclickAreas.set("hotbar", rect);
+                this.scene.world.noclickAreas.set("hotbar", rect);
             }
 
             this._path = this._createPath();
