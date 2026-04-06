@@ -53,6 +53,7 @@ export class HCInput extends GameObject {
     maxMode: "width" | "length" | "none" = "none";
     maxLength = -1;
     clearOnStartTyping = false;
+    ignore = false;
 
     needsUpdate = true;
 
@@ -89,7 +90,7 @@ export class HCInput extends GameObject {
 
         // check if mouse is hovering over input
         let mouse = getMouse();
-        this._hovered = basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
+        this._hovered = !this.ignore && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
 
         if (this._hovered) {
             setCursorMode(CursorMode.Text);

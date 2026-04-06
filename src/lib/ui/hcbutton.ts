@@ -18,6 +18,7 @@ export class HCButton extends GameObject {
     text = "Button";
     anchor: Anchor = "cc";
     onClick: () => void;
+    ignore = false;
 
     // Styling
     padding = 10;
@@ -37,10 +38,10 @@ export class HCButton extends GameObject {
     update(): void {
         super.update();
 
-        ctx.textBaseline = "top";
-        ctx.font = this.font;
-
         if (this.needsUpdate) {
+            ctx.textBaseline = "top";
+            ctx.font = this.font;
+
             let measure = ctx.measureText(this.text);
             this._bw = measure.width + this.padding * 2;
             this._bh = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent + this.padding * 2;
@@ -57,7 +58,7 @@ export class HCButton extends GameObject {
 
         // check if mouse is hovering over button
         let mouse = getMouse();
-        this._hovered = basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
+        this._hovered = !this.ignore && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
 
         if (this._hovered) {
             this._hoverTransition += this.hoverAnimationSpeed;

@@ -7,7 +7,8 @@ import { socket } from "../game/game";
 import { gameSettings } from "../game/settings";
 import { PACKET } from "../net/packets";
 import { Sidebar } from "../objects/menu/sidebar";
-import { Sky, SKY_HEIGHT } from "../objects/sky";
+import { TutorialPrompt } from "../objects/menu/tutorialprompt";
+import { Sky } from "../objects/sky";
 import { Title } from "../objects/ui/title";
 import { World } from "../objects/world";
 import { InGameScene } from "./ingame";
@@ -21,6 +22,8 @@ export class MenuScene extends Scene {
 
     nameInput: HCInput;
     playButton: HCButton;
+
+    tutorialPrompt: TutorialPrompt | undefined;
 
     constructor() {
         super();
@@ -46,7 +49,18 @@ export class MenuScene extends Scene {
         this.playButton.font = font(62, "bold");
         this.playButton.text = "Play";
         this.playButton.onClick = () => {
-            this.join();
+            this.playButton.ignore = true;
+            this.nameInput.ignore = true;
+
+            this.tutorialPrompt = new TutorialPrompt();
+            this.tutorialPrompt.onJoinPressed = () => {
+                this._join();
+            };
+            this.tutorialPrompt.onTutorialPressed = () => {
+                // TODO: add tutorial
+                console.log("add tutorial");
+            };
+            this.add(this.tutorialPrompt, UI_LAYER);
         };
         this.add(this.playButton, UI_LAYER);
 
@@ -87,7 +101,7 @@ export class MenuScene extends Scene {
         this.camera.y = 5 * gameSettings.blockSize - h / 2;
     }
 
-    private join() {
+    private _join() {
         socket.emit(PACKET.CS_PLAYER_JOIN);
         setScene(new InGameScene());
     }
