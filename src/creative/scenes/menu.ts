@@ -52,7 +52,10 @@ export class MenuScene extends Scene {
             this.playButton.ignore = true;
             this.nameInput.ignore = true;
 
-            this.tutorialPrompt = new TutorialPrompt();
+            this._join();
+
+            // TODO: add tutorial
+            /* this.tutorialPrompt = new TutorialPrompt();
             this.tutorialPrompt.onJoinPressed = () => {
                 this._join();
             };
@@ -60,7 +63,7 @@ export class MenuScene extends Scene {
                 // TODO: add tutorial
                 console.log("add tutorial");
             };
-            this.add(this.tutorialPrompt, UI_LAYER);
+            this.add(this.tutorialPrompt, UI_LAYER); */
         };
         this.add(this.playButton, UI_LAYER);
 
