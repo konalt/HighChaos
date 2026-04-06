@@ -59,8 +59,13 @@ export function setSDT(n: number) {
     serverDeltaTime = n;
 }
 
+export let layer = 1;
 export let hotbar = [0, 1, 2, 3, 4, 5, -1, -1, -1];
 export let hotbarSlot = 0;
+
+export function setLayer(l: 0 | 1 | 2) {
+    layer = l;
+}
 
 export function selectHotbarSlot(newSlot: number) {
     if (newSlot < 0) {

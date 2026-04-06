@@ -523,6 +523,16 @@ export async function loadImage(url: string) {
         img.src = `/assets/img/${url}`;
     });
 }
+
+export async function loadImageAbsolute(url: string) {
+    return new Promise<HTMLImageElement>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            resolve(img);
+        };
+        img.src = url;
+    });
+}
 //#endregion
 
 //#region Sound

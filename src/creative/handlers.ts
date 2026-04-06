@@ -98,20 +98,22 @@ export function blockUpdateHandler(data: PacketString) {
     let x = parseInt(upd[0]);
     let y = parseInt(upd[1]);
     let type = parseInt(upd[2]);
+    let layer = parseInt(upd[3]);
 
     let blk = new BlockStruct();
     blk.gx = x;
     blk.gy = y;
     blk.type = type;
+    blk.layer = layer;
 
     setBlock(blk);
 }
 
 export function blockRemoveHandler(cString: PacketString) {
     if (!cString) return;
-    let [x, y] = cString.split(",").map((n) => parseInt(n));
+    let [x, y, layer] = cString.split(",").map((n) => parseInt(n));
 
-    removeBlock(x, y);
+    removeBlock(x, y, layer);
 }
 
 export function deltaTimeHandler(n: PacketString) {

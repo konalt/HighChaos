@@ -1,9 +1,10 @@
-import { ctx, CursorMode, d, getKeyDown, getMouse, h, setCursorMode, w } from "../../../lib/engine/engine";
+import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/utils";
-import { hotbar, hotbarSlot, selectHotbarSlot, UI_COLOR } from "../../game/game";
+import { NULLTEXTURE } from "../../../lib/ui/hcimage";
+import { hotbar, hotbarSlot, layer, selectHotbarSlot, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
-import { drawBlockRaw } from "../world";
+import { drawBlockRaw } from "../worldlayer2";
 
 const HOTBAR_ITEM_SIZE = 75;
 const HOTBAR_PADDING_X = 15;
@@ -13,18 +14,25 @@ const HOTBAR_DESELECTED_SCALE = 0.85;
 const HOTBAR_ROUND = 10;
 const HOTBAR_SELECT_INDICATOR_SIZE = 2;
 
+const HOTBAR_LAYER_SELECTOR_SIZE = 60;
+
 const HOTBAR_SELECT_KEYS: [number, string][] = new Array(9).fill(0).map((_, i) => [i, `Digit${i + 1}`]);
 
 export class Hotbar extends GameObject {
     private _width = 0;
     private _height = 0;
+    private _path: Path2D | undefined;
 
     private _hoveredIndex = -1;
+
+    private _ls: HTMLImageElement[];
 
     needsUpdate = true;
 
     constructor() {
         super();
+
+        this._ls = [];
     }
 
     update(): void {
@@ -34,8 +42,10 @@ export class Hotbar extends GameObject {
             if (this.scene instanceof InGameScene) {
                 const [bx, by] = anchorToCoords("bc", w / 2, h, this._width, this._height);
                 const rect: FourNums = [bx, by, this._width, this._height];
-                this.scene.world.noclickAreas.set("hotbar", rect);
+                this.scene.worldLayer2.noclickAreas.set("hotbar", rect);
             }
+
+            this._path = this._createPath();
         }
 
         for (const [ind, key] of HOTBAR_SELECT_KEYS) {
@@ -51,16 +61,18 @@ export class Hotbar extends GameObject {
     }
 
     draw() {
-        d.roundRect(
-            w / 2,
-            h + HOTBAR_ROUND,
-            this._width,
-            this._height + HOTBAR_ROUND,
-            HOTBAR_ROUND,
-            UI_COLOR,
-            "",
-            0,
-            "bc",
+        if (this._path) {
+            ctx.fillStyle = UI_COLOR;
+            ctx.fill(this._path);
+        }
+
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(
+            this._ls[layer],
+            (w - this._width) / 2 - HOTBAR_PADDING_X - HOTBAR_LAYER_SELECTOR_SIZE,
+            h - HOTBAR_PADDING_Y - HOTBAR_LAYER_SELECTOR_SIZE,
+            HOTBAR_LAYER_SELECTOR_SIZE,
+            HOTBAR_LAYER_SELECTOR_SIZE,
         );
 
         for (let i = 0; i < hotbar.length; i++) {
@@ -121,5 +133,49 @@ export class Hotbar extends GameObject {
                 3,
             );
         }
+    }
+
+    private _createPath() {
+        let path = new Path2D();
+
+        // layer selector box
+        path.moveTo((w - this._width) / 2, h + HOTBAR_ROUND);
+        path.lineTo((w - this._width) / 2 - HOTBAR_LAYER_SELECTOR_SIZE - HOTBAR_PADDING_X * 2, h + HOTBAR_ROUND);
+        path.arc(
+            (w - this._width) / 2 - HOTBAR_LAYER_SELECTOR_SIZE - HOTBAR_PADDING_X * 2 + HOTBAR_ROUND,
+            h - HOTBAR_PADDING_Y * 2 - HOTBAR_LAYER_SELECTOR_SIZE + HOTBAR_ROUND,
+            HOTBAR_ROUND,
+            Math.PI,
+            Math.PI * 1.5,
+        );
+        path.lineTo((w - this._width) / 2, h - HOTBAR_PADDING_Y * 2 - HOTBAR_LAYER_SELECTOR_SIZE);
+
+        // Block selector
+        path.arc(
+            (w - this._width) / 2 + HOTBAR_ROUND,
+            h - this._height + HOTBAR_ROUND,
+            HOTBAR_ROUND,
+            Math.PI,
+            Math.PI * 1.5,
+        );
+        path.lineTo((w + this._width) / 2 - HOTBAR_ROUND, h - this._height);
+        path.arc(
+            (w + this._width) / 2 - HOTBAR_ROUND,
+            h - this._height + HOTBAR_ROUND,
+            HOTBAR_ROUND,
+            Math.PI * 1.5,
+            Math.PI * 2,
+        );
+        path.lineTo((w + this._width) / 2, h);
+
+        path.closePath();
+
+        return path;
+    }
+
+    async load(): Promise<void> {
+        console.log("loading!");
+
+        this._ls = await Promise.all(new Array(3).fill(0).map((_, i) => loadImage(`creative/icons/layer${i}.png`)));
     }
 }

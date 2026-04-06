@@ -11,11 +11,13 @@ import { TutorialPrompt } from "../objects/menu/tutorialprompt";
 import { Sky } from "../objects/sky";
 import { Title } from "../objects/ui/title";
 import { World } from "../objects/world";
+import { WorldLayer2 } from "../objects/worldlayer2";
 import { InGameScene } from "./ingame";
 
 export class MenuScene extends Scene {
     sky: Sky;
     world: World;
+    worldLayer2: WorldLayer2;
     sidebar: Sidebar;
 
     title: Title;
@@ -93,8 +95,11 @@ export class MenuScene extends Scene {
         this.add(this.nameInput, UI_LAYER);
 
         this.world = new World();
-        this.world.disableControl = true;
         this.add(this.world);
+
+        this.worldLayer2 = new WorldLayer2();
+        this.worldLayer2.disableControl = true;
+        this.add(this.worldLayer2, 2);
     }
 
     update(): void {

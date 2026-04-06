@@ -11,6 +11,7 @@ import { Chat } from "../objects/ui/chat";
 import { Hotbar } from "../objects/ui/hotbar";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
+import { WorldLayer2 } from "../objects/worldlayer2";
 
 export let testPlayerImage: HTMLImageElement;
 
@@ -22,6 +23,7 @@ export class InGameScene extends Scene {
     hotbar: Hotbar;
 
     world: World;
+    worldLayer2: WorldLayer2;
 
     localPlayer: PlayerObject | undefined;
 
@@ -35,6 +37,9 @@ export class InGameScene extends Scene {
 
         this.world = new World();
         this.add(this.world);
+
+        this.worldLayer2 = new WorldLayer2();
+        this.add(this.worldLayer2, 2);
 
         let pb = new PlayerBoard();
         this.add(pb, UI_LAYER);
@@ -101,6 +106,8 @@ export class InGameScene extends Scene {
     }
 
     async init() {
+        await super.init();
+
         testPlayerImage = await loadImage("creative/testplayer.png");
     }
 }

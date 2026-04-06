@@ -5,7 +5,8 @@ import { ClientPlayerState } from "./net/interp";
 
 export function checkBlockIntersection(r: FourNums): BlockStruct | null {
     let filt = blocks.filter(
-        (b) => distance(b.gx * gameSettings.blockSize, -b.gy * gameSettings.blockSize, r[0], r[1]) <= 500,
+        (b) =>
+            b.layer == 1 && distance(b.gx * gameSettings.blockSize, -b.gy * gameSettings.blockSize, r[0], r[1]) <= 500,
     );
     for (const blk of filt) {
         const r2: FourNums = [
