@@ -32,6 +32,9 @@ export function drawBlockRaw(x: number, y: number, w: number, h: number, type: B
         case BlockType.LEAVES:
             base = SPRITES.get("leaves");
             break;
+        case BlockType.PLANKS:
+            base = SPRITES.get("planks");
+            break;
     }
 
     let _s = ctx.imageSmoothingEnabled;

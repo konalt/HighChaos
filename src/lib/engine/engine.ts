@@ -71,6 +71,8 @@ export function onResize() {
     canvasMain.style.height = `${Math.floor(elHeight)}px`;
 
     ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
+
+    screenTransform = ctxMain.getTransform();
 }
 
 export function sz(size: number) {
@@ -701,7 +703,7 @@ function draw() {
             debugCamera.y = currentScene.camera.y;
         }
         ctx.clearRect(0, 0, w, h);
-        if (!screenTransform) screenTransform = ctx.getTransform();
+        if (!screenTransform) screenTransform = ctxMain.getTransform();
         if (debugMode) {
             currentScene.debugDraw();
         } else {

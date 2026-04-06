@@ -1,6 +1,6 @@
 import { loadImage } from "../lib/engine/engine";
 
-const BLOCKSPRITES = ["dirt", "grass_overlay", "stone", "wood", "leaves"];
+const BLOCKSPRITES = ["dirt", "grass_overlay", "stone", "wood", "leaves", "planks"];
 
 export const SPRITES: Map<string, HTMLImageElement> = new Map();
 
