@@ -98,13 +98,15 @@ export function blockUpdateHandler(data: PacketString) {
     let x = parseInt(upd[0]);
     let y = parseInt(upd[1]);
     let type = parseInt(upd[2]);
-    let layer = parseInt(upd[3]);
+    let subtype = parseInt(upd[3] ?? "-1");
+    let layer = parseInt(upd[4]);
 
     let blk = new BlockStruct();
     blk.gx = x;
     blk.gy = y;
     blk.type = type;
     blk.layer = layer;
+    if (subtype > -1) blk.subtype = subtype;
 
     setBlock(blk);
 }

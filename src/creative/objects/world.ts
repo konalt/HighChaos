@@ -3,34 +3,35 @@ import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { BlockType, BlockStruct, getClosestBlockAt, getBlockAt, blocks, culledBlocks } from "../game/blocks";
-import { setLayer, layer, socket, hotbar, hotbarSlot, pickBlock } from "../game/game";
+import { setLayer, layer, socket, hotbar, hotbarSlot, pickBlock, currentBlock } from "../game/game";
 import { ply } from "../game/player";
 import { gameSettings } from "../game/settings";
 import { PACKET } from "../net/packets";
 import { getBlockSprite } from "../sprites";
 
-export function drawBlockRaw(x: number, y: number, w: number, h: number, type: BlockType, dark = false) {
+export function drawBlockRaw(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    type: BlockType,
+    subtype: number,
+    dark = false,
+) {
+    if (Number(type) == -1) return;
     let base: HTMLImageElement | undefined = NULLTEXTURE;
     let overlay: HTMLImageElement | undefined;
     switch (type) {
-        case BlockType.DIRT:
-            base = getBlockSprite("dirt", dark);
-            break;
         case BlockType.GRASS:
             base = getBlockSprite("dirt");
             overlay = getBlockSprite("grass_overlay", dark);
             break;
-        case BlockType.STONE:
-            base = getBlockSprite("stone", dark);
+        case BlockType.WOOL:
+            base = getBlockSprite(`wool__${subtype}`, dark);
             break;
-        case BlockType.WOOD:
-            base = getBlockSprite("wood", dark);
-            break;
-        case BlockType.LEAVES:
-            base = getBlockSprite("leaves", dark);
-            break;
-        case BlockType.PLANKS:
-            base = getBlockSprite("planks", dark);
+        default:
+            base = getBlockSprite((BlockType[type] ?? "unknown").toLowerCase(), dark);
+            if (!BlockType[type]) console.log(type);
             break;
     }
 
@@ -56,6 +57,7 @@ export function drawBlock(blk: BlockStruct, cullLocation: TwoNums, cullDistance:
         gameSettings.blockSize + WORLD_DRAW_MARGIN * 2,
         gameSettings.blockSize + WORLD_DRAW_MARGIN * 2,
         blk.type,
+        blk.subtype,
         blk.layer == 0,
     );
 }
@@ -120,7 +122,7 @@ export class World extends GameObject {
                 if (!closestBlock || closestBlock?.layer < layer) {
                     let block = getBlockAt(...this.gridPos, layer);
                     if (!block || getKeyDown("mouse1"))
-                        socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, hotbar[hotbarSlot], layer].join(","));
+                        socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, ...currentBlock, layer].join(","));
                 }
             } else if (getKeyDown("mouse1")) {
                 if (closestBlock) {
@@ -128,7 +130,7 @@ export class World extends GameObject {
                 }
             } else if (getKeyDown("mouse3")) {
                 if (closestBlock) {
-                    pickBlock(closestBlock.type);
+                    pickBlock(closestBlock.type, closestBlock.subtype);
                 }
             }
             this.canPlace = !closestBlock;
@@ -155,7 +157,7 @@ export class World extends GameObject {
             if (debugMode) {
                 d.text(
                     ...(getWorldPos([blk.gx, blk.gy]).map((n) => n + gameSettings.blockSize / 2) as TwoNums),
-                    blk.layer.toString(),
+                    blk.subtype.toString(),
                     "red",
                     font(24),
                     "center",
@@ -170,7 +172,7 @@ export class World extends GameObject {
                     ...this.worldPos,
                     gameSettings.blockSize,
                     gameSettings.blockSize,
-                    hotbar[hotbarSlot],
+                    ...currentBlock,
                     layer == 0,
                 );
                 ctx.globalAlpha = 1;

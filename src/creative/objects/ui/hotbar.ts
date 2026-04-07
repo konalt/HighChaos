@@ -2,7 +2,7 @@ import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode, 
 import { GameObject } from "../../../lib/engine/object";
 import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
-import { hotbar, hotbarSlot, layer, selectHotbarSlot, UI_COLOR } from "../../game/game";
+import { currentBlock, hotbar, hotbarSlot, layer, selectHotbarSlot, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
 
@@ -110,7 +110,7 @@ export class Hotbar extends GameObject {
     }
 
     private _drawItem(index: number) {
-        let type = hotbar[index];
+        let block = hotbar[index];
 
         let selected = index == hotbarSlot;
         let hovered = index == this._hoveredIndex;
@@ -119,10 +119,10 @@ export class Hotbar extends GameObject {
 
         if (!selected) {
             ctx.globalAlpha = hovered ? 0.7 : 0.5;
-            drawBlockRaw(...rect, type);
+            drawBlockRaw(...rect, ...block);
             ctx.globalAlpha = 1;
         } else {
-            drawBlockRaw(...rect, type);
+            drawBlockRaw(...rect, ...block);
             d.rect(
                 rect[0] - HOTBAR_SELECT_INDICATOR_SIZE,
                 rect[1] - HOTBAR_SELECT_INDICATOR_SIZE,

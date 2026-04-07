@@ -5,6 +5,59 @@ export enum BlockType {
     WOOD,
     LEAVES,
     PLANKS,
+    GLASS,
+    WOOL,
+}
+
+export interface BlockData {
+    transparent: boolean;
+    subtypeMode: "none" | "color";
+    subtypes: string[][];
+}
+
+const DEFAULT_BLOCK_DATA: BlockData = {
+    transparent: false,
+    subtypeMode: "none",
+    subtypes: [],
+};
+
+const BLOCK_DATA: Record<string, Partial<BlockData>> = {
+    6: {
+        // glass
+        transparent: true,
+    },
+    7: {
+        // wool
+        subtypeMode: "color",
+        subtypes: [
+            ["White", "#f9f9f9"],
+            ["Light Grey", "#afafaf"],
+            ["Dark Grey", "#535353"],
+            ["Black", "#1a1a1a"],
+            ["Brown", "#58380e"],
+            ["Red", "#df2525"],
+            ["Orange", "#ec8524"],
+            ["Yellow", "#e9d732"],
+            ["Lime", "#5bec2f"],
+            ["Green", "#168616"],
+            ["Cyan", "#22d4ae"],
+            ["Light Blue", "#2be1e7"],
+            ["Dark Blue", "#264cca"],
+            ["Purple", "#982fdd"],
+            ["Magenta", "#e334f3"],
+            ["Pink", "#ffa0ff"],
+        ],
+    },
+};
+
+export function getBlockData(type: BlockType) {
+    if (BLOCK_DATA[type]) {
+        let d = { ...DEFAULT_BLOCK_DATA };
+        Object.assign(d, BLOCK_DATA[type]);
+        return d;
+    } else {
+        return DEFAULT_BLOCK_DATA;
+    }
 }
 
 export class BlockStruct {
@@ -12,6 +65,7 @@ export class BlockStruct {
     gx: number = 0;
     gy: number = 0;
     layer: number = 0;
+    subtype: number = 0;
 
     constructor() {}
 }
@@ -33,7 +87,7 @@ export function cullBlocks() {
             continue;
         }
         if (b2.layer < b.layer) {
-            c = c.filter((b3) => b3.gx != b.gx || b3.gy != b.gy);
+            if (!getBlockData(b.type).transparent) c = c.filter((b3) => b3.gx != b.gx || b3.gy != b.gy);
             c.push(b);
         }
     }

@@ -1,3 +1,4 @@
+import { TwoNums } from "../../lib/engine/utils";
 import {
     ackHandler,
     blockRemoveHandler,
@@ -60,8 +61,10 @@ export function setSDT(n: number) {
 }
 
 export let layer = 1;
-export let hotbar = [0, 1, 2, 3, 4, 5, -1, -1, -1];
+export let hotbar: TwoNums[] = new Array(9).fill([-1, -1]);
+hotbar[0] = [BlockType.WOOL, 7];
 export let hotbarSlot = 0;
+export let currentBlock: TwoNums = [-1, 0];
 
 export function setLayer(l: 0 | 1) {
     layer = l;
@@ -75,19 +78,21 @@ export function selectHotbarSlot(newSlot: number) {
     } else {
         hotbarSlot = newSlot;
     }
+    currentBlock = hotbar[hotbarSlot];
 }
 
-export function pickBlock(block: BlockType) {
-    let index = hotbar.indexOf(block);
+export function pickBlock(block: BlockType, subtype: number) {
+    let index = hotbar.findIndex((v) => v[0] == block && v[1] == subtype);
     if (index == -1) {
-        let emptyIndex = hotbar.indexOf(-1);
+        let emptyIndex = hotbar.findIndex((v) => v[0] == -1);
         if (emptyIndex != -1) {
             hotbarSlot = emptyIndex;
         }
-        hotbar[hotbarSlot] = block;
+        hotbar[hotbarSlot] = [block, subtype];
     } else {
         hotbarSlot = index;
     }
+    currentBlock = hotbar[hotbarSlot];
 }
 
 export const UI_COLOR = "rgba(0,0,0,0.75)";
