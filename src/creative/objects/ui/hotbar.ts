@@ -6,15 +6,15 @@ import { currentBlock, hotbar, hotbarSlot, layer, selectHotbarSlot, setLayer, UI
 import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
 
-const HOTBAR_ITEM_SIZE = 75;
+const HOTBAR_ITEM_SIZE = 70;
 const HOTBAR_PADDING_X = 15;
 const HOTBAR_PADDING_Y = 15;
-const HOTBAR_GAP = 10;
-const HOTBAR_DESELECTED_SCALE = 0.85;
-const HOTBAR_ROUND = 10;
-const HOTBAR_SELECT_INDICATOR_SIZE = 2;
+const HOTBAR_GAP = 5;
+const HOTBAR_DESELECTED_SCALE = 0.9;
+const HOTBAR_ROUND = 3;
+const HOTBAR_SELECT_INDICATOR_SIZE = 1.5;
 
-const HOTBAR_LAYER_SELECTOR_SIZE = 60;
+const HOTBAR_LAYER_SELECTOR_SIZE = 50;
 
 const HOTBAR_SELECT_KEYS: [number, string][] = new Array(9).fill(0).map((_, i) => [i, `Digit${i + 1}`]);
 
