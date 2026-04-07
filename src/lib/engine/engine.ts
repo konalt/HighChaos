@@ -303,8 +303,15 @@ export function resetShadow() {
 let heldKeys: string[] = [];
 let justPressed: string[] = [];
 let justReleased: string[] = [];
+let codeAlias: Record<string, string> = {
+    shiftleft: "shift",
+    shiftright: "shift",
+    controlleft: "control",
+    controlright: "control",
+};
 function handleKeyDown(event: KeyboardEvent) {
-    const code = event.code.toLowerCase();
+    let code = event.code.toLowerCase();
+    if (codeAlias[code]) code = codeAlias[code];
     if (event.code != "F5" && event.code != "F12" && event.code != "F11" && !(event.ctrlKey && event.code == "KeyV"))
         event.preventDefault();
     if (typing) {
@@ -318,7 +325,8 @@ function handleKeyDown(event: KeyboardEvent) {
     }
 }
 function handleKeyUp(event: KeyboardEvent) {
-    const code = event.code.toLowerCase();
+    let code = event.code.toLowerCase();
+    if (codeAlias[code]) code = codeAlias[code];
     event.preventDefault();
     if (!typing) {
         if (heldKeys.includes(code)) {
