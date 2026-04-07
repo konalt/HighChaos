@@ -7,18 +7,34 @@ export enum BlockType {
     PLANKS,
     GLASS,
     WOOL,
+    SAUL,
+    BRICKS,
+    COBBLESTONE,
+    STONEBRICKS,
+    TABLE,
+    FLOWER,
+    LADDER,
+    PLATFORM,
 }
 
 export interface BlockData {
     transparent: boolean;
     subtypeMode: "none" | "color";
     subtypes: string[][];
+    collision: boolean;
+    isPlatform: boolean;
+    isLadder: boolean;
+    isFurniture: boolean;
 }
 
 const DEFAULT_BLOCK_DATA: BlockData = {
     transparent: false,
     subtypeMode: "none",
     subtypes: [],
+    collision: true,
+    isPlatform: false,
+    isLadder: false,
+    isFurniture: false,
 };
 
 const BLOCK_DATA: Record<string, Partial<BlockData>> = {
@@ -47,6 +63,26 @@ const BLOCK_DATA: Record<string, Partial<BlockData>> = {
             ["Magenta", "#e334f3"],
             ["Pink", "#ffa0ff"],
         ],
+    },
+    12: {
+        isFurniture: true,
+        collision: false,
+        transparent: true,
+    },
+    13: {
+        // flower
+        collision: false,
+        transparent: true,
+    },
+    14: {
+        // ladder
+        transparent: true,
+        isLadder: true,
+    },
+    15: {
+        // playform
+        transparent: true,
+        isPlatform: true,
     },
 };
 

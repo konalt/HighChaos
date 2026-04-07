@@ -23,7 +23,7 @@ export function drawBlockRaw(
     let overlay: HTMLImageElement | undefined;
     switch (type) {
         case BlockType.GRASS:
-            base = getBlockSprite("dirt");
+            base = getBlockSprite("dirt", dark);
             overlay = getBlockSprite("grass_overlay", dark);
             break;
         case BlockType.WOOL:

@@ -2,7 +2,24 @@ import { canvas, CanvasStyle, ctx, d, loadImage, loadImageAbsolute, useCanvas } 
 import { NULLTEXTURE } from "../lib/ui/hcimage";
 import { BlockType, getBlockData } from "./game/blocks";
 
-const BLOCKSPRITES = ["dirt", "grass_overlay", "stone", "wood", "leaves", "planks", "glass", "7:wool"];
+const BLOCKSPRITES = [
+    "dirt",
+    "grass_overlay",
+    "stone",
+    "wood",
+    "leaves",
+    "planks",
+    "glass",
+    "7:wool",
+    "saul",
+    "bricks",
+    "cobblestone",
+    "stonebricks",
+    "furniture/table",
+    "flower",
+    "ladder",
+    "platform",
+];
 const BLOCK_DARKEN = "rgba(27, 28, 31, 0.46)";
 const SPRITE_SCALE = 3;
 const SPRITE_SIZE = 16 * SPRITE_SCALE;
@@ -16,6 +33,7 @@ async function createDarkSprite(img: HTMLImageElement) {
     canvas.height = SPRITE_SIZE;
 
     ctx.drawImage(img, 0, 0, SPRITE_SIZE, SPRITE_SIZE);
+    ctx.globalCompositeOperation = "source-atop";
     d.rect(0, 0, SPRITE_SIZE, SPRITE_SIZE, BLOCK_DARKEN);
 
     let darkImage = await loadImageAbsolute(canvas.toDataURL("image/png"));

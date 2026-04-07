@@ -3,28 +3,34 @@ import { BlockType } from "./blocks";
 
 let w = 0;
 
+const T = BlockType;
+
+function b(t: BlockType, i = 0): TwoNums {
+    return [t, i];
+}
+
+function s(t: BlockType, c = 0): TwoNums[] {
+    let o: TwoNums[] = [];
+    for (let i = 0; i < c; i++) {
+        o.push([t, i]);
+    }
+    return o;
+}
+
 export const INVENTORY: TwoNums[] = [
-    [BlockType.GRASS, 0],
-    [BlockType.DIRT, 0],
-    [BlockType.STONE, 0],
-    [BlockType.WOOD, 0],
-    [BlockType.LEAVES, 0],
-    [BlockType.PLANKS, 0],
-    [BlockType.GLASS, 0],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
-    [BlockType.WOOL, w++],
+    b(T.GRASS),
+    b(T.DIRT),
+    b(T.STONE),
+    b(T.COBBLESTONE),
+    b(T.STONEBRICKS),
+    b(T.BRICKS),
+    b(T.WOOD),
+    b(T.LEAVES),
+    b(T.PLANKS),
+    b(T.GLASS),
+    b(T.LADDER),
+    b(T.PLATFORM),
+    ...s(T.WOOL, 16),
+    b(T.FLOWER),
+    b(T.SAUL),
 ];
