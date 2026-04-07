@@ -31,6 +31,7 @@ export const INVENTORY: TwoNums[] = [
     b(T.LADDER),
     b(T.PLATFORM),
     ...s(T.WOOL, 16),
+    b(T.TABLE),
     b(T.FLOWER),
     b(T.SAUL),
 ];
