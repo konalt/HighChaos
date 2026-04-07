@@ -3,7 +3,7 @@ import { NULLTEXTURE } from "../lib/ui/hcimage";
 import { BlockType, getBlockData } from "./game/blocks";
 
 const BLOCKSPRITES = ["dirt", "grass_overlay", "stone", "wood", "leaves", "planks", "glass", "7:wool"];
-const BLOCK_DARKEN = "rgba(15, 20, 29, 0.46)";
+const BLOCK_DARKEN = "rgba(27, 28, 31, 0.46)";
 
 export const SPRITES: Map<string, HTMLImageElement> = new Map();
 
