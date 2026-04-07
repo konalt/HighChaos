@@ -1,8 +1,7 @@
 import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/utils";
-import { NULLTEXTURE } from "../../../lib/ui/hcimage";
-import { currentBlock, hotbar, hotbarSlot, layer, selectHotbarSlot, setLayer, UI_COLOR } from "../../game/game";
+import { hotbar, HOTBAR_SELECT_KEYS, hotbarSlot, layer, selectHotbarSlot, setLayer, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
 
@@ -16,8 +15,6 @@ const HOTBAR_SELECT_INDICATOR_SIZE = 1.5;
 
 const HOTBAR_LAYER_SELECTOR_SIZE = 50;
 
-const HOTBAR_SELECT_KEYS: [number, string][] = new Array(9).fill(0).map((_, i) => [i, `Digit${i + 1}`]);
-
 export class Hotbar extends GameObject {
     private _width = 0;
     private _height = 0;
@@ -29,6 +26,7 @@ export class Hotbar extends GameObject {
     private _ls: HTMLImageElement[];
 
     needsUpdate = true;
+    ignore = false;
 
     constructor() {
         super();
@@ -49,17 +47,26 @@ export class Hotbar extends GameObject {
             this._path = this._createPath();
         }
 
-        for (const [ind, key] of HOTBAR_SELECT_KEYS) {
-            if (getKeyDown(key)) {
-                selectHotbarSlot(ind);
+        if (!this.ignore) {
+            if (getKeyDown("mwheelup")) {
+                selectHotbarSlot(hotbarSlot - 1);
             }
-        }
+            if (getKeyDown("mwheeldown")) {
+                selectHotbarSlot(hotbarSlot + 1);
+            }
 
-        this._checkLayerSelectorClick();
+            for (const [ind, key] of HOTBAR_SELECT_KEYS) {
+                if (getKeyDown(key)) {
+                    selectHotbarSlot(ind);
+                }
+            }
 
-        this._hoveredIndex = -1;
-        for (let i = 0; i < hotbar.length; i++) {
-            this._checkItemClick(i);
+            this._checkLayerSelectorClick();
+
+            this._hoveredIndex = -1;
+            for (let i = 0; i < hotbar.length; i++) {
+                this._checkItemClick(i);
+            }
         }
     }
 

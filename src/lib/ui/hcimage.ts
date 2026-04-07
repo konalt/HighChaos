@@ -14,8 +14,8 @@ img.src = MISSINGTEXTUREURL;
 
 export class HCImage extends GameObject {
     src: string;
-    scale: number;
-    anchor: Anchor;
+    scale = 1;
+    anchor: Anchor = "tl";
     image: HTMLImageElement;
 
     constructor() {

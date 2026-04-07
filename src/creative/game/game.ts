@@ -60,8 +60,11 @@ export function setSDT(n: number) {
     serverDeltaTime = n;
 }
 
+export const HOTBAR_SELECT_KEYS: [number, string][] = new Array(9).fill(0).map((_, i) => [i, `Digit${i + 1}`]);
+export const HOTBAR_SLOTS = 9;
+export const EMPTY_INV_SLOT: TwoNums = [-1, -1];
 export let layer = 1;
-export let hotbar: TwoNums[] = new Array(9).fill([-1, -1]);
+export let hotbar: TwoNums[] = new Array(HOTBAR_SLOTS).fill([...EMPTY_INV_SLOT]);
 hotbar[0] = [BlockType.DIRT, 0];
 hotbar[1] = [BlockType.STONE, 0];
 hotbar[2] = [BlockType.WOOD, 0];
@@ -85,10 +88,19 @@ export function selectHotbarSlot(newSlot: number) {
     currentBlock = hotbar[hotbarSlot];
 }
 
+export function firstEmptyHotbarSlot() {
+    return hotbar.findIndex((v) => v[0] == -1);
+}
+
+export function setHotbarSlot(slot: number, item: TwoNums) {
+    hotbar[slot] = item;
+    currentBlock = hotbar[slot];
+}
+
 export function pickBlock(block: BlockType, subtype: number) {
     let index = hotbar.findIndex((v) => v[0] == block && v[1] == subtype);
     if (index == -1) {
-        let emptyIndex = hotbar.findIndex((v) => v[0] == -1);
+        let emptyIndex = firstEmptyHotbarSlot();
         if (emptyIndex != -1) {
             hotbarSlot = emptyIndex;
         }

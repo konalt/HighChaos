@@ -18,6 +18,7 @@ import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
 import { Chat } from "../objects/ui/chat";
 import { Hotbar } from "../objects/ui/hotbar";
+import { Inventory } from "../objects/ui/inventory";
 import { PlayerBoard } from "../objects/ui/playerboard";
 import { World } from "../objects/world";
 
@@ -29,6 +30,7 @@ export class InGameScene extends Scene {
     players: Map<string, PlayerObject>;
     chat: Chat;
     hotbar: Hotbar;
+    inventory: Inventory;
 
     world: World;
 
@@ -53,6 +55,9 @@ export class InGameScene extends Scene {
 
         this.hotbar = new Hotbar();
         this.add(this.hotbar, UI_LAYER);
+
+        this.inventory = new Inventory();
+        this.add(this.inventory, UI_LAYER + 2);
 
         this.camera.zoom = 0.85;
 
@@ -90,24 +95,30 @@ export class InGameScene extends Scene {
     update(): void {
         super.update();
 
-        if (getKeyDown("minus")) {
-            this.camera.zoom /= 1.05;
-
-            maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
-        }
-        if (getKeyDown("equal")) {
-            this.camera.zoom *= 1.05;
-            if (this.camera.zoom > 1) this.camera.zoom = 1;
-
-            maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
-        }
-
         if (getKeyDown("f1")) {
             this.chat.enabled = !this.chat.enabled;
             this.hotbar.visible = !this.hotbar.visible;
         }
 
-        handleInput();
+        if (getKeyDown("keye")) {
+            this.inventory.toggle();
+            this.world.disableControl = this.inventory._show;
+            this.hotbar.ignore = this.inventory._show;
+        }
+
+        handleInput(this.inventory._show);
+
+        if (!this.inventory._show) {
+            if (getKeyDown("minus")) {
+                this.camera.zoom /= 1.05;
+                maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
+            }
+            if (getKeyDown("equal")) {
+                this.camera.zoom *= 1.05;
+                if (this.camera.zoom > 1) this.camera.zoom = 1;
+                maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
+            }
+        }
 
         for (const [id, ply] of players) {
             if (!this.players.has(id)) {

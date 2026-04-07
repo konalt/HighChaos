@@ -397,6 +397,10 @@ function handleMouseMove(event: MouseEvent) {
     mouseX = event.offsetX;
     mouseY = event.offsetY;
 }
+function handleWheel(event: WheelEvent) {
+    let direction = event.deltaY > 0 ? "down" : "up";
+    justPressed.push("mwheel" + direction);
+}
 export function getKey(key: string) {
     return heldKeys.includes(key.toLowerCase());
 }
@@ -779,6 +783,9 @@ export function init(_g: string) {
         capture: true,
     });
     canvasMain.addEventListener("mousemove", handleMouseMove, {
+        capture: true,
+    });
+    canvasMain.addEventListener("wheel", handleWheel, {
         capture: true,
     });
     canvasMain.addEventListener(

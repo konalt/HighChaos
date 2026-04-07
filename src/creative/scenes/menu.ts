@@ -40,6 +40,7 @@ export class MenuScene extends Scene {
         this.title.x = w / 2;
         this.title.y = 180;
         this.title.scale = 1.2;
+        this.title.anchor = "cc";
         this.title.src = "creative/txt/title.png";
         this.add(this.title, UI_LAYER);
 

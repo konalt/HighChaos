@@ -36,7 +36,7 @@ export function drawBlockRaw(
     }
 
     let _s = ctx.imageSmoothingEnabled;
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
     ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
     if (overlay) {
         ctx.drawImage(overlay, x, y, w + WORLD_DRAW_MARGIN * 2, h);
@@ -119,10 +119,12 @@ export class World extends GameObject {
         if (this.hasReach) {
             let closestBlock = getClosestBlockAt(...this.gridPos);
             if (getKeyDown("mouse2")) {
-                if (!closestBlock || closestBlock?.layer < layer) {
-                    let block = getBlockAt(...this.gridPos, layer);
-                    if (!block || getKeyDown("mouse1"))
-                        socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, ...currentBlock, layer].join(","));
+                if (currentBlock[0] > -1) {
+                    if (!closestBlock || closestBlock?.layer < layer) {
+                        let block = getBlockAt(...this.gridPos, layer);
+                        if (!block || getKeyDown("mouse1"))
+                            socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, ...currentBlock, layer].join(","));
+                    }
                 }
             } else if (getKeyDown("mouse1")) {
                 if (closestBlock) {
@@ -154,16 +156,6 @@ export class World extends GameObject {
                 [this.scene.camera.x, this.scene.camera.y],
                 (w / this.scene.camera.zoom) * 0.5 + gameSettings.blockSize,
             );
-
-            if (debugMode) {
-                d.text(
-                    ...(getWorldPos([blk.gx, blk.gy]).map((n) => n + gameSettings.blockSize / 2) as TwoNums),
-                    blk.subtype.toString(),
-                    "red",
-                    font(24),
-                    "center",
-                );
-            }
         }
 
         if (this.hasReach && !this.disableControl) {

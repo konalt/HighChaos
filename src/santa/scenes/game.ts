@@ -58,7 +58,7 @@ const sprintMult = 1.7;
 
 function movement() {
     let a = getAxis(Axis.Horizontal);
-    sackX += a * deltaTime * sackSpeed * (getKey("shiftleft") ? sprintMult : 1);
+    sackX += a * deltaTime * sackSpeed * (getKey("shift") ? sprintMult : 1);
     sackX = clamp(sackX, 0, w);
 }
 
