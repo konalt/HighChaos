@@ -2,7 +2,15 @@ import { ctx, getKeyDown, getMouse, w, h, debugMode, d, font } from "../../lib/e
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { BlockType, BlockStruct, getClosestBlockAt, getBlockAt, blocks, culledBlocks } from "../game/blocks";
+import {
+    BlockType,
+    BlockStruct,
+    getClosestBlockAt,
+    getBlockAt,
+    blocks,
+    culledBlocks,
+    getBlockData,
+} from "../game/blocks";
 import { setLayer, layer, socket, hotbar, hotbarSlot, pickBlock, currentBlock } from "../game/game";
 import { ply } from "../game/player";
 import { gameSettings } from "../game/settings";
@@ -30,7 +38,10 @@ export function drawBlockRaw(
             base = getBlockSprite(`wool__${subtype}`, dark);
             break;
         default:
-            base = getBlockSprite((BlockType[type] ?? "unknown").toLowerCase(), dark);
+            let prefix = "";
+            let data = getBlockData(type);
+            if (data.isFurniture) prefix = "furniture/";
+            base = getBlockSprite(prefix + (BlockType[type] ?? "unknown").toLowerCase(), dark);
             if (!BlockType[type]) console.log(type);
             break;
     }
