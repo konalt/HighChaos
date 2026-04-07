@@ -102,6 +102,11 @@ export class InGameScene extends Scene {
             maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
         }
 
+        if (getKeyDown("f1")) {
+            this.chat.enabled = !this.chat.enabled;
+            this.hotbar.visible = !this.hotbar.visible;
+        }
+
         handleInput();
 
         for (const [id, ply] of players) {
