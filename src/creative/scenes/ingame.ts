@@ -1,4 +1,13 @@
-import { addDebugLine, h, loadImage, overrideDeltaTime, setTargetFramerate, since, w } from "../../lib/engine/engine";
+import {
+    addDebugLine,
+    getKeyDown,
+    h,
+    loadImage,
+    overrideDeltaTime,
+    setTargetFramerate,
+    since,
+    w,
+} from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { socket } from "../game/game";
 import { handleInput } from "../game/input";
@@ -80,6 +89,18 @@ export class InGameScene extends Scene {
 
     update(): void {
         super.update();
+
+        if (getKeyDown("minus")) {
+            this.camera.zoom /= 1.05;
+
+            maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
+        }
+        if (getKeyDown("equal")) {
+            this.camera.zoom *= 1.05;
+            if (this.camera.zoom > 1) this.camera.zoom = 1;
+
+            maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
+        }
 
         handleInput();
 
