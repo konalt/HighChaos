@@ -131,6 +131,7 @@ export class World extends GameObject {
             } else if (getKeyDown("mouse3")) {
                 if (closestBlock) {
                     pickBlock(closestBlock.type, closestBlock.subtype);
+                    setLayer(closestBlock.layer as 0 | 1);
                 }
             }
             this.canPlace = !closestBlock;
