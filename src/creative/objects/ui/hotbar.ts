@@ -2,7 +2,7 @@ import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode, 
 import { GameObject } from "../../../lib/engine/object";
 import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
-import { currentBlock, hotbar, hotbarSlot, layer, selectHotbarSlot, UI_COLOR } from "../../game/game";
+import { currentBlock, hotbar, hotbarSlot, layer, selectHotbarSlot, setLayer, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
 
@@ -25,6 +25,7 @@ export class Hotbar extends GameObject {
 
     private _hoveredIndex = -1;
 
+    private _lsHover = false;
     private _ls: HTMLImageElement[];
 
     needsUpdate = true;
@@ -54,6 +55,8 @@ export class Hotbar extends GameObject {
             }
         }
 
+        this._checkLayerSelectorClick();
+
         this._hoveredIndex = -1;
         for (let i = 0; i < hotbar.length; i++) {
             this._checkItemClick(i);
@@ -66,6 +69,7 @@ export class Hotbar extends GameObject {
             ctx.fill(this._path);
         }
 
+        ctx.globalAlpha = this._lsHover ? 0.9 : 0.6;
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(
             this._ls[layer],
@@ -74,9 +78,28 @@ export class Hotbar extends GameObject {
             HOTBAR_LAYER_SELECTOR_SIZE,
             HOTBAR_LAYER_SELECTOR_SIZE,
         );
+        ctx.globalAlpha = 1;
 
         for (let i = 0; i < hotbar.length; i++) {
             this._drawItem(i);
+        }
+    }
+
+    private _checkLayerSelectorClick() {
+        const rect = [
+            (w - this._width) / 2 - HOTBAR_PADDING_X - HOTBAR_LAYER_SELECTOR_SIZE,
+            h - HOTBAR_PADDING_Y - HOTBAR_LAYER_SELECTOR_SIZE,
+            HOTBAR_LAYER_SELECTOR_SIZE,
+            HOTBAR_LAYER_SELECTOR_SIZE,
+        ] as FourNums;
+
+        this._lsHover = basicPointInRect(...getMouse(true), ...rect);
+
+        if (this._lsHover) {
+            setCursorMode(CursorMode.Click);
+            if (getKeyDown("mouse1")) {
+                setLayer(layer == 0 ? 1 : 0);
+            }
         }
     }
 
