@@ -62,9 +62,13 @@ export function setSDT(n: number) {
 
 export let layer = 1;
 export let hotbar: TwoNums[] = new Array(9).fill([-1, -1]);
-hotbar[0] = [BlockType.WOOL, 7];
+hotbar[0] = [BlockType.DIRT, 0];
+hotbar[1] = [BlockType.STONE, 0];
+hotbar[2] = [BlockType.WOOD, 0];
+hotbar[3] = [BlockType.PLANKS, 0];
+hotbar[4] = [BlockType.GLASS, 0];
 export let hotbarSlot = 0;
-export let currentBlock: TwoNums = [-1, 0];
+export let currentBlock: TwoNums = hotbar[hotbarSlot];
 
 export function setLayer(l: 0 | 1) {
     layer = l;
