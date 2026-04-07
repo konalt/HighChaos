@@ -17,9 +17,34 @@ export class BlockStruct {
 }
 
 export let blocks: BlockStruct[] = [];
+export let culledBlocks: BlockStruct[] = [];
+
+export function cullBlocks() {
+    let c: BlockStruct[] = [];
+
+    for (const b of blocks) {
+        let b2 = c.find((b3) => b3.gx == b.gx && b3.gy == b.gy);
+        if (!b2) {
+            c.push(b);
+            continue;
+        }
+        if (b2.layer == b.layer) {
+            console.warn(`multiple blocks stacked @ ${b.gx},${b.gy},${b.layer}!`);
+            continue;
+        }
+        if (b2.layer < b.layer) {
+            c = c.filter((b3) => b3.gx != b.gx || b3.gy != b.gy);
+            c.push(b);
+        }
+    }
+
+    culledBlocks = c;
+}
 
 export function setBlocks(bs: BlockStruct[]) {
     blocks = bs;
+
+    cullBlocks();
 }
 
 export function setBlock(bs: BlockStruct) {
@@ -30,10 +55,14 @@ export function setBlock(bs: BlockStruct) {
     } else {
         blocks.push(bs);
     }
+
+    cullBlocks();
 }
 
 export function removeBlock(x: number, y: number, layer: number) {
     blocks = blocks.filter((b) => b.gx != x || b.gy != y || b.layer != layer);
+
+    cullBlocks();
 }
 
 export function getBlockAt(x: number, y: number, layer: number) {

@@ -2,7 +2,7 @@ import { ctx, getKeyDown, getMouse, w, h, debugMode, d, font } from "../../lib/e
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import { BlockType, BlockStruct, getClosestBlockAt, getBlockAt, blocks } from "../game/blocks";
+import { BlockType, BlockStruct, getClosestBlockAt, getBlockAt, blocks, culledBlocks } from "../game/blocks";
 import { setLayer, layer, socket, hotbar, hotbarSlot, pickBlock } from "../game/game";
 import { ply } from "../game/player";
 import { gameSettings } from "../game/settings";
@@ -17,7 +17,7 @@ export function drawBlockRaw(x: number, y: number, w: number, h: number, type: B
             base = getBlockSprite("dirt", dark);
             break;
         case BlockType.GRASS:
-            base = getBlockSprite("dirt", dark);
+            base = getBlockSprite("dirt");
             overlay = getBlockSprite("grass_overlay", dark);
             break;
         case BlockType.STONE:
@@ -103,7 +103,7 @@ export class World extends GameObject {
     update() {
         if (!ply || this.disableControl) return;
 
-        if (getKeyDown("keye")) {
+        if (getKeyDown("keyq")) {
             setLayer(layer == 0 ? 1 : 0);
         }
 
@@ -117,7 +117,7 @@ export class World extends GameObject {
         if (this.hasReach) {
             let closestBlock = getClosestBlockAt(...this.gridPos);
             if (getKeyDown("mouse2")) {
-                if (!closestBlock) {
+                if (!closestBlock || closestBlock?.layer < layer) {
                     let block = getBlockAt(...this.gridPos, layer);
                     if (!block || getKeyDown("mouse1"))
                         socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, hotbar[hotbarSlot], layer].join(","));
@@ -145,7 +145,7 @@ export class World extends GameObject {
     draw() {
         if (!ply) return;
 
-        for (const blk of blocks) {
+        for (const blk of culledBlocks) {
             drawBlock(
                 blk,
                 [this.scene.camera.x, this.scene.camera.y],
