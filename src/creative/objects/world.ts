@@ -103,12 +103,8 @@ export class World extends GameObject {
     update() {
         if (!ply || this.disableControl) return;
 
-        if (getKeyDown("keyq")) {
-            setLayer(layer == 0 ? 1 : 0);
-        }
-
         if (getKeyDown("keye")) {
-            setLayer(layer == 2 ? 1 : 2);
+            setLayer(layer == 0 ? 1 : 0);
         }
 
         let m = getMouse();
@@ -119,21 +115,23 @@ export class World extends GameObject {
         if (this.hasReach) this.hasReach = this._checkNoclickAreas(getMouse(true));
 
         if (this.hasReach) {
-            let block = getClosestBlockAt(...this.gridPos);
+            let closestBlock = getClosestBlockAt(...this.gridPos);
             if (getKeyDown("mouse2")) {
-                let block = getBlockAt(...this.gridPos, layer);
-                if (!block || getKeyDown("mouse1"))
-                    socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, hotbar[hotbarSlot], layer].join(","));
+                if (!closestBlock) {
+                    let block = getBlockAt(...this.gridPos, layer);
+                    if (!block || getKeyDown("mouse1"))
+                        socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, hotbar[hotbarSlot], layer].join(","));
+                }
             } else if (getKeyDown("mouse1")) {
-                if (block) {
-                    socket.emit(PACKET.CS_BLOCK_REMOVE, [...this.gridPos, block.layer].join(","));
+                if (closestBlock) {
+                    socket.emit(PACKET.CS_BLOCK_REMOVE, [...this.gridPos, closestBlock.layer].join(","));
                 }
             } else if (getKeyDown("mouse3")) {
-                if (block) {
-                    pickBlock(block.type);
+                if (closestBlock) {
+                    pickBlock(closestBlock.type);
                 }
             }
-            this.canPlace = !block;
+            this.canPlace = !closestBlock;
         } else {
             this.canPlace = false;
         }
