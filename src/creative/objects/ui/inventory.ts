@@ -13,7 +13,7 @@ import {
 import { INVENTORY } from "../../game/inventory";
 import { drawBlockRaw } from "../world";
 
-const TRANSITION = 250;
+const TRANSITION = 200;
 const BG_OPACITY = 0.75;
 
 const INVENTORY_PADDING = 5;
@@ -46,6 +46,7 @@ const OY = h / 2 - BOX_HEIGHT / 2;
 
 export class Inventory extends GameObject {
     _show = false;
+    private _isFadingOut = false;
     private _transitionTime = 0;
 
     private _holding: TwoNums = [-1, -1];
@@ -146,12 +147,16 @@ export class Inventory extends GameObject {
 
     //#region drawing
     private _getTransition() {
-        return clamp(since(this._transitionTime) / TRANSITION);
+        if (this._isFadingOut) {
+            return 1 - clamp(since(this._transitionTime) / TRANSITION);
+        } else {
+            return clamp(since(this._transitionTime) / TRANSITION);
+        }
     }
 
     private _transition() {
         let t = easeOutCirc(this._getTransition());
-        ctx.translate(0, h * (1 - t));
+        ctx.translate(0, h * (1 - t) * (this._isFadingOut ? -1 : 1));
     }
 
     private _drawBox() {
@@ -293,7 +298,15 @@ export class Inventory extends GameObject {
     //#region display
     private _setShow(s: boolean) {
         this._transitionTime = performance.now();
-        this._show = s;
+        if (!s) {
+            this._isFadingOut = true;
+            setTimeout(() => {
+                this._show = s;
+            }, TRANSITION);
+        } else {
+            this._isFadingOut = false;
+            this._show = s;
+        }
     }
 
     show() {

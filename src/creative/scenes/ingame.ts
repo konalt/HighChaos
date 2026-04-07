@@ -101,9 +101,9 @@ export class InGameScene extends Scene {
         }
 
         if (getKeyDown("keye")) {
+            this.world.disableControl = !this.inventory._show;
+            this.hotbar.ignore = !this.inventory._show;
             this.inventory.toggle();
-            this.world.disableControl = this.inventory._show;
-            this.hotbar.ignore = this.inventory._show;
         }
 
         handleInput(this.inventory._show);
