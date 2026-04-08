@@ -1,12 +1,13 @@
 import { FourNums, TwoNums, distance, rectIntersect } from "../lib/engine/utils";
-import { blocks, BlockStruct } from "./game/blocks";
+import { blocks, BlockStruct, collideBlocks } from "./game/blocks";
 import { gameSettings } from "./game/settings";
 import { ClientPlayerState } from "./net/interp";
 
 export function checkBlockIntersection(r: FourNums): BlockStruct | null {
-    let filt = blocks.filter(
+    let filt = collideBlocks.filter(
         (b) =>
-            b.layer == 1 && distance(b.gx * gameSettings.blockSize, -b.gy * gameSettings.blockSize, r[0], r[1]) <= 500,
+            distance(b.gx * gameSettings.blockSize, -b.gy * gameSettings.blockSize, r[0], r[1]) <=
+            gameSettings.playerHeight * 2,
     );
     for (const blk of filt) {
         const r2: FourNums = [

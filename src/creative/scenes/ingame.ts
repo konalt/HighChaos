@@ -100,7 +100,7 @@ export class InGameScene extends Scene {
             this.hotbar.visible = !this.hotbar.visible;
         }
 
-        if (getKeyDown("keye")) {
+        if (getKeyDown("keye") || (this.inventory._show && getKeyDown("escape"))) {
             this.world.disableControl = !this.inventory._show;
             this.hotbar.ignore = !this.inventory._show;
             this.inventory.toggle();

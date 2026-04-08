@@ -71,18 +71,26 @@ export let currentBlock: TwoNums = hotbar[hotbarSlot];
 
 export function saveHotbar() {
     localStorage.setItem("creative_hotbar", JSON.stringify(hotbar));
+    localStorage.setItem("creative_hotbar_slot", hotbarSlot.toString());
 }
 
 export function loadHotbar() {
     let saved = localStorage.getItem("creative_hotbar");
-    if (!saved) {
+    if (saved) {
+        hotbar = JSON.parse(saved);
+    } else {
         hotbar[0] = b(BlockType.COBBLESTONE);
         hotbar[1] = b(BlockType.WOOD);
         hotbar[2] = b(BlockType.PLANKS);
         hotbar[3] = b(BlockType.BRICKS);
         hotbar[4] = b(BlockType.GLASS);
+    }
+
+    let savedSlot = localStorage.getItem("creative_hotbar_slot");
+    if (savedSlot) {
+        selectHotbarSlot(parseInt(savedSlot));
     } else {
-        hotbar = JSON.parse(saved);
+        selectHotbarSlot(0);
     }
 }
 
@@ -99,6 +107,7 @@ export function selectHotbarSlot(newSlot: number) {
         hotbarSlot = newSlot;
     }
     currentBlock = hotbar[hotbarSlot];
+    localStorage.setItem("creative_hotbar_slot", hotbarSlot.toString());
 }
 
 export function firstEmptyHotbarSlot() {

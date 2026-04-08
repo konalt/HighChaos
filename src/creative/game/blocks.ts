@@ -108,6 +108,16 @@ export class BlockStruct {
 
 export let blocks: BlockStruct[] = [];
 export let culledBlocks: BlockStruct[] = [];
+export let collideBlocks: BlockStruct[] = [];
+
+export function filterCollideBlocks() {
+    collideBlocks = blocks.filter((b) => {
+        let d = getBlockData(b.type);
+        return d.collision && b.layer == 1;
+    });
+
+    console.log(collideBlocks);
+}
 
 export function cullBlocks() {
     let c: BlockStruct[] = [];
@@ -135,6 +145,7 @@ export function setBlocks(bs: BlockStruct[]) {
     blocks = bs;
 
     cullBlocks();
+    filterCollideBlocks();
 }
 
 export function setBlock(bs: BlockStruct) {
@@ -147,12 +158,14 @@ export function setBlock(bs: BlockStruct) {
     }
 
     cullBlocks();
+    filterCollideBlocks();
 }
 
 export function removeBlock(x: number, y: number, layer: number) {
     blocks = blocks.filter((b) => b.gx != x || b.gy != y || b.layer != layer);
 
     cullBlocks();
+    filterCollideBlocks();
 }
 
 export function getBlockAt(x: number, y: number, layer: number) {
