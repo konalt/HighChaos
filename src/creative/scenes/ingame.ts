@@ -1,13 +1,4 @@
-import {
-    addDebugLine,
-    getKeyDown,
-    h,
-    loadImage,
-    overrideDeltaTime,
-    setTargetFramerate,
-    since,
-    w,
-} from "../../lib/engine/engine";
+import { addDebugLine, getKeyDown, h, loadImage } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { loadHotbar, socket } from "../game/game";
 import { handleInput } from "../game/input";
