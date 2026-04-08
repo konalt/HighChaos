@@ -5,11 +5,11 @@ let w = 0;
 
 const T = BlockType;
 
-function b(t: BlockType, i = 0): TwoNums {
+export function b(t: BlockType, i = 0): TwoNums {
     return [t, i];
 }
 
-function s(t: BlockType, c = 0): TwoNums[] {
+export function s(t: BlockType, c = 0): TwoNums[] {
     let o: TwoNums[] = [];
     for (let i = 0; i < c; i++) {
         o.push([t, i]);

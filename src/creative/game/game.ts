@@ -17,6 +17,7 @@ import { GameSocket } from "../net/network";
 import { PACKET } from "../net/packets";
 import { BlockType } from "./blocks";
 import { handleNameUpdate } from "./extraplayerinfo";
+import { b } from "./inventory";
 
 export let socket: GameSocket;
 
@@ -65,13 +66,25 @@ export const HOTBAR_SLOTS = 9;
 export const EMPTY_INV_SLOT: TwoNums = [-1, -1];
 export let layer = 1;
 export let hotbar: TwoNums[] = new Array(HOTBAR_SLOTS).fill([...EMPTY_INV_SLOT]);
-hotbar[0] = [BlockType.DIRT, 0];
-hotbar[1] = [BlockType.STONE, 0];
-hotbar[2] = [BlockType.WOOD, 0];
-hotbar[3] = [BlockType.PLANKS, 0];
-hotbar[4] = [BlockType.GLASS, 0];
 export let hotbarSlot = 0;
 export let currentBlock: TwoNums = hotbar[hotbarSlot];
+
+export function saveHotbar() {
+    localStorage.setItem("creative_hotbar", JSON.stringify(hotbar));
+}
+
+export function loadHotbar() {
+    let saved = localStorage.getItem("creative_hotbar");
+    if (!saved) {
+        hotbar[0] = b(BlockType.COBBLESTONE);
+        hotbar[1] = b(BlockType.WOOD);
+        hotbar[2] = b(BlockType.PLANKS);
+        hotbar[3] = b(BlockType.BRICKS);
+        hotbar[4] = b(BlockType.GLASS);
+    } else {
+        hotbar = JSON.parse(saved);
+    }
+}
 
 export function setLayer(l: 0 | 1) {
     layer = l;
@@ -95,6 +108,8 @@ export function firstEmptyHotbarSlot() {
 export function setHotbarSlot(slot: number, item: TwoNums) {
     hotbar[slot] = item;
     currentBlock = hotbar[slot];
+
+    saveHotbar();
 }
 
 export function pickBlock(block: BlockType, subtype: number) {
@@ -104,11 +119,10 @@ export function pickBlock(block: BlockType, subtype: number) {
         if (emptyIndex != -1) {
             hotbarSlot = emptyIndex;
         }
-        hotbar[hotbarSlot] = [block, subtype];
+        setHotbarSlot(hotbarSlot, [block, subtype]);
     } else {
-        hotbarSlot = index;
+        selectHotbarSlot(index);
     }
-    currentBlock = hotbar[hotbarSlot];
 }
 
 export const UI_COLOR = "rgba(0,0,0,0.75)";

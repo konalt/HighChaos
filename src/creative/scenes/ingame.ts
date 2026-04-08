@@ -9,7 +9,7 @@ import {
     w,
 } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
-import { socket } from "../game/game";
+import { loadHotbar, socket } from "../game/game";
 import { handleInput } from "../game/input";
 import { players, ply, updatePlayers } from "../game/player";
 import { gameSettings } from "../game/settings";
@@ -139,6 +139,8 @@ export class InGameScene extends Scene {
 
     async init() {
         await super.init();
+
+        loadHotbar();
 
         testPlayerImage = await loadImage("creative/testplayer.png");
     }
