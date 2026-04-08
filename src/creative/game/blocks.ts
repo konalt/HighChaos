@@ -113,10 +113,8 @@ export let collideBlocks: BlockStruct[] = [];
 export function filterCollideBlocks() {
     collideBlocks = blocks.filter((b) => {
         let d = getBlockData(b.type);
-        return d.collision && b.layer == 1;
+        return d.collision && b.layer == 1 && !d.isLadder;
     });
-
-    console.log(collideBlocks);
 }
 
 export function cullBlocks() {

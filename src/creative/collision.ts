@@ -1,13 +1,13 @@
 import { FourNums, TwoNums, distance, rectIntersect } from "../lib/engine/utils";
-import { blocks, BlockStruct, collideBlocks } from "./game/blocks";
+import { blocks, BlockStruct, collideBlocks, getBlockData } from "./game/blocks";
 import { gameSettings } from "./game/settings";
 import { ClientPlayerState } from "./net/interp";
 
-export function checkBlockIntersection(r: FourNums): BlockStruct | null {
+export function checkBlockIntersection(r: FourNums, ignorePlatforms: boolean): BlockStruct | null {
     let filt = collideBlocks.filter(
         (b) =>
             distance(b.gx * gameSettings.blockSize, -b.gy * gameSettings.blockSize, r[0], r[1]) <=
-            gameSettings.playerHeight * 2,
+                gameSettings.playerHeight * 2 && (ignorePlatforms ? !getBlockData(b.type).isPlatform : true),
     );
     for (const blk of filt) {
         const r2: FourNums = [
@@ -23,16 +23,28 @@ export function checkBlockIntersection(r: FourNums): BlockStruct | null {
 
 export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", prev: TwoNums) {
     let collided = false;
+    let down = dir == "y" && ply.y > prev[1];
     if (dir == "y" && ply.y > 5 * gameSettings.blockSize) {
         collided = true;
     } else {
-        let block = checkBlockIntersection([
-            ply.x - gameSettings.playerWidth / 2,
-            ply.y - gameSettings.playerHeight,
-            gameSettings.playerWidth,
-            gameSettings.playerHeight,
-        ]);
-        collided = !!block;
+        let block = checkBlockIntersection(
+            [
+                ply.x - gameSettings.playerWidth / 2,
+                ply.y - gameSettings.playerHeight,
+                gameSettings.playerWidth,
+                gameSettings.playerHeight,
+            ],
+            !down,
+        );
+        if (block) {
+            if (getBlockData(block.type).isPlatform) {
+                collided = prev[1] < -block.gy * gameSettings.blockSize;
+            } else {
+                collided = true;
+            }
+        } else {
+            collided = false;
+        }
     }
     if (!collided) return false;
     if (dir == "x") {
