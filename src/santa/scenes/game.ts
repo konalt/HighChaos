@@ -105,9 +105,9 @@ export function draw() {
         if (p[0][1] > h + 50) {
             lives--;
             if (lives == 0) {
-                setScene(scene_gameover, true, {
+                /* setScene(scene_gameover, true, {
                     presents: score,
-                });
+                }); */
             }
             playSound("santa_baby", 0.5);
             presents[i] = createPresent();

@@ -1,87 +1,52 @@
-import { ctx, getKeyDown, getMouse, w, h, debugMode, d, font } from "../../lib/engine/engine";
+import { ctx, getKeyDown, getMouse, w, h, d, debugMode } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-import {
-    BlockType,
-    BlockStruct,
-    getClosestBlockAt,
-    getBlockAt,
-    blocks,
-    culledBlocks,
-    getBlockData,
-} from "../game/blocks";
-import { setLayer, layer, socket, hotbar, hotbarSlot, pickBlock, currentBlock } from "../game/game";
+import { Block, getBlockData } from "../game/blocks";
+import { worldCoordsToChunkCoords } from "../game/chunk";
+import { CHUNK_RENDER_SIZE, drawChunk } from "../game/chunkrenderer";
+import { setLayer, layer, socket, pickBlock, currentBlock } from "../game/game";
 import { ply } from "../game/player";
 import { gameSettings } from "../game/settings";
+import { world } from "../game/world";
 import { PACKET } from "../net/packets";
 import { getBlockSprite } from "../sprites";
 
-export function drawBlockRaw(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    type: BlockType,
-    subtype: number,
-    dark = false,
-) {
+export function drawBlockRaw(x: number, y: number, w: number, h: number, type: Block, subtype: number, dark = false) {
     if (Number(type) == -1) return;
     let base: HTMLImageElement | undefined = NULLTEXTURE;
     let overlay: HTMLImageElement | undefined;
     switch (type) {
-        case BlockType.GRASS:
+        case Block.GRASS:
             base = getBlockSprite("dirt", dark);
             overlay = getBlockSprite("grass_overlay", dark);
             break;
-        case BlockType.WOOL:
+        case Block.WOOL:
             base = getBlockSprite(`wool__${subtype}`, dark);
             break;
         default:
             let prefix = "";
             let data = getBlockData(type);
             if (data.isFurniture) prefix = "furniture/";
-            base = getBlockSprite(prefix + (BlockType[type] ?? "unknown").toLowerCase(), dark);
-            if (!BlockType[type]) console.log(type);
+            base = getBlockSprite(prefix + (Block[type] ?? "unknown").toLowerCase(), dark);
+            if (!Block[type]) console.log(type);
             break;
     }
 
-    let _s = ctx.imageSmoothingEnabled;
-    ctx.imageSmoothingEnabled = true;
     ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
     if (overlay) {
-        ctx.drawImage(overlay, x, y, w + WORLD_DRAW_MARGIN * 2, h);
+        ctx.drawImage(overlay, x, y, w, h);
     }
-    ctx.imageSmoothingEnabled = _s;
-}
-
-export function drawBlock(blk: BlockStruct, cullLocation: TwoNums, cullDistance: number) {
-    let x = blk.gx * gameSettings.blockSize - WORLD_DRAW_MARGIN;
-    let y = -blk.gy * gameSettings.blockSize - WORLD_DRAW_MARGIN;
-
-    let d = Math.max(Math.abs(x - cullLocation[0]), Math.abs(y - cullLocation[1]));
-    if (d > cullDistance) return;
-
-    drawBlockRaw(
-        x,
-        y,
-        gameSettings.blockSize + WORLD_DRAW_MARGIN * 2,
-        gameSettings.blockSize + WORLD_DRAW_MARGIN * 2,
-        blk.type,
-        blk.subtype,
-        blk.layer == 0,
-    );
 }
 
 export function getGridPos(pos: TwoNums): TwoNums {
-    return [Math.floor(pos[0] / gameSettings.blockSize), -Math.floor(pos[1] / gameSettings.blockSize)] as TwoNums;
+    return [Math.floor(pos[0] / gameSettings.blockSize), Math.floor(pos[1] / gameSettings.blockSize)] as TwoNums;
 }
 
 export function getWorldPos(pos: TwoNums): TwoNums {
-    return [pos[0] * gameSettings.blockSize, -pos[1] * gameSettings.blockSize] as TwoNums;
+    return [pos[0] * gameSettings.blockSize, pos[1] * gameSettings.blockSize] as TwoNums;
 }
 
-const WORLD_DRAW_MARGIN = 0.5;
 const REACH = 7 * 64;
 
 export class World extends GameObject {
@@ -90,6 +55,11 @@ export class World extends GameObject {
     private worldPos: TwoNums;
     private hasReach: boolean;
     private canPlace: boolean;
+
+    private _minChunkX = 0;
+    private _minChunkY = 0;
+    private _maxChunkX = 0;
+    private _maxChunkY = 0;
 
     disableControl = false;
     noclickAreas: Map<string, FourNums> = new Map();
@@ -128,13 +98,13 @@ export class World extends GameObject {
         if (this.hasReach) this.hasReach = this._checkNoclickAreas(getMouse(true));
 
         if (this.hasReach) {
-            let closestBlock = getClosestBlockAt(...this.gridPos);
+            let closestBlock = world.getClosestBlockAt(...this.gridPos);
             if (getKeyDown("mouse2")) {
                 if (currentBlock[0] > -1) {
                     if (!closestBlock || closestBlock?.layer < layer) {
-                        let block = getBlockAt(...this.gridPos, layer);
+                        let block = world.getBlockAt(...this.gridPos, layer);
                         if (!block || getKeyDown("mouse1"))
-                            socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, ...currentBlock, layer].join(","));
+                            socket.emit(PACKET.CS_BLOCK_UPDATE, [...this.gridPos, layer, ...currentBlock].join(","));
                     }
                 }
             } else if (getKeyDown("mouse1")) {
@@ -153,20 +123,56 @@ export class World extends GameObject {
         }
 
         if (getKeyDown("f4")) {
-            let block = getClosestBlockAt(...this.gridPos);
-            console.log(block);
+            let block = world.getClosestBlockAt(...this.gridPos);
+            console.log(this.gridPos, block);
         }
+
+        let min = worldCoordsToChunkCoords(
+            this.scene.camera.x - (w / this.scene.camera.zoom) * 0.5 - CHUNK_RENDER_SIZE / 2,
+            this.scene.camera.y - (h / this.scene.camera.zoom) * 0.5 - CHUNK_RENDER_SIZE / 2,
+        )[0];
+        let max = worldCoordsToChunkCoords(
+            this.scene.camera.x + (w / this.scene.camera.zoom) * 0.5 + CHUNK_RENDER_SIZE / 2,
+            this.scene.camera.y + (h / this.scene.camera.zoom) * 0.5 + CHUNK_RENDER_SIZE / 2,
+        )[0];
+        this._minChunkX = min[0];
+        this._minChunkY = min[1];
+        this._maxChunkX = max[0];
+        this._maxChunkY = max[1];
     }
 
     draw() {
         if (!ply) return;
 
-        for (const blk of culledBlocks) {
+        /* for (const blk of culledBlocks) {
             drawBlock(
                 blk,
                 [this.scene.camera.x, this.scene.camera.y],
                 (w / this.scene.camera.zoom) * 0.5 + gameSettings.blockSize,
             );
+        } */
+
+        for (let cy = this._minChunkY; cy <= this._maxChunkY; cy++) {
+            for (let cx = this._minChunkX; cx <= this._maxChunkX; cx++) {
+                drawChunk(cx, cy);
+            }
+        }
+
+        if (debugMode) {
+            ctx.strokeStyle = "#0000ff";
+            ctx.lineWidth = 1;
+            for (let cy = this._minChunkY; cy <= this._maxChunkY; cy++) {
+                ctx.beginPath();
+                ctx.moveTo(this._minChunkX * CHUNK_RENDER_SIZE, cy * CHUNK_RENDER_SIZE);
+                ctx.lineTo(this._maxChunkX * CHUNK_RENDER_SIZE, cy * CHUNK_RENDER_SIZE);
+                ctx.stroke();
+            }
+            for (let cx = this._minChunkX; cx <= this._maxChunkX; cx++) {
+                ctx.beginPath();
+                ctx.moveTo(cx * CHUNK_RENDER_SIZE, this._minChunkY * CHUNK_RENDER_SIZE);
+                ctx.lineTo(cx * CHUNK_RENDER_SIZE, this._maxChunkY * CHUNK_RENDER_SIZE);
+                ctx.stroke();
+            }
         }
 
         if (this.hasReach && !this.disableControl) {

@@ -3,12 +3,30 @@ import { socket } from "./game";
 import { INTERP_DELAY, ClientPlayerState, ServerPlayerState, reconcile } from "../net/interp";
 import { gameSettings } from "./settings";
 import { deltaTime } from "../../lib/engine/engine";
-import { playerCollisionCheck, playerLadderCheck } from "../collision";
 import { initExtraPlayerInfo } from "./extraplayerinfo";
+import { world } from "./world";
+import { getBlockData } from "./blocks";
 
 export let players = new Map<string, ClientPlayerState>();
 
 export let ply: ClientPlayerState;
+
+export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", prev: TwoNums) {
+    let collided = false;
+    let check = world.playerBlockCheck(ply, prev);
+    if (check) {
+        let [block, rect] = check;
+        collided = true;
+    }
+    if (!collided) return false;
+    if (dir == "x") {
+        ply.x = prev[0];
+    } else {
+        ply.y = prev[1];
+        if (!ply.ld) ply.vy = 0;
+    }
+    return true;
+}
 
 function updatePlayer(ply: ClientPlayerState) {
     for (let i = 0; i < gameSettings.physSteps; i++) {
@@ -16,7 +34,7 @@ function updatePlayer(ply: ClientPlayerState) {
         ply.x += (ply.vx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
         playerCollisionCheck(ply, "x", originalPosition);
         if (ply.ld) {
-            ply.ld = playerLadderCheck(ply);
+            ply.ld = world.playerLadderCheck(ply);
         }
         if (ply.ld) {
             ply.y += (ply.vy * deltaTime * gameSettings.ladderSpeed) / gameSettings.physSteps;

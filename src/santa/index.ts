@@ -6,7 +6,7 @@ import { loadSettings } from "../lib/engine/options";
 loadFonts().then(() => {
     loadSettings();
 
-    c.setScene(scene_menu, true);
+    //c.setScene(scene_menu, true);
 
     c.init("santa");
 });

@@ -1,15 +1,15 @@
 import { TwoNums } from "../../lib/engine/utils";
-import { BlockType } from "./blocks";
+import { Block } from "./blocks";
 
 let w = 0;
 
-const T = BlockType;
+const T = Block;
 
-export function b(t: BlockType, i = 0): TwoNums {
+export function b(t: Block, i = 0): TwoNums {
     return [t, i];
 }
 
-export function s(t: BlockType, c = 0): TwoNums[] {
+export function s(t: Block, c = 0): TwoNums[] {
     let o: TwoNums[] = [];
     for (let i = 0; i < c; i++) {
         o.push([t, i]);

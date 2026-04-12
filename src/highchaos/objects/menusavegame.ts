@@ -19,7 +19,7 @@ const DeltaAlpha = 1 - BaseAlpha;
 
 function click(save: Save) {
     if (save.empty) {
-        fadeToScene(cutscene_intro);
+        //fadeToScene(cutscene_intro);
     }
 }
 

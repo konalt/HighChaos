@@ -1,4 +1,8 @@
-export enum BlockType {
+import { PacketString } from "../handlers";
+import { world } from "./world";
+
+export enum Block {
+    EMPTY = -1,
     DIRT,
     GRASS,
     STONE,
@@ -87,7 +91,7 @@ const BLOCK_DATA: Record<string, Partial<BlockData>> = {
     },
 };
 
-export function getBlockData(type: BlockType) {
+export function getBlockData(type: Block) {
     if (BLOCK_DATA[type]) {
         let d = { ...DEFAULT_BLOCK_DATA };
         Object.assign(d, BLOCK_DATA[type]);
@@ -98,7 +102,7 @@ export function getBlockData(type: BlockType) {
 }
 
 export class BlockStruct {
-    type: BlockType = BlockType.DIRT;
+    type: Block = Block.DIRT;
     gx: number = 0;
     gy: number = 0;
     layer: number = 0;
@@ -107,72 +111,20 @@ export class BlockStruct {
     constructor() {}
 }
 
-export let blocks: BlockStruct[] = [];
-export let culledBlocks: BlockStruct[] = [];
-export let collideBlocks: BlockStruct[] = [];
+export function blockUpdateHandler(packet: PacketString) {
+    if (!packet) return;
 
-export function filterCollideBlocks() {
-    collideBlocks = blocks.filter((b) => {
-        let d = getBlockData(b.type);
-        return d.collision && b.layer == 1 && !d.isLadder;
-    });
+    const [coordsString, dataString] = packet.split("=");
+    const [x, y, layer] = coordsString.split(",").map((n) => parseInt(n));
+    const [type, subtype] = dataString.split(",").map((n) => parseInt(n));
+
+    world.setBlock(x, y, layer, type, subtype);
 }
 
-export function cullBlocks() {
-    let c: BlockStruct[] = [];
+export function blockRemoveHandler(packet: PacketString) {
+    if (!packet) return;
 
-    for (const b of blocks) {
-        let b2 = c.find((b3) => b3.gx == b.gx && b3.gy == b.gy);
-        if (!b2) {
-            c.push(b);
-            continue;
-        }
-        if (b2.layer == b.layer) {
-            console.warn(`multiple blocks stacked @ ${b.gx},${b.gy},${b.layer}!`);
-            continue;
-        }
-        if (b2.layer < b.layer) {
-            if (!getBlockData(b.type).transparent) c = c.filter((b3) => b3.gx != b.gx || b3.gy != b.gy);
-            c.push(b);
-        }
-    }
+    const [x, y, layer] = packet.split(",").map((n) => parseInt(n));
 
-    culledBlocks = c;
-}
-
-export function setBlocks(bs: BlockStruct[]) {
-    blocks = bs;
-
-    cullBlocks();
-    filterCollideBlocks();
-}
-
-export function setBlock(bs: BlockStruct) {
-    let cBlock = blocks.find((b) => b.gx == bs.gx && b.gy == bs.gy && b.layer == bs.layer);
-
-    if (cBlock) {
-        cBlock = bs;
-    } else {
-        blocks.push(bs);
-    }
-
-    cullBlocks();
-    filterCollideBlocks();
-}
-
-export function removeBlock(x: number, y: number, layer: number) {
-    blocks = blocks.filter((b) => b.gx != x || b.gy != y || b.layer != layer);
-
-    cullBlocks();
-    filterCollideBlocks();
-}
-
-export function getBlockAt(x: number, y: number, layer: number) {
-    return blocks.find((b) => b.gx == x && b.gy == y && b.layer == layer);
-}
-
-export function getClosestBlockAt(x: number, y: number) {
-    let filt = blocks.filter((b) => b.gx == x && b.gy == y).sort((a, b) => b.layer - a.layer);
-    if (filt.length > 0) return filt[0];
-    return undefined;
+    world.removeBlock(x, y, layer);
 }

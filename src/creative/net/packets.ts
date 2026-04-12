@@ -1,11 +1,9 @@
-import { BlockStruct } from "../game/blocks";
 import { GameSettings } from "../game/settings";
-import { ClientPlayerState, ServerPlayerState } from "./interp";
+import { ServerPlayerState } from "./interp";
 
 export interface AckPacket {
     players: ServerPlayerState[];
     settings: GameSettings;
-    blocks: BlockStruct[];
     pingTable: Record<string, number>;
     messages: [string, string][];
     names: [string, string][];
@@ -37,8 +35,11 @@ export enum PACKET {
     CS_CHAT_SEND = npua(),
     SC_CHAT_RECV = npua(),
     SC_CHAT_CLEAR = npua(),
-    CS_BLOCK_UPDATE = npua(),
     CS_BLOCK_REMOVE = npua(),
-    SC_BLOCK_UPDATE = npua(),
     SC_BLOCK_REMOVE = npua(),
+    CS_BLOCK_UPDATE = npua(),
+    SC_BLOCK_UPDATE = npua(),
+    CS_CHUNK_REQUEST = npua(),
+    SC_CHUNK = npua(),
+    SC_CHUNK_UPDATE = npua(),
 }

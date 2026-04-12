@@ -15,8 +15,6 @@ import { World } from "../objects/world";
 
 export let testPlayerImage: HTMLImageElement;
 
-let maxCameraY = 0;
-
 export class InGameScene extends Scene {
     players: Map<string, PlayerObject>;
     chat: Chat;
@@ -53,8 +51,6 @@ export class InGameScene extends Scene {
         this.camera.zoom = 0.85;
 
         this._loadPlayers();
-
-        maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
     }
 
     private _createPlayerObject(ply: ClientPlayerState) {
@@ -102,12 +98,10 @@ export class InGameScene extends Scene {
         if (!this.inventory._show) {
             if (getKeyDown("minus")) {
                 this.camera.zoom /= 1.05;
-                maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
             }
             if (getKeyDown("equal")) {
                 this.camera.zoom *= 1.05;
                 if (this.camera.zoom > 1) this.camera.zoom = 1;
-                maxCameraY = 5 * gameSettings.blockSize - h / this.camera.zoom / 2;
             }
         }
 
@@ -122,7 +116,7 @@ export class InGameScene extends Scene {
         if (!ply) return;
 
         this.camera.x = ply.x;
-        this.camera.y = Math.min(ply.y, maxCameraY);
+        this.camera.y = ply.y - gameSettings.playerHeight / 2; //Math.min(ply.y, maxCameraY);
 
         addDebugLine(`Name: ${ply.id}`);
         addDebugLine(`ID: ${ply.id}`);

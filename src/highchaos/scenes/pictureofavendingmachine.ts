@@ -13,7 +13,7 @@ export function draw() {
     d.quickImage(vendingMachineImage, w / 2, h / 2, 1, "cc");
     d.text(w / 2, h - Gap, "Click anywhere to return", "white", font(50), "center");
     if (!isFading && getKeyDown("mouse1")) {
-        fadeToScene(menu);
+        //fadeToScene(menu);
     }
 }
 

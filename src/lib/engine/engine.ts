@@ -708,6 +708,13 @@ function draw() {
     globalTimer = performance.now();
     try {
         if (!currentScene) throw new Error("No scene");
+        if (document.hidden) {
+            justPressed = [];
+            justReleased = [];
+            typingKeys = [];
+            requestAnimationFrame(draw);
+            return;
+        }
         calculateFPS();
         setCursorMode(CursorMode.Default);
         if (getKeyDown("F3")) {
@@ -796,6 +803,7 @@ export function init(_g: string) {
         { capture: true },
     );
     onResize();
+    window.setResolution = setResolution;
     audioContext = new AudioContext();
     window.addEventListener("resize", onResize);
     lastLoop = performance.now();
@@ -1029,4 +1037,10 @@ export function wrap(text: string, width: number) {
     lines.push(curLine.join(" "));
 
     return lines;
+}
+
+declare global {
+    interface Window {
+        setResolution: (n: number) => void;
+    }
 }

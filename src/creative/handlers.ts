@@ -1,6 +1,6 @@
 import { currentScene, deltaTime, globalTimer, setTargetFramerate } from "../lib/engine/engine";
 import { serverDeltaTime, setSDT, socket } from "./game/game";
-import { BlockStruct, removeBlock, setBlock, setBlocks } from "./game/blocks";
+import { BlockStruct } from "./game/blocks";
 import { setMessages } from "./game/chat";
 import { setPingTable } from "./game/ping";
 import { gameSettings, setSettings } from "./game/settings";
@@ -22,7 +22,6 @@ export function ackHandler(packetStr: PacketString) {
         addPlayer(p);
     }
 
-    setBlocks(packet.blocks);
     setSettings(packet.settings);
     setMessages(packet.messages);
     setPingTable(packet.pingTable);
@@ -101,38 +100,4 @@ export function chatClearHandler() {
     if (currentScene instanceof InGameScene) {
         currentScene.chat.messages = [];
     }
-}
-
-export function blockUpdateHandler(data: PacketString) {
-    if (!data) return;
-
-    let upd = data.split(",");
-    let x = parseInt(upd[0]);
-    let y = parseInt(upd[1]);
-    let type = parseInt(upd[2]);
-    let subtype = parseInt(upd[3] ?? "-1");
-    let layer = parseInt(upd[4]);
-
-    let blk = new BlockStruct();
-    blk.gx = x;
-    blk.gy = y;
-    blk.type = type;
-    blk.layer = layer;
-    if (subtype > -1) blk.subtype = subtype;
-
-    setBlock(blk);
-}
-
-export function blockRemoveHandler(cString: PacketString) {
-    if (!cString) return;
-    let [x, y, layer] = cString.split(",").map((n) => parseInt(n));
-
-    removeBlock(x, y, layer);
-}
-
-export function deltaTimeHandler(n: PacketString) {
-    /* console.debug(
-        `new delta time: ${n}\nold: ${serverDeltaTime}\ndiff:${serverDeltaTime - parseFloat(n)}\nclient: ${deltaTime}`,
-    ); */
-    //setSDT(parseFloat(n));
 }

@@ -1,11 +1,8 @@
 import { TwoNums } from "../../lib/engine/utils";
 import {
     ackHandler,
-    blockRemoveHandler,
-    blockUpdateHandler,
     chatClearHandler,
     chatHandler,
-    deltaTimeHandler,
     pingSendHandler,
     pingTableHandler,
     playerJoinHandler,
@@ -16,7 +13,8 @@ import {
 import { handleUpdatePacket } from "../net/interp";
 import { GameSocket } from "../net/network";
 import { PACKET } from "../net/packets";
-import { BlockType } from "./blocks";
+import { Block, blockRemoveHandler, blockUpdateHandler } from "./blocks";
+import { serverChunkHandler } from "./chunk";
 import { handleNameUpdate } from "./extraplayerinfo";
 import { b } from "./inventory";
 
@@ -36,8 +34,6 @@ export function connect(): Promise<void> {
             res();
         });
 
-        socket.on(PACKET.SC_DELTA_TIME, deltaTimeHandler);
-
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
         socket.on(PACKET.SC_PLAYER_UPDATE, handleUpdatePacket); // new player system
         //socket.on(PACKET.SC_PLAYER_MOVE, playerMoveHandler);
@@ -54,6 +50,8 @@ export function connect(): Promise<void> {
 
         socket.on(PACKET.SC_BLOCK_UPDATE, blockUpdateHandler);
         socket.on(PACKET.SC_BLOCK_REMOVE, blockRemoveHandler);
+
+        socket.on(PACKET.SC_CHUNK, serverChunkHandler);
     });
 }
 
@@ -81,11 +79,11 @@ export function loadHotbar() {
     if (saved) {
         hotbar = JSON.parse(saved);
     } else {
-        hotbar[0] = b(BlockType.COBBLESTONE);
-        hotbar[1] = b(BlockType.WOOD);
-        hotbar[2] = b(BlockType.PLANKS);
-        hotbar[3] = b(BlockType.BRICKS);
-        hotbar[4] = b(BlockType.GLASS);
+        hotbar[0] = b(Block.COBBLESTONE);
+        hotbar[1] = b(Block.WOOD);
+        hotbar[2] = b(Block.PLANKS);
+        hotbar[3] = b(Block.BRICKS);
+        hotbar[4] = b(Block.GLASS);
     }
 
     let savedSlot = localStorage.getItem("creative_hotbar_slot");
@@ -123,7 +121,7 @@ export function setHotbarSlot(slot: number, item: TwoNums) {
     saveHotbar();
 }
 
-export function pickBlock(block: BlockType, subtype: number) {
+export function pickBlock(block: Block, subtype: number) {
     let index = hotbar.findIndex((v) => v[0] == block && v[1] == subtype);
     if (index == -1) {
         let emptyIndex = firstEmptyHotbarSlot();

@@ -1,4 +1,4 @@
-import { ctx, d, debugMode, font, loadImage, since } from "../../lib/engine/engine";
+import { ctx, d, debugMode, font } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { lerp } from "../../lib/engine/utils";
 import { extraPlayerInfo } from "../game/extraplayerinfo";

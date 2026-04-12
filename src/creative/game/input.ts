@@ -1,9 +1,9 @@
 import { Axis, getAxis, getKeyDown } from "../../lib/engine/engine";
-import { playerLadderCheck } from "../collision";
 import { PACKET } from "../net/packets";
 import { socket } from "./game";
 import { ply } from "./player";
 import { gameSettings } from "./settings";
+import { world } from "./world";
 
 let lastMove = 0;
 let lastLadder = 0;
@@ -18,7 +18,7 @@ export function handleInput(nullify = false) {
     }
 
     let y = nullify ? 0 : getAxis(Axis.Vertical);
-    let lcheck = playerLadderCheck(ply);
+    let lcheck = world.playerLadderCheck(ply);
     if (lastLadder != y && lcheck) {
         lastLadder = y;
         ply.ld = true;

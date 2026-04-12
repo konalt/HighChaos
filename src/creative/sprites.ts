@@ -1,6 +1,6 @@
 import { canvas, CanvasStyle, ctx, d, loadImage, loadImageAbsolute, useCanvas } from "../lib/engine/engine";
 import { NULLTEXTURE } from "../lib/ui/hcimage";
-import { BlockType, getBlockData } from "./game/blocks";
+import { getBlockData } from "./game/blocks";
 
 const BLOCKSPRITES = [
     "dirt",

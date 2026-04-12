@@ -1,3 +1,5 @@
+import { initChunkRenderer } from "./chunkrenderer";
+
 export interface GameSettings {
     physSteps: number;
     playerSpeed: number;
@@ -32,4 +34,6 @@ export let gameSettings: GameSettings = {
 
 export function setSettings(s: GameSettings) {
     gameSettings = s;
+
+    initChunkRenderer();
 }

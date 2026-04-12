@@ -11,7 +11,7 @@ import * as menusavegame from "../objects/menusavegame";
 import * as menutitle from "../objects/menutitle";
 import * as vignette from "../objects/vignette";
 import { FadeDuration } from "../../lib/engine/constants";
-import { alpha, clamp, Scene } from "../../lib/engine/utils";
+import { alpha, clamp } from "../../lib/engine/utils";
 import { easeOutCirc } from "../../lib/engine/ease";
 import {
     detail,
@@ -36,7 +36,7 @@ type MenuOption = [string, () => void, string?];
 const BackButton: MenuOption = [
     "Back",
     () => {
-        transition(MainMenuButtons);
+        //transition(MainMenuButtons);
     },
 ];
 
@@ -60,7 +60,7 @@ const MainMenuButtons: MenuOption[] = [
     [
         "Extras",
         () => {
-            transition(ExtraButtons);
+            //transition(ExtraButtons);
         },
     ],
 ];
@@ -107,7 +107,7 @@ const ExtraButtons: MenuOption[] = [
     [
         "Vending Machine",
         () => {
-            c.fadeToScene(vendingscene);
+            //c.fadeToScene(vendingscene);
         },
     ],
     BackButton,
@@ -186,7 +186,7 @@ export function draw() {
             saveBackOffset,
             "Back",
             () => {
-                transition(MainMenuButtons);
+                //transition(MainMenuButtons);
                 c.startTimer("title_hide", 200, true);
                 c.startTimer("saves_fade", 100);
             },
