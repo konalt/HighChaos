@@ -29,6 +29,8 @@ export enum PACKET {
     SC_PLAYER_USERNAME = npua(),
     CS_PLAYER_JUMP = npua(),
     SC_PLAYER_JUMP = npua(),
+    CS_PLAYER_LADDER = npua(),
+    SC_PLAYER_LADDER = npua(),
     SC_PING_SEND = npua(),
     CS_PING_RESP = npua(),
     SC_PING_TABLE = npua(),

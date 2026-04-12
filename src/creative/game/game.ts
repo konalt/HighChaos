@@ -10,6 +10,7 @@ import {
     pingTableHandler,
     playerJoinHandler,
     playerJumpHandler,
+    playerLadderHandler,
     playerLeaveHandler,
 } from "../handlers";
 import { handleUpdatePacket } from "../net/interp";
@@ -40,6 +41,7 @@ export function connect(): Promise<void> {
         socket.on(PACKET.SC_PLAYER_JOIN, playerJoinHandler);
         socket.on(PACKET.SC_PLAYER_UPDATE, handleUpdatePacket); // new player system
         //socket.on(PACKET.SC_PLAYER_MOVE, playerMoveHandler);
+        socket.on(PACKET.SC_PLAYER_LADDER, playerLadderHandler);
         socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
         socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
         socket.on(PACKET.SC_PLAYER_USERNAME, handleNameUpdate);

@@ -11,6 +11,7 @@ export type NetworkedSnapshot = {
     vx: number;
     y: number;
     vy: number;
+    ld: boolean;
 };
 
 export type ClientPlayerState = {
@@ -20,6 +21,7 @@ export type ClientPlayerState = {
     vx: number;
     y: number;
     vy: number;
+    ld: boolean;
     ready: boolean;
 };
 
@@ -29,6 +31,7 @@ export type ServerPlayerState = {
     vx: number;
     y: number;
     vy: number;
+    ld: boolean;
     ready: boolean;
 };
 
@@ -63,8 +66,10 @@ export function handleUpdatePacket(pktString: PacketString) {
             vx: p.vx,
             y: p.y,
             vy: p.vy,
+            ld: p.ld,
         });
 
+        //player.ld = p.ld;
         player.ready = p.ready;
 
         if (player.snapshots.length > 30) {

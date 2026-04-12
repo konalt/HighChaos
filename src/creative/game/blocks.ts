@@ -15,6 +15,7 @@ export enum BlockType {
     FLOWER,
     LADDER,
     PLATFORM,
+    BOOKSHELF,
 }
 
 export interface BlockData {

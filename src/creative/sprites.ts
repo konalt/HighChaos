@@ -19,6 +19,7 @@ const BLOCKSPRITES = [
     "flower",
     "ladder",
     "platform",
+    "bookshelf",
 ];
 const BLOCK_DARKEN = "rgba(27, 28, 31, 0.46)";
 const SPRITE_SCALE = 3;

@@ -11,10 +11,12 @@ export interface GameSettings {
     playerHeight: number;
     maxClientDesync: number;
     tickRate: number;
+    ladderSpeed: number;
 }
 
 export let gameSettings: GameSettings = {
     playerSpeed: 20,
+    ladderSpeed: 20,
     updateRate: 100,
     blockSize: 64,
     gravity: 1,

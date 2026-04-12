@@ -3,7 +3,7 @@ import { socket } from "./game";
 import { INTERP_DELAY, ClientPlayerState, ServerPlayerState, reconcile } from "../net/interp";
 import { gameSettings } from "./settings";
 import { deltaTime } from "../../lib/engine/engine";
-import { playerCollisionCheck } from "../collision";
+import { playerCollisionCheck, playerLadderCheck } from "../collision";
 import { initExtraPlayerInfo } from "./extraplayerinfo";
 
 export let players = new Map<string, ClientPlayerState>();
@@ -15,8 +15,15 @@ function updatePlayer(ply: ClientPlayerState) {
         let originalPosition = structuredClone([ply.x, ply.y] as TwoNums);
         ply.x += (ply.vx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
         playerCollisionCheck(ply, "x", originalPosition);
-        ply.vy += (gameSettings.gravity * deltaTime) / gameSettings.physSteps;
-        ply.y += (ply.vy * deltaTime) / gameSettings.physSteps;
+        if (ply.ld) {
+            ply.ld = playerLadderCheck(ply);
+        }
+        if (ply.ld) {
+            ply.y += (ply.vy * deltaTime * gameSettings.ladderSpeed) / gameSettings.physSteps;
+        } else {
+            ply.vy += (gameSettings.gravity * deltaTime) / gameSettings.physSteps;
+            ply.y += (ply.vy * deltaTime) / gameSettings.physSteps;
+        }
         playerCollisionCheck(ply, "y", originalPosition);
     }
 }
@@ -52,6 +59,7 @@ export function updatePlayers() {
         // smooth interpolation
         player.x = lerp(t, prev.x, next.x);
         player.vx = next.vx;
+        player.ld = next.ld;
         player.y = lerp(t, prev.y, next.y);
         player.vy = next.vy;
     }
