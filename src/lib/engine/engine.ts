@@ -606,6 +606,7 @@ function calculateFPS() {
     fpsc.push(fps);
     if (fpsc.length > fpscc) fpsc.shift();
     deltaTime = (thisLoop - lastLoop) / targetFramerate;
+    if (deltaTime > 2) deltaTime = 2;
     lastLoop = thisLoop;
 }
 
@@ -708,6 +709,7 @@ function draw() {
     globalTimer = performance.now();
     try {
         if (!currentScene) throw new Error("No scene");
+        calculateFPS();
         if (document.hidden) {
             justPressed = [];
             justReleased = [];
@@ -715,7 +717,6 @@ function draw() {
             requestAnimationFrame(draw);
             return;
         }
-        calculateFPS();
         setCursorMode(CursorMode.Default);
         if (getKeyDown("F3")) {
             debugMode = !debugMode;
