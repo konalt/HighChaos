@@ -95,13 +95,15 @@ export class MenuScene extends Scene {
 
         this.world = new World();
         this.add(this.world);
+
+        this.camera.zoom = 0.5;
     }
 
     update(): void {
         super.update();
 
         this.camera.x = Math.cos(globalTimer * 0.0001 - Math.PI) * 500;
-        this.camera.y = 5 * gameSettings.blockSize - h / 2;
+        this.camera.y = -300 / this.camera.zoom;
     }
 
     private _join() {
