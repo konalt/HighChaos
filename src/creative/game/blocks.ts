@@ -1,4 +1,7 @@
+import { currentScene } from "../../lib/engine/engine";
 import { PacketString } from "../handlers";
+import { BlockBreakEffect } from "../objects/effect/blockbreakeffect";
+import { getWorldPos } from "../objects/world";
 import { world } from "./world";
 
 export enum Block {
@@ -125,6 +128,14 @@ export function blockRemoveHandler(packet: PacketString) {
     if (!packet) return;
 
     const [x, y, layer] = packet.split(",").map((n) => parseInt(n));
+
+    let wp = getWorldPos([x, y]);
+
+    let blk = world.getBlockAt(x, y, layer);
+    let effect = new BlockBreakEffect(blk?.type ?? Block.DIRT, blk?.subtype ?? 0, layer == 0);
+    effect.x = wp[0];
+    effect.y = wp[1];
+    currentScene.add(effect);
 
     world.removeBlock(x, y, layer);
 }

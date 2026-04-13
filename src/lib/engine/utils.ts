@@ -107,6 +107,14 @@ export function sample<T>(array: T[]): T {
     return array[Math.floor(Math.random() * array.length)];
 }
 
+export function rand(min = 0, max = 1) {
+    return Math.random() * (max - min) + min;
+}
+
+export function randint(min = 0, max = 1) {
+    return Math.floor(rand(min, max));
+}
+
 export function alpha(n = 1, set = true) {
     if (n <= 0) return false;
     if (set) ctx.globalAlpha = n;

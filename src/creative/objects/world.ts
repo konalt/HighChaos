@@ -12,18 +12,12 @@ import { world } from "../game/world";
 import { PACKET } from "../net/packets";
 import { getBlockSprite } from "../sprites";
 
-export function drawBlockRaw(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
+export function getBlockSpriteFromType(
     type: Block,
     subtype: number,
     dark = false,
-    _ctx = ctx,
-) {
-    if (Number(type) == -1) return;
-    let base: HTMLImageElement | undefined = NULLTEXTURE;
+): [HTMLImageElement, HTMLImageElement | undefined] {
+    let base: HTMLImageElement = NULLTEXTURE;
     let overlay: HTMLImageElement | undefined;
     switch (type) {
         case Block.GRASS:
@@ -41,6 +35,21 @@ export function drawBlockRaw(
             if (!Block[type]) console.log(type);
             break;
     }
+    return [base, overlay];
+}
+
+export function drawBlockRaw(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    type: Block,
+    subtype: number,
+    dark = false,
+    _ctx = ctx,
+) {
+    if (Number(type) == -1) return;
+    const [base, overlay] = getBlockSpriteFromType(type, subtype, dark);
 
     _ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
     if (overlay) {
