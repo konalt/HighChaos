@@ -11,6 +11,7 @@ import { Chat } from "../objects/ui/chat";
 import { Hotbar } from "../objects/ui/hotbar";
 import { Inventory } from "../objects/ui/inventory";
 import { PlayerBoard } from "../objects/ui/playerboard";
+import { Tooltip } from "../objects/ui/tooltip";
 import { World } from "../objects/world";
 
 export let testPlayerImage: HTMLImageElement;
@@ -20,6 +21,7 @@ export class InGameScene extends Scene {
     chat: Chat;
     hotbar: Hotbar;
     inventory: Inventory;
+    tooltip: Tooltip;
 
     world: World;
 
@@ -29,6 +31,9 @@ export class InGameScene extends Scene {
         super();
 
         this.players = new Map();
+
+        this.tooltip = new Tooltip();
+        this.add(this.tooltip, UI_LAYER + 4);
 
         let sky = new Sky();
         this.add(sky);
@@ -80,6 +85,7 @@ export class InGameScene extends Scene {
     }
 
     update(): void {
+        this.tooltip.show = false;
         super.update();
 
         if (getKeyDown("f1")) {

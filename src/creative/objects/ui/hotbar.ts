@@ -1,6 +1,7 @@
 import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { anchorToCoords, basicPointInRect, FourNums } from "../../../lib/engine/utils";
+import { getBlockData, getBlockName } from "../../game/blocks";
 import { hotbar, HOTBAR_SELECT_KEYS, hotbarSlot, layer, selectHotbarSlot, setLayer, UI_COLOR } from "../../game/game";
 import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
@@ -104,6 +105,10 @@ export class Hotbar extends GameObject {
 
         if (this._lsHover) {
             setCursorMode(CursorMode.Click);
+            if (this.scene instanceof InGameScene) {
+                this.scene.tooltip.show = true;
+                this.scene.tooltip.text = layer == 0 ? "Switch to main layer" : "Switch to background layer";
+            }
             if (getKeyDown("mouse1")) {
                 setLayer(layer == 0 ? 1 : 0);
             }
@@ -132,6 +137,10 @@ export class Hotbar extends GameObject {
 
         if (basicPointInRect(...mouse, ...rect)) {
             setCursorMode(CursorMode.Click);
+            if (this.scene instanceof InGameScene && hotbar[index][0] > -1) {
+                this.scene.tooltip.show = true;
+                this.scene.tooltip.text = getBlockName(...hotbar[index]);
+            }
             this._hoveredIndex = index;
             if (getKeyDown("mouse1")) {
                 selectHotbarSlot(index);

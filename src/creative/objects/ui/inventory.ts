@@ -2,6 +2,7 @@ import { easeOutCirc } from "../../../lib/engine/ease";
 import { ctx, d, getKey, getKeyDown, getMouse, h, since, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { basicPointInRect, clamp, FourNums, TwoNums } from "../../../lib/engine/utils";
+import { getBlockName } from "../../game/blocks";
 import {
     EMPTY_INV_SLOT,
     firstEmptyHotbarSlot,
@@ -11,6 +12,7 @@ import {
     setHotbarSlot,
 } from "../../game/game";
 import { INVENTORY } from "../../game/inventory";
+import { InGameScene } from "../../scenes/ingame";
 import { drawBlockRaw } from "../world";
 
 const TRANSITION = 200;
@@ -53,7 +55,6 @@ export class Inventory extends GameObject {
 
     private _hoverLocation: TwoNums = [0, 0];
     private _hoverZone: "hotbar" | "grid" | "none" = "none";
-    private _hoverText = "";
 
     constructor() {
         super();
@@ -75,17 +76,22 @@ export class Inventory extends GameObject {
             let slotY = Math.floor((m[1] - gridRect[1]) / (INVENTORY_ITEM_SIZE + INVENTORY_ITEM_GAP));
             this._hoverLocation = [slotX, slotY];
 
+            let b = this._getBlockAtGridPos(this._hoverLocation);
+
+            if (b && this.scene instanceof InGameScene) {
+                this.scene.tooltip.show = true;
+                this.scene.tooltip.text = getBlockName(...b);
+            }
+
             if (getKeyDown("mouse1")) {
                 if (getKey("shift")) {
                     let empty = firstEmptyHotbarSlot();
                     if (empty > -1) {
-                        let b = this._getBlockAtGridPos(this._hoverLocation);
                         if (b) {
                             setHotbarSlot(empty, b);
                         }
                     }
                 } else {
-                    let b = this._getBlockAtGridPos(this._hoverLocation);
                     if (b) {
                         this._holding = [...b];
                     } else {
@@ -95,7 +101,6 @@ export class Inventory extends GameObject {
             }
             for (const [ind, key] of HOTBAR_SELECT_KEYS) {
                 if (getKeyDown(key)) {
-                    let b = this._getBlockAtGridPos(this._hoverLocation);
                     if (b) {
                         setHotbarSlot(ind, b);
                     }
@@ -113,6 +118,11 @@ export class Inventory extends GameObject {
                 // find currently hovered slot
                 let slot = Math.floor((m[0] - hotbarRect[0]) / (INVENTORY_ITEM_SIZE + INVENTORY_ITEM_GAP));
                 this._hoverLocation = [slot, -1];
+
+                if (this.scene instanceof InGameScene && hotbar[slot][0] > -1) {
+                    this.scene.tooltip.show = true;
+                    this.scene.tooltip.text = getBlockName(...hotbar[slot]);
+                }
 
                 if (getKeyDown("mouse1")) {
                     if (getKey("shift")) {
@@ -143,6 +153,11 @@ export class Inventory extends GameObject {
         if (!this._show) return;
 
         this._handleMouse();
+
+        if (this.scene instanceof InGameScene && this._holding[0] > -1) {
+            this.scene.tooltip.show = true;
+            this.scene.tooltip.text = getBlockName(...this._holding);
+        }
     }
 
     //#region drawing

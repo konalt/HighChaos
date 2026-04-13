@@ -33,6 +33,7 @@ export interface BlockData {
     isPlatform: boolean;
     isLadder: boolean;
     isFurniture: boolean;
+    name: string;
 }
 
 const DEFAULT_BLOCK_DATA: BlockData = {
@@ -43,6 +44,7 @@ const DEFAULT_BLOCK_DATA: BlockData = {
     isPlatform: false,
     isLadder: false,
     isFurniture: false,
+    name: "",
 };
 
 const BLOCK_DATA: Record<string, Partial<BlockData>> = {
@@ -63,8 +65,8 @@ const BLOCK_DATA: Record<string, Partial<BlockData>> = {
             ["Orange", "#ec8524"],
             ["Yellow", "#e9d732"],
             ["Lime", "#5bec2f"],
-            ["Green", "#168616"],
-            ["Cyan", "#22d4ae"],
+            ["Green", "#22610f"],
+            ["Cyan", "#188d8d"],
             ["Light Blue", "#2be1e7"],
             ["Dark Blue", "#264cca"],
             ["Purple", "#982fdd"],
@@ -101,6 +103,19 @@ export function getBlockData(type: Block) {
         return d;
     } else {
         return DEFAULT_BLOCK_DATA;
+    }
+}
+
+export function getBlockName(type: Block, subtype: number = 0) {
+    let data = getBlockData(type);
+    const name = () => {
+        if (data.name.length == 0) return Block[type][0].toUpperCase() + Block[type].slice(1).toLowerCase();
+        return data.name;
+    };
+    if (data.subtypeMode == "color") {
+        return `${data.subtypes[subtype][0]} ${name()}`;
+    } else {
+        return name();
     }
 }
 
