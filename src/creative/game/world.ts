@@ -11,15 +11,15 @@ export class World {
     name = "World";
     chunks: Chunk[] = [];
 
-    deserializeChunk(chunkData: string) {
+    async deserializeChunk(chunkData: string) {
         const chunk = Chunk.deserialize(chunkData);
         const chunk2 = this.chunks.find((ch) => ch.x == chunk.x && ch.y == chunk.y);
         if (chunk2) {
             chunk2.setData(chunk.data);
-            cacheChunk(chunk2);
+            await cacheChunk(chunk2);
         } else {
             this.chunks.push(chunk);
-            cacheChunk(chunk);
+            await cacheChunk(chunk);
         }
     }
 

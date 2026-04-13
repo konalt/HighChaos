@@ -1,6 +1,5 @@
-import { currentScene, deltaTime, globalTimer, setTargetFramerate } from "../lib/engine/engine";
-import { serverDeltaTime, setSDT, socket } from "./game/game";
-import { BlockStruct } from "./game/blocks";
+import { currentScene } from "../lib/engine/engine";
+import { socket } from "./game/game";
 import { setMessages } from "./game/chat";
 import { setPingTable } from "./game/ping";
 import { gameSettings, setSettings } from "./game/settings";
@@ -9,11 +8,12 @@ import { InGameScene } from "./scenes/ingame";
 import { ClientPlayerState } from "./net/interp";
 import { addPlayer, players } from "./game/player";
 import { extraPlayerInfo } from "./game/extraplayerinfo";
+import { world } from "./game/world";
 
 // typescript started complaining so i have to add this now :/
 export type PacketString = string | undefined;
 
-export function ackHandler(packetStr: PacketString) {
+export async function ackHandler(packetStr: PacketString) {
     if (!packetStr) return;
 
     let packet: AckPacket = JSON.parse(packetStr);
@@ -25,6 +25,10 @@ export function ackHandler(packetStr: PacketString) {
     setSettings(packet.settings);
     setMessages(packet.messages);
     setPingTable(packet.pingTable);
+
+    for (const spawnChunk of packet.spawnChunks) {
+        await world.deserializeChunk(spawnChunk);
+    }
 
     for (const [id, name] of packet.names) {
         extraPlayerInfo.names.set(id, name);

@@ -33,6 +33,8 @@ export class Chunk {
             let d = getBlockData(b.type);
             return d.isLadder;
         });
+
+        cacheChunk(this);
     }
 
     getBlock(x: number, y: number, layer: number) {

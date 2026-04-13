@@ -7,6 +7,7 @@ export interface AckPacket {
     pingTable: Record<string, number>;
     messages: [string, string][];
     names: [string, string][];
+    spawnChunks: string[];
 }
 
 let cpua = 0;

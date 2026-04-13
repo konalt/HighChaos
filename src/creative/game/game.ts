@@ -26,10 +26,10 @@ export let textEncoder = new TextEncoder();
 export function connect(): Promise<void> {
     return new Promise<void>((res, rej) => {
         socket = new GameSocket();
-        socket.on(PACKET.SC_ACK, (packetStr) => {
+        socket.on(PACKET.SC_ACK, async (packetStr) => {
             if (!packetStr) return;
 
-            ackHandler(packetStr);
+            await ackHandler(packetStr);
 
             res();
         });

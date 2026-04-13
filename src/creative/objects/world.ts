@@ -12,7 +12,16 @@ import { world } from "../game/world";
 import { PACKET } from "../net/packets";
 import { getBlockSprite } from "../sprites";
 
-export function drawBlockRaw(x: number, y: number, w: number, h: number, type: Block, subtype: number, dark = false) {
+export function drawBlockRaw(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    type: Block,
+    subtype: number,
+    dark = false,
+    _ctx = ctx,
+) {
     if (Number(type) == -1) return;
     let base: HTMLImageElement | undefined = NULLTEXTURE;
     let overlay: HTMLImageElement | undefined;
@@ -33,9 +42,9 @@ export function drawBlockRaw(x: number, y: number, w: number, h: number, type: B
             break;
     }
 
-    ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
+    _ctx.drawImage(base ?? NULLTEXTURE, x, y, w, h);
     if (overlay) {
-        ctx.drawImage(overlay, x, y, w, h);
+        _ctx.drawImage(overlay, x, y, w, h);
     }
 }
 

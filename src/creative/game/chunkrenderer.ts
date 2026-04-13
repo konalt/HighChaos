@@ -6,7 +6,7 @@ import { Chunk, CHUNK_SIZE } from "./chunk";
 import { gameSettings } from "./settings";
 import { world } from "./world";
 
-export let rendererCache: Map<string, HTMLImageElement> = new Map();
+export let rendererCache: Map<string, OffscreenCanvas> = new Map();
 
 export let CHUNK_RENDER_SIZE = 64;
 
@@ -16,10 +16,12 @@ export function initChunkRenderer() {
 
 export async function cacheChunk(chunk: Chunk) {
     if (chunk.data.length == 0) return;
-    if (!rendererCache.get(`${chunk.x},${chunk.y}`)) rendererCache.set(`${chunk.x},${chunk.y}`, NULLTEXTURE);
 
-    useCanvas(1);
-    canvas.width = canvas.height = CHUNK_RENDER_SIZE;
+    const c = new OffscreenCanvas(CHUNK_RENDER_SIZE, CHUNK_RENDER_SIZE);
+    if (!rendererCache.get(`${chunk.x},${chunk.y}`)) rendererCache.set(`${chunk.x},${chunk.y}`, c);
+    const ctx = c.getContext("2d");
+
+    if (!ctx) return;
 
     ctx.imageSmoothingEnabled = false;
     for (const block of chunk.data) {
@@ -31,14 +33,13 @@ export async function cacheChunk(chunk: Chunk) {
             block.type,
             block.subtype,
             block.layer == 0,
+            ctx as unknown as CanvasRenderingContext2D, // :3
         );
     }
-    useCanvas(0);
 
-    let image = await loadImageAbsolute(getCanvas(1).toDataURL("image/png"));
-    rendererCache.set(`${chunk.x},${chunk.y}`, image);
+    rendererCache.set(`${chunk.x},${chunk.y}`, c);
 
-    return image;
+    return c;
 }
 
 export function drawChunk(cx: number, cy: number) {
