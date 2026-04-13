@@ -1,8 +1,9 @@
 import { ctx, d, font, w, h, getFPS, getKey } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { socket, UI_COLOR } from "../../game/game";
+import { extraPlayerInfo } from "../../game/extraplayerinfo";
+import { UI_COLOR } from "../../game/game";
 import { pingTable } from "../../game/ping";
-import { ply } from "../../game/player";
+import { players, ply } from "../../game/player";
 
 const marginTop = 60;
 const padding = 20;
@@ -39,7 +40,7 @@ export class PlayerBoard extends GameObject {
 
         d.text(center, y, "Konalt Creative", "white", font(48), "center");
         y += 48;
-        /* let onlineText: string;
+        let onlineText: string;
         if (players.size == 1) {
             onlineText = `1 user online :(`;
         } else {
@@ -57,7 +58,7 @@ export class PlayerBoard extends GameObject {
 
         y += 8;
 
-        for (const [_, ply] of players) {
+        for (const [id] of players) {
             d.roundRect(left, y, bw - padding * 2, entryHeight, 5, "rgba(0,0,0,0.5)");
 
             d.roundRect(left + entryPadding, y + entryPadding, avatarSize, avatarSize, 5, "#0f0");
@@ -66,12 +67,12 @@ export class PlayerBoard extends GameObject {
             d.text(
                 left + avatarSize + entryPadding + entryPadding,
                 y + entryHeight / 2 + 4,
-                ply.name,
+                extraPlayerInfo.names.get(id) ?? "Unknown",
                 "white",
                 font(28),
                 "left",
             );
             y += entryHeight + entryGap;
-        } */
+        }
     }
 }
