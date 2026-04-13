@@ -57,7 +57,7 @@ export class HCButton extends GameObject {
         if (this._clicked) this._clicked = false;
 
         // check if mouse is hovering over button
-        let mouse = getMouse();
+        let mouse = getMouse(true);
         this._hovered = !this.ignore && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
 
         if (this._hovered) {

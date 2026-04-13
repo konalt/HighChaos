@@ -89,7 +89,7 @@ export class HCInput extends GameObject {
         }
 
         // check if mouse is hovering over input
-        let mouse = getMouse();
+        let mouse = getMouse(true);
         this._hovered = !this.ignore && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
 
         if (this._hovered) {
