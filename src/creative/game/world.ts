@@ -62,7 +62,7 @@ export class World {
             gameSettings.playerHeight,
         ];
         const cp = worldCoordsToChunkCoords(ply.x, ply.y)[0];
-        const chunks = this.chunks.filter((c) => Math.abs(c.x - cp[0]) < 3 && Math.abs(c.y - cp[1]) < 3);
+        const chunks = this.chunks.filter((c) => Math.abs(c.x - cp[0]) < 2 && Math.abs(c.y - cp[1]) < 2);
         let tempCollide: [BlockStruct, FourNums] | undefined;
         for (const chunk of chunks) {
             for (const blk of chunk.collideData) {
@@ -88,25 +88,29 @@ export class World {
     }
 
     playerLadderCheck(ply: ClientPlayerState) {
-        return false;
-        // todo: make it work w chunks
-        /* const plyRect: FourNums = [
+        const plyRect: FourNums = [
             ply.x - gameSettings.playerWidth / 2,
             ply.y - gameSettings.playerHeight,
             gameSettings.playerWidth,
             gameSettings.playerHeight,
         ];
-        let currentLadder = this.blocks.find((b) => {
-            let d = getBlockData(b.type);
-            if (!d.isLadder) return;
-            let wp = getWorldPos([b.gx, b.gy]);
-            if (rectIntersect(...plyRect, ...wp, gameSettings.blockSize, gameSettings.blockSize)) {
-                return true;
+        const cp = worldCoordsToChunkCoords(ply.x, ply.y)[0];
+        const chunks = this.chunks.filter((c) => Math.abs(c.x - cp[0]) < 3 && Math.abs(c.y - cp[1]) < 3);
+        for (const chunk of chunks) {
+            for (const blk of chunk.ladderData) {
+                if (!getBlockData(blk.type).isLadder) continue;
+                const blkRect: FourNums = [
+                    (chunk.x * CHUNK_SIZE + blk.gx) * gameSettings.blockSize,
+                    (chunk.y * CHUNK_SIZE + blk.gy) * gameSettings.blockSize,
+                    gameSettings.blockSize,
+                    gameSettings.blockSize,
+                ];
+                if (rectIntersect(...plyRect, ...blkRect)) {
+                    return true;
+                }
             }
-            return false;
-        });
-        if (currentLadder) return true;
-        return false; */
+        }
+        return false;
     }
 
     serialize() {

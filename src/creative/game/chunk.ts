@@ -15,6 +15,7 @@ export class Chunk {
     y = 0;
     data: ChunkData = [];
     collideData: ChunkData = [];
+    ladderData: ChunkData = [];
 
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -27,7 +28,11 @@ export class Chunk {
             let d = getBlockData(b.type);
             return d.collision && b.layer == 1 && !d.isLadder;
         });
-        cacheChunk(this);
+
+        this.ladderData = this.data.filter((b) => {
+            let d = getBlockData(b.type);
+            return d.isLadder;
+        });
     }
 
     getBlock(x: number, y: number, layer: number) {
