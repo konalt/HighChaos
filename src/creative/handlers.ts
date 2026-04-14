@@ -48,7 +48,7 @@ export function playerJumpHandler(data: PacketString) {
     let player = players.get(data);
     if (!player) return;
 
-    player.vy = -gameSettings.jumpVelocity;
+    player.dy = -gameSettings.jumpVelocity;
 }
 
 export function playerLadderHandler(data: PacketString) {
@@ -60,7 +60,7 @@ export function playerLadderHandler(data: PacketString) {
     const player = players.get(id);
     if (!player) return;
 
-    player.vy = dy;
+    player.dy = dy;
 }
 
 export function playerLeaveHandler(id: PacketString) {

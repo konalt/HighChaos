@@ -12,7 +12,7 @@ export function handleInput(nullify = false) {
     // get axis
     let x = nullify ? 0 : getAxis(Axis.Horizontal);
     if (lastMove != x) {
-        ply.vx = x;
+        ply.dx = x;
         lastMove = x;
         socket.emit(PACKET.CS_PLAYER_MOVE, (x + 1).toString());
     }
@@ -21,15 +21,15 @@ export function handleInput(nullify = false) {
     let lcheck = world.playerLadderCheck(ply);
     if (lastLadder != y && lcheck) {
         lastLadder = y;
-        ply.ld = true;
-        ply.vy = y;
+        ply.ladder = true;
+        ply.dy = y;
         socket.emit(PACKET.CS_PLAYER_LADDER, (y + 1).toString());
     } else if (!lcheck) {
         lastLadder = 0;
     }
 
-    if (!nullify && getKeyDown("space") && !ply.ld) {
-        ply.vy = -gameSettings.jumpVelocity;
+    if (!nullify && getKeyDown("space") && !ply.ladder) {
+        ply.dy = -gameSettings.jumpVelocity;
         socket.emit(PACKET.CS_PLAYER_JUMP);
     }
 }

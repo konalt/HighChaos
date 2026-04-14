@@ -59,7 +59,7 @@ export class PlayerObject extends GameObject {
                 "Ping: " +
                     Math.round(pingTable[this.ply.id]).toString() +
                     "ms\n" +
-                    `x: ${this.ply.x}, y: ${this.ply.y}, vx: ${this.ply.vx}, vy: ${this.ply.vy}`,
+                    `x: ${this.ply.x}, y: ${this.ply.y}, dx: ${this.ply.dx}, dy: ${this.ply.dy}`,
                 "red",
                 ctx.font,
                 "center",

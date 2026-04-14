@@ -73,6 +73,17 @@ export class GameSocket {
 
     private _send(packet: string) {
         let zipped = compressGzip(textEncoder.encode(packet));
+        // nyaaaa :3
+        // @ts-expect-error
         this.socket.send(zipped);
     }
+}
+
+export function encodeNumber(n: number, precision = 5) {
+    return `${precision.toString(36)}\uF800${Math.floor(n * precision).toString(36)}`;
+}
+
+export function decodeNumber(encoded: string) {
+    const [precStr, numberStr] = encoded.split("\uF800");
+    return parseInt(numberStr, 36) / parseInt(precStr, 36);
 }

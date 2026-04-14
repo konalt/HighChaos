@@ -3,35 +3,36 @@ import { socket } from "../game/game";
 import { players, ply } from "../game/player";
 import { gameSettings } from "../game/settings";
 import { PacketString } from "../handlers";
+import { decodeNumber } from "./network";
 import { PACKET } from "./packets";
 
 export type NetworkedSnapshot = {
     time: number;
     x: number;
-    vx: number;
+    dx: number;
     y: number;
-    vy: number;
-    ld: boolean;
+    dy: number;
+    ladder: boolean;
 };
 
 export type ClientPlayerState = {
     id: string;
     snapshots: NetworkedSnapshot[];
     x: number;
-    vx: number;
+    dx: number;
     y: number;
-    vy: number;
-    ld: boolean;
+    dy: number;
+    ladder: boolean;
     ready: boolean;
 };
 
 export type ServerPlayerState = {
     id: string;
     x: number;
-    vx: number;
+    dx: number;
     y: number;
-    vy: number;
-    ld: boolean;
+    dy: number;
+    ladder: boolean;
     ready: boolean;
 };
 
@@ -49,36 +50,40 @@ export const INTERP_ERROR_CORRECT = 0.1;
 export function handleUpdatePacket(pktString: PacketString) {
     if (!pktString) return;
 
-    const packet = JSON.parse(pktString);
+    //const time = pktString.split(" ")[0];
+    const playerUpdates = pktString.split(" ")[1].split(";");
 
-    for (const p of packet.players) {
-        if (!players.has(p.id)) {
-            console.warn(`player not found ${p.id}`);
+    for (const upd of playerUpdates) {
+        const [id, dataString] = upd.split(":");
+
+        const player = players.get(id);
+        if (!player) {
+            console.warn(`player not found ${id}`);
             continue;
         }
 
-        const player = players.get(p.id);
-        if (!player) continue;
+        const data = dataString.split(",");
 
-        player.snapshots.push({
+        const [x, dx, y, dy] = data.slice(0, 4).map((n) => decodeNumber(n));
+
+        const snapshot: NetworkedSnapshot = {
             time: performance.now(),
-            x: p.x,
-            vx: p.vx,
-            y: p.y,
-            vy: p.vy,
-            ld: p.ld,
-        });
+            x: x,
+            dx: dx,
+            y: y,
+            dy: dy,
+            ladder: data[5] == "1",
+        };
 
-        //player.ld = p.ld;
-        player.ready = p.ready;
+        player.snapshots.push(snapshot);
+
+        player.ready = data[4] == "1";
 
         if (player.snapshots.length > 30) {
             player.snapshots.shift();
         }
 
-        //if (p.id == socket.id) {
-        reconcile(player, p.x, p.y);
-        //}
+        reconcile(player, x, y);
     }
 }
 
@@ -97,7 +102,7 @@ export function sendInput(dir: -1 | 0 | 1) {
 
     pendingInputs.push(input);
 
-    ply.vx = dir;
+    ply.dx = dir;
     ply.x += dir * gameSettings.playerSpeed * deltaTime;
 
     socket.emit(PACKET.SC_PLAYER_MOVE, (dir + 1).toString());

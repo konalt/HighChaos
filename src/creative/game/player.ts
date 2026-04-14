@@ -1,11 +1,10 @@
 import { lerp, TwoNums } from "../../lib/engine/utils";
 import { socket } from "./game";
-import { INTERP_DELAY, ClientPlayerState, ServerPlayerState, reconcile } from "../net/interp";
+import { INTERP_DELAY, ClientPlayerState, ServerPlayerState } from "../net/interp";
 import { gameSettings } from "./settings";
 import { deltaTime } from "../../lib/engine/engine";
 import { initExtraPlayerInfo } from "./extraplayerinfo";
 import { world } from "./world";
-import { getBlockData } from "./blocks";
 
 export let players = new Map<string, ClientPlayerState>();
 
@@ -15,7 +14,7 @@ export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", pre
     let collided = false;
     let check = world.playerBlockCheck(ply, prev);
     if (check) {
-        let [block, rect] = check;
+        //let [block, rect] = check;
         collided = true;
     }
     if (!collided) return false;
@@ -23,7 +22,7 @@ export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", pre
         ply.x = prev[0];
     } else {
         ply.y = prev[1];
-        if (!ply.ld) ply.vy = 0;
+        if (!ply.ladder) ply.dy = 0;
     }
     return true;
 }
@@ -31,16 +30,16 @@ export function playerCollisionCheck(ply: ClientPlayerState, dir: "x" | "y", pre
 function updatePlayer(ply: ClientPlayerState) {
     for (let i = 0; i < gameSettings.physSteps; i++) {
         let originalPosition = structuredClone([ply.x, ply.y] as TwoNums);
-        ply.x += (ply.vx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
+        ply.x += (ply.dx * deltaTime * gameSettings.playerSpeed) / gameSettings.physSteps;
         playerCollisionCheck(ply, "x", originalPosition);
-        if (ply.ld) {
-            ply.ld = world.playerLadderCheck(ply);
+        if (ply.ladder) {
+            ply.ladder = world.playerLadderCheck(ply);
         }
-        if (ply.ld) {
-            ply.y += (ply.vy * deltaTime * gameSettings.ladderSpeed) / gameSettings.physSteps;
+        if (ply.ladder) {
+            ply.y += (ply.dy * deltaTime * gameSettings.ladderSpeed) / gameSettings.physSteps;
         } else {
-            ply.vy += (gameSettings.gravity * deltaTime) / gameSettings.physSteps;
-            ply.y += (ply.vy * deltaTime) / gameSettings.physSteps;
+            ply.dy += (gameSettings.gravity * deltaTime) / gameSettings.physSteps;
+            ply.y += (ply.dy * deltaTime) / gameSettings.physSteps;
         }
         playerCollisionCheck(ply, "y", originalPosition);
     }
@@ -76,10 +75,10 @@ export function updatePlayers() {
 
         // smooth interpolation
         player.x = lerp(t, prev.x, next.x);
-        player.vx = next.vx;
-        player.ld = next.ld;
+        player.dx = next.dx;
+        player.ladder = next.ladder;
         player.y = lerp(t, prev.y, next.y);
-        player.vy = next.vy;
+        player.dy = next.dy;
     }
 }
 
