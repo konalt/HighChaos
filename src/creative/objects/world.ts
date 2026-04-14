@@ -1,9 +1,9 @@
-import { ctx, getKeyDown, getMouse, w, h, d, debugMode, addDebugLine } from "../../lib/engine/engine";
+import { ctx, getKeyDown, getMouse, w, h, d, debugMode, addDebugLine, since } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { Block, getBlockData } from "../game/blocks";
-import { worldCoordsToChunkCoords } from "../game/chunk";
+import { sendChunkRequest, worldCoordsToChunkCoords } from "../game/chunk";
 import { CHUNK_RENDER_SIZE, drawChunk } from "../game/chunkrenderer";
 import { setLayer, layer, socket, pickBlock, currentBlock } from "../game/game";
 import { ply } from "../game/player";
@@ -78,6 +78,8 @@ export class World extends GameObject {
     private _minChunkY = 0;
     private _maxChunkX = 0;
     private _maxChunkY = 0;
+
+    private _lastChunkRequestTime = 0;
 
     disableControl = false;
     noclickAreas: Map<string, FourNums> = new Map();
@@ -159,6 +161,10 @@ export class World extends GameObject {
         this._maxChunkY = max[1];
 
         addDebugLine(`Chunk bounds: ${this._minChunkX},${this._minChunkY} to ${this._maxChunkX},${this._maxChunkY}`);
+
+        if (since(this._lastChunkRequestTime) > 500) {
+            sendChunkRequest();
+        }
     }
 
     draw() {

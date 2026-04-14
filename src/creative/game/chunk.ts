@@ -138,19 +138,28 @@ export function worldCoordsToChunkCoords(wx: number, wy: number): [TwoNums, TwoN
 }
 
 let requestingChunks: string[] = [];
+
+let nextRequest: string[] = [];
 export function serverRequestChunk(cx: number, cy: number) {
     const key = [cx, cy].join(",");
     if (requestingChunks.includes(key)) return;
-    console.log("requesting chunk " + key);
     requestingChunks.push(key);
-    socket.emit(PACKET.CS_CHUNK_REQUEST, key);
+    nextRequest.push(key);
     trimChunks();
 }
 
-export function serverChunkHandler(data: PacketString) {
+export function sendChunkRequest() {
+    if (nextRequest.length == 0) return;
+    socket.emit(PACKET.CS_CHUNK_REQUEST, nextRequest.join(";"));
+    nextRequest = [];
+}
+
+export async function serverChunkHandler(data: PacketString) {
     if (!data) return;
-    let p = data.split(":")[0];
-    console.log("got chunk " + p);
-    if (requestingChunks.includes(p)) requestingChunks.splice(requestingChunks.indexOf(p), 1);
-    world.deserializeChunk(data);
+    const chunks = data.split("\n");
+    for (const c of chunks) {
+        let p = c.split(":")[0];
+        if (requestingChunks.includes(p)) requestingChunks.splice(requestingChunks.indexOf(p), 1);
+        await world.deserializeChunk(c);
+    }
 }
