@@ -1,4 +1,5 @@
 import { currentScene } from "../../lib/engine/engine";
+import { intList } from "../../lib/engine/utils";
 import { PacketString } from "../handlers";
 import { BlockBreakEffect } from "../objects/effect/blockbreakeffect";
 import { getWorldPos } from "../objects/world";
@@ -133,8 +134,8 @@ export function blockUpdateHandler(packet: PacketString) {
     if (!packet) return;
 
     const [coordsString, dataString] = packet.split("=");
-    const [x, y, layer] = coordsString.split(",").map((n) => parseInt(n));
-    const [type, subtype] = dataString.split(",").map((n) => parseInt(n));
+    const [x, y, layer] = intList(coordsString);
+    const [type, subtype] = intList(dataString);
 
     world.setBlock(x, y, layer, type, subtype);
 }
@@ -142,7 +143,7 @@ export function blockUpdateHandler(packet: PacketString) {
 export function blockRemoveHandler(packet: PacketString) {
     if (!packet) return;
 
-    const [x, y, layer] = packet.split(",").map((n) => parseInt(n));
+    const [x, y, layer] = intList(packet);
 
     let wp = getWorldPos([x, y]);
 

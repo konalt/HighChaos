@@ -1,9 +1,11 @@
 import { addDebugLine, getKeyDown, h, loadImage } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
+import { rendererCache } from "../game/chunkrenderer";
 import { loadHotbar, socket } from "../game/game";
 import { handleInput } from "../game/input";
 import { players, ply, updatePlayers } from "../game/player";
 import { gameSettings } from "../game/settings";
+import { world } from "../game/world";
 import { ClientPlayerState } from "../net/interp";
 import { PlayerObject } from "../objects/player";
 import { Sky } from "../objects/sky";
@@ -126,6 +128,8 @@ export class InGameScene extends Scene {
 
         addDebugLine(`Name: ${ply.id}`);
         addDebugLine(`ID: ${ply.id}`);
+        addDebugLine(`Chunk cache size: ${rendererCache.size}`);
+        addDebugLine(`World loaded chunks: ${world.chunks.length}`);
     }
 
     async init() {

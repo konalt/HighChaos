@@ -147,3 +147,7 @@ export function sleep(time: number) {
         }, time);
     });
 }
+
+export function intList(listString: string): number[] {
+    return listString.split(",").map((n) => parseInt(n));
+}

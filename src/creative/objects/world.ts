@@ -1,4 +1,4 @@
-import { ctx, getKeyDown, getMouse, w, h, d, debugMode } from "../../lib/engine/engine";
+import { ctx, getKeyDown, getMouse, w, h, d, debugMode, addDebugLine } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { TwoNums, FourNums, basicPointInRect, distance } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
@@ -157,6 +157,8 @@ export class World extends GameObject {
         this._minChunkY = min[1];
         this._maxChunkX = max[0];
         this._maxChunkY = max[1];
+
+        addDebugLine(`Chunk bounds: ${this._minChunkX},${this._minChunkY} to ${this._maxChunkX},${this._maxChunkY}`);
     }
 
     draw() {
@@ -170,11 +172,14 @@ export class World extends GameObject {
             );
         } */
 
+        let i = 0;
         for (let cy = this._minChunkY; cy <= this._maxChunkY; cy++) {
             for (let cx = this._minChunkX; cx <= this._maxChunkX; cx++) {
-                drawChunk(cx, cy);
+                let drawn = drawChunk(cx, cy);
+                if (drawn) i++;
             }
         }
+        addDebugLine("Chunk draw calls: " + i);
 
         if (debugMode) {
             ctx.strokeStyle = "#0000ff";

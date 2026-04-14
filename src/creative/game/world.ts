@@ -1,9 +1,9 @@
-import { d } from "../../lib/engine/engine";
+import { d, h, w } from "../../lib/engine/engine";
 import { FourNums, rectIntersect, TwoNums } from "../../lib/engine/utils";
 import { ClientPlayerState } from "../net/interp";
 import { Block, BlockStruct, getBlockData } from "./blocks";
 import { CHUNK_SIZE, Chunk, blockCoordsToChunkCoords, serverRequestChunk, worldCoordsToChunkCoords } from "./chunk";
-import { cacheChunk } from "./chunkrenderer";
+import { cacheChunk, CHUNK_RENDER_SIZE, isInRenderDistance, MAX_CHUNK_DIST } from "./chunkrenderer";
 import { generateChunk } from "./generator";
 import { gameSettings } from "./settings";
 
@@ -28,6 +28,10 @@ export class World {
         if (c) return c;
         serverRequestChunk(cx, cy);
         return generateChunk(cx, cy);
+    }
+
+    trimChunks() {
+        this.chunks = this.chunks.filter((c) => isInRenderDistance(c.x, c.y));
     }
 
     getBlockAt(bx: number, by: number, layer: number) {

@@ -1,8 +1,10 @@
-import { TwoNums } from "../../lib/engine/utils";
+import { currentScene } from "../../lib/engine/engine";
+import { intList, TwoNums } from "../../lib/engine/utils";
 import { PacketString } from "../handlers";
 import { PACKET } from "../net/packets";
+import { InGameScene } from "../scenes/ingame";
 import { Block, BlockStruct, getBlockData } from "./blocks";
-import { cacheChunk } from "./chunkrenderer";
+import { cacheChunk, trimChunks } from "./chunkrenderer";
 import { socket } from "./game";
 import { gameSettings } from "./settings";
 import { world } from "./world";
@@ -86,7 +88,7 @@ export class Chunk {
 
     static deserialize(chunkData: string) {
         const [coordsString, blockString] = chunkData.split(":");
-        const [x, y] = coordsString.split(",").map((n) => parseInt(n));
+        const [x, y] = intList(coordsString);
 
         let data: ChunkData = [];
 
@@ -98,12 +100,12 @@ export class Chunk {
                 const [coordsString, dataString] = blockString.split("=");
                 const struct = new BlockStruct();
 
-                const [x, y, layer] = coordsString.split(",").map((n) => parseInt(n));
+                const [x, y, layer] = intList(coordsString);
                 struct.gx = x;
                 struct.gy = y;
                 struct.layer = layer;
 
-                const [type, subtype] = dataString.split(",").map((n) => parseInt(n));
+                const [type, subtype] = intList(dataString);
                 struct.type = type;
                 struct.subtype = subtype;
 
@@ -139,12 +141,16 @@ let requestingChunks: string[] = [];
 export function serverRequestChunk(cx: number, cy: number) {
     const key = [cx, cy].join(",");
     if (requestingChunks.includes(key)) return;
+    console.log("requesting chunk " + key);
     requestingChunks.push(key);
     socket.emit(PACKET.CS_CHUNK_REQUEST, key);
+    trimChunks();
 }
 
 export function serverChunkHandler(data: PacketString) {
     if (!data) return;
-
+    let p = data.split(":")[0];
+    console.log("got chunk " + p);
+    if (requestingChunks.includes(p)) requestingChunks.splice(requestingChunks.indexOf(p), 1);
     world.deserializeChunk(data);
 }
