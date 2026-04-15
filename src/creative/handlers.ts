@@ -1,6 +1,6 @@
 import { currentScene } from "../lib/engine/engine";
 import { socket } from "./game/game";
-import { setMessages } from "./game/chat";
+import { messages, setMessages } from "./game/chat";
 import { setPingTable } from "./game/ping";
 import { gameSettings, setSettings } from "./game/settings";
 import { AckPacket, PACKET } from "./net/packets";
@@ -92,6 +92,7 @@ export function chatHandler(d: PacketString) {
     if (!d) return;
 
     let msg = JSON.parse(d);
+    messages.push(msg);
 
     if (currentScene instanceof InGameScene) {
         currentScene.chat.messages.push(msg);
