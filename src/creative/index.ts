@@ -5,10 +5,10 @@ import { loadSettings } from "../lib/engine/options";
 import init from "../wasm_gzip/wasm_gzip.js";
 import { ConnectScene } from "./scenes/connect";
 
-let fonts = ["PixelOperator/PixelOperator", "PixelOperator/PixelOperator-Bold"];
+let fonts = ["ComicNeueSansID"];
 
 Promise.all([init(), loadFonts(fonts)]).then(() => {
-    c.setFont("sans-serif");
+    c.setFont("'ComicNeueSansID', sans-serif");
     c.setTargetFramerate(1000);
 
     loadSettings();
