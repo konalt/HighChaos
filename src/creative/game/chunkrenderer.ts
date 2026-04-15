@@ -11,7 +11,7 @@ export let rendererCache: Map<string, OffscreenCanvas> = new Map();
 
 export let CHUNK_RENDER_SIZE = 64;
 export const MAX_CHUNK_CACHE_SIZE = 64;
-export const MAX_CHUNK_DIST = 10;
+export const MAX_CHUNK_DIST = 3;
 
 export function initChunkRenderer() {
     CHUNK_RENDER_SIZE = CHUNK_SIZE * gameSettings.blockSize;
@@ -49,8 +49,9 @@ export function isInRenderDistance(cx: number, cy: number) {
     let [chunkpos, subchunkpos] = worldCoordsToChunkCoords(currentScene.camera.x, currentScene.camera.y);
     chunkpos = chunkpos.map((n, i) => n + subchunkpos[i] / CHUNK_SIZE) as TwoNums;
     return (
-        Math.abs(cx - chunkpos[0]) < Math.min(MAX_CHUNK_DIST, w / currentScene.camera.zoom / CHUNK_RENDER_SIZE + 1) &&
-        Math.abs(cy - chunkpos[1]) < Math.min(MAX_CHUNK_DIST, h / currentScene.camera.zoom / CHUNK_RENDER_SIZE + 1)
+        Math.abs(cx - chunkpos[0]) <
+            w / Math.max(currentScene.camera.zoom, 1 / MAX_CHUNK_DIST) / CHUNK_RENDER_SIZE + 1 &&
+        Math.abs(cy - chunkpos[1]) < h / Math.max(currentScene.camera.zoom, 1 / MAX_CHUNK_DIST) / CHUNK_RENDER_SIZE + 1
     );
 }
 
