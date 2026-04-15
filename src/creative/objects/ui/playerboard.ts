@@ -1,5 +1,6 @@
 import { ctx, d, font, w, h, getFPS, getKey } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { extraPlayerInfo } from "../../game/extraplayerinfo";
 import { UI_COLOR } from "../../game/game";
 import { pingTable } from "../../game/ping";
@@ -61,7 +62,23 @@ export class PlayerBoard extends GameObject {
         for (const [id] of players) {
             d.roundRect(left, y, bw - padding * 2, entryHeight, 5, "rgba(0,0,0,0.5)");
 
-            d.roundRect(left + entryPadding, y + entryPadding, avatarSize, avatarSize, 5, "#0f0");
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(left + entryPadding + avatarSize, y + entryPadding + avatarSize / 2);
+            ctx.arc(
+                left + entryPadding + avatarSize / 2,
+                y + entryPadding + avatarSize / 2,
+                avatarSize / 2,
+                0,
+                Math.PI * 2,
+            );
+            ctx.closePath();
+            ctx.clip();
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(NULLTEXTURE, left + entryPadding, y + entryPadding, avatarSize, avatarSize);
+
+            ctx.restore();
 
             ctx.textBaseline = "middle";
             d.text(
