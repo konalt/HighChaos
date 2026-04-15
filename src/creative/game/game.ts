@@ -5,6 +5,7 @@ import {
     chatHandler,
     pingSendHandler,
     pingTableHandler,
+    playerDescendHandler,
     playerJoinHandler,
     playerJumpHandler,
     playerLadderHandler,
@@ -41,6 +42,8 @@ export function connect(): Promise<void> {
         socket.on(PACKET.SC_PLAYER_JUMP, playerJumpHandler);
         socket.on(PACKET.SC_PLAYER_LEAVE, playerLeaveHandler);
         socket.on(PACKET.SC_PLAYER_USERNAME, handleNameUpdate);
+
+        socket.on(PACKET.SC_PLATFORM_DESCEND, playerDescendHandler);
 
         socket.on(PACKET.SC_PING_SEND, pingSendHandler);
         socket.on(PACKET.SC_PING_TABLE, pingTableHandler);

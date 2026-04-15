@@ -51,6 +51,15 @@ export function playerJumpHandler(data: PacketString) {
     player.dy = -gameSettings.jumpVelocity;
 }
 
+export function playerDescendHandler(data: PacketString) {
+    if (!data) return;
+
+    let player = players.get(data);
+    if (!player) return;
+
+    player.y += 2;
+}
+
 export function playerLadderHandler(data: PacketString) {
     if (!data) return;
 

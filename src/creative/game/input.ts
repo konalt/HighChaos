@@ -1,4 +1,4 @@
-import { Axis, getAxis, getKeyDown } from "../../lib/engine/engine";
+import { Axis, getAxis, getKey, getKeyDown } from "../../lib/engine/engine";
 import { PACKET } from "../net/packets";
 import { socket } from "./game";
 import { ply } from "./player";
@@ -29,7 +29,18 @@ export function handleInput(nullify = false) {
     }
 
     if (!nullify && getKeyDown("space") && !ply.ladder) {
-        ply.dy = -gameSettings.jumpVelocity;
-        socket.emit(PACKET.CS_PLAYER_JUMP);
+        if (y > 0) {
+            ply.y += 2;
+            if (ply.dy == 0) {
+                let check = world.playerBlockCheck(ply, [ply.x, ply.y + 1]);
+                if (check) {
+                    ply.y -= 2;
+                }
+            }
+            socket.emit(PACKET.CS_PLATFORM_DESCEND);
+        } else {
+            ply.dy = -gameSettings.jumpVelocity;
+            socket.emit(PACKET.CS_PLAYER_JUMP);
+        }
     }
 }

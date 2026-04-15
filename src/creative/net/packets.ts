@@ -43,4 +43,6 @@ export enum PACKET {
     CS_CHUNK_REQUEST = npua(),
     SC_CHUNK = npua(),
     SC_CHUNK_UPDATE = npua(),
+    CS_PLATFORM_DESCEND = npua(),
+    SC_PLATFORM_DESCEND = npua(),
 }
