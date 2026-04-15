@@ -1,7 +1,7 @@
 import { fadeToScene, font, h, setScene, w } from "../../lib/engine/engine";
 import { Background } from "../../lib/ui/background/background";
 import { HCImage } from "../../lib/ui/hcimage";
-import { Scene } from "../../lib/engine/scene";
+import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { connect } from "../game/game";
 import { SpinnerLoader } from "../../lib/ui/loaders/spinner";
 import { InGameScene } from "./ingame";
@@ -10,10 +10,12 @@ import { GradientType, sleep } from "../../lib/engine/utils";
 import { LoadingText } from "../objects/menu/loadingtext";
 import { loadBlockSprites } from "../sprites";
 import { MenuScene } from "./menu";
+import { Title } from "../objects/ui/title";
 
 export class ConnectScene extends Scene {
     loader: SpinnerLoader;
     loadingText: LoadingText;
+    title: Title;
 
     constructor() {
         super();
@@ -23,22 +25,23 @@ export class ConnectScene extends Scene {
         background.colors = ["#111", "#0a0a0a"];
         this.add(background, -1);
 
-        let titleImage = new HCImage();
-        titleImage.x = w / 2;
-        titleImage.y = 200;
-        titleImage.scale = 1.5;
-        titleImage.src = "creative/txt/title.png";
-        this.add(titleImage);
+        this.title = new Title();
+        this.title.x = w / 2;
+        this.title.y = 180;
+        this.title.scale = 1.2;
+        this.title.anchor = "cc";
+        this.title.src = "creative/txt/title.png";
+        this.add(this.title, UI_LAYER);
 
         this.loader = new SpinnerLoader();
         this.loader.x = w / 2;
         this.loader.y = h / 2 + 200;
-        this.add(this.loader);
+        this.add(this.loader, UI_LAYER);
 
         this.loadingText = new LoadingText();
         this.loadingText.x = w / 2;
         this.loadingText.y = h / 2;
-        this.add(this.loadingText);
+        this.add(this.loadingText, UI_LAYER);
     }
 
     async init() {
