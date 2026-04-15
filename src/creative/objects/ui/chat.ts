@@ -41,7 +41,12 @@ export class Chat extends GameObject {
     }
 
     private _getChatText() {
-        return this.messages.map((m) => m.join(": ")).join("\n");
+        return this.messages
+            .map((m) => {
+                if (m[0] == "@noname@") return m[1];
+                return m.join(": ");
+            })
+            .join("\n");
     }
 
     update(): void {
