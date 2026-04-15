@@ -11,7 +11,7 @@ export let rendererCache: Map<string, OffscreenCanvas> = new Map();
 
 export let CHUNK_RENDER_SIZE = 64;
 export const MAX_CHUNK_CACHE_SIZE = 64;
-export const MAX_CHUNK_DIST = 6;
+export const MAX_CHUNK_DIST = 10;
 
 export function initChunkRenderer() {
     CHUNK_RENDER_SIZE = CHUNK_SIZE * gameSettings.blockSize;
