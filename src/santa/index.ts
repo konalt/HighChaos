@@ -1,12 +1,14 @@
-import * as scene_menu from "./scenes/menu";
 import * as c from "../lib/engine/engine";
 import { loadFonts } from "../lib/engine/fonts";
 import { loadSettings } from "../lib/engine/options";
+import { MenuScene } from "./scenes/menu";
 
 loadFonts().then(() => {
-    loadSettings();
+    //loadSettings();
 
-    //c.setScene(scene_menu, true);
+    c.setResolution(1);
+
+    c.setScene(new MenuScene(), true);
 
     c.init("santa");
 });

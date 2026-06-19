@@ -1,5 +1,5 @@
 export function getSavedBest() {
-    return parseInt(localStorage.getItem("santa_best")) || 0;
+    return parseInt(localStorage.getItem("santa_best") ?? "0") || 0;
 }
 
 export function saveBest(score: number) {

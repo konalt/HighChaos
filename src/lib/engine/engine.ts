@@ -708,7 +708,19 @@ function drawDebugInfo() {
 function draw() {
     globalTimer = performance.now();
     try {
-        if (!currentScene) throw new Error("No scene");
+        if (!currentScene) {
+            if (isLoadingScene) {
+                justPressed = [];
+                justReleased = [];
+                typingKeys = [];
+                requestAnimationFrame(draw);
+                ctx.clearRect(0, 0, w, h);
+                text(w / 2, h / 2, "Loading...", "white", font(46), "center");
+                return;
+            } else {
+                throw new Error("No scene");
+            }
+        }
         calculateFPS();
         if (document.hidden) {
             justPressed = [];
@@ -811,9 +823,11 @@ export function init(_g: string) {
     draw();
 }
 
+export let isLoadingScene = false;
 export let currentScene: Scene;
 
 export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<string, any> = {}) {
+    isLoadingScene = true;
     await scene.init(sceneInit);
     currentScene = scene;
     debugCamera.x = scene.camera.x;
@@ -822,6 +836,7 @@ export async function setScene(scene: Scene, fadeIn = false, sceneInit: Record<s
     if (fadeIn) {
         startTimer("__scene_fade_in", FadeDuration, true);
     }
+    isLoadingScene = false;
 }
 
 export function since(timestamp: number) {

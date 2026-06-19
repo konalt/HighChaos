@@ -1,32 +1,50 @@
-import { w, h, loadImage, d, loadSounds } from "../../lib/engine/engine";
-import * as skydark from "../objects/skydark";
-import * as hillsfront from "../objects/hillsfront";
-import * as snow from "../objects/snow";
-import * as playbutton from "../objects/playbutton";
-import * as mutebutton from "../objects/mutebutton";
+import { w, h, loadImage, d, loadSounds, font, playSound, setScene } from "../../lib/engine/engine";
+import { UI_LAYER } from "../../lib/engine/scene";
+import { HCButton } from "../../lib/ui/hcbutton";
+import { HCImage } from "../../lib/ui/hcimage";
+import { MuteButton } from "../objects/mutebutton";
+import { GameScene } from "./game";
+import { SantaScene } from "./santascene";
 
-let title: HTMLImageElement;
-let instructions: HTMLImageElement;
+export class MenuScene extends SantaScene {
+    playButton: HCButton;
 
-export function draw() {
-    skydark.draw();
-    snow.draw(false);
-    hillsfront.draw();
-    snow.draw(true);
+    title: HCImage;
+    instructions: HCImage;
 
-    d.circ(w / 2, h * 3.7, h * 3, "rgba(0,0,0,0.5)");
+    constructor() {
+        super();
 
-    d.quickImage(title, w / 2, 0, 1.5, "tc");
-    d.quickImage(instructions, w / 2, 535, 0.8, "cc");
+        this.title = new HCImage();
+        this.title.x = w / 2;
+        this.title.y = 0;
+        this.title.scale = 1.5;
+        this.title.anchor = "tc";
+        this.title.src = "santa/title.png";
+        this.add(this.title, UI_LAYER + 1);
 
-    playbutton.draw(w / 2, 970);
-    mutebutton.draw();
-}
+        this.instructions = new HCImage();
+        this.instructions.x = w / 2;
+        this.instructions.y = 535;
+        this.instructions.scale = 0.8;
+        this.instructions.anchor = "cc";
+        this.instructions.src = "santa/instructions.png";
+        this.add(this.instructions, UI_LAYER + 1);
 
-export async function init() {
-    snow.init();
-    instructions = await loadImage("santa/instructions.png");
-    title = await loadImage("santa/title.png");
-    await mutebutton.load();
-    await loadSounds([`santa/hohoho`, `santa/merrychristmas`, `santa/sleighbells`, `santa/baby`]);
+        this.playButton = new HCButton();
+        this.playButton.x = w / 2;
+        this.playButton.y = 970;
+        this.playButton.font = font(72);
+        this.playButton.text = "Play";
+        this.playButton.onClick = () => {
+            playSound("santa_merrychristmas", 0.5);
+            setScene(new GameScene());
+        };
+        this.add(this.playButton, UI_LAYER + 1);
+    }
+
+    async init() {
+        super.init();
+        await loadSounds([`santa/hohoho`, `santa/merrychristmas`, `santa/sleighbells`, `santa/baby`]);
+    }
 }

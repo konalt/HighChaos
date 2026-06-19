@@ -14,133 +14,113 @@ import {
     timerEnd,
     w,
 } from "../../lib/engine/engine";
-import * as skydark from "../objects/skydark";
-import * as snow from "../objects/snow";
-import * as hillsfront from "../objects/hillsfront";
-import * as present from "../objects/present";
-import * as sack from "../objects/sack";
-import * as score_display from "../objects/score";
-import * as lives_display from "../objects/lives";
-import * as scene_gameover from "./gameover";
-import * as mutebutton from "../objects/mutebutton";
 import { clamp, FourNums, lerpPositions, TwoNums, valueInRange } from "../../lib/engine/utils";
 import { easeOutCirc } from "../../lib/engine/ease";
+import { Scene, UI_LAYER } from "../../lib/engine/scene";
+import { SantaScene } from "./santascene";
+import { Present } from "../objects/present";
+import { Sack } from "../objects/sack";
+import { LivesDisplay } from "../objects/lives";
+import { ScoreDisplay } from "../objects/score";
+import { GameOverScene } from "./gameover";
 
-let globalGravity = 1;
-export let score = 0;
+export class GameScene extends SantaScene {
+    presents: Present[] = [];
+    sack: Sack;
 
-let presents: [FourNums, boolean][] = [];
+    livesDisplay: LivesDisplay;
+    scoreDisplay: ScoreDisplay;
 
-function createPresent(): [FourNums, boolean] {
-    return [[Math.random() * w * 0.7 + w * 0.15, -50, (Math.random() - 0.5) * 2, 2 + Math.random() * 3], false];
-}
-
-export let lives = 10;
-let powerup = false;
-
-function doLevelup() {
-    if (score % 5 == 0) {
-        globalGravity += 0.1;
-    }
-    if (score % 10 == 0) {
-        presents.push(createPresent());
-    }
-    if (score > 10 && Math.random() < 0.03 && !powerup) {
-        playSound("santa_sleighbells", 0.6);
-        powerup = true;
-        startTimer("powerup", 7000);
-    }
-}
-
-let sackX = w / 2;
-const sackSpeed = 80;
-const sprintMult = 1.7;
-
-function movement() {
-    let a = getAxis(Axis.Horizontal);
-    sackX += a * deltaTime * sackSpeed * (getKey("shift") ? sprintMult : 1);
-    sackX = clamp(sackX, 0, w);
-}
-
-export function draw() {
-    skydark.draw();
-    snow.draw(false);
-    hillsfront.draw();
-
-    movement();
-
-    const catchXMin = sackX - (sack.getStretch() * sack.SackGrabWidth) / 2;
-    const catchXMax = sackX + (sack.getStretch() * sack.SackGrabWidth) / 2;
-
-    let i = 0;
-    for (const p of presents) {
-        if (!p[1]) {
-            p[0][0] += p[0][2];
-            p[0][1] += p[0][3] * globalGravity;
-            present.draw(p[0][0], p[0][1]);
-        } else {
-            let t = timer(`pc${i}`);
-            let ease = easeOutCirc(t);
-            let lerped = lerpPositions(ease, p[0][0], p[0][1], sackX, h - sack.SackGrabHeightMin / 2);
-            present.draw(...lerped);
-            timerEnd(
-                `pc${i}`,
-                () => {
-                    presents[i] = createPresent();
-                },
-                true,
-            );
-        }
-        if (
-            !p[1] &&
-            valueInRange(p[0][0], catchXMin, catchXMax) &&
-            valueInRange(p[0][1], h - sack.SackGrabHeightMin, h)
-        ) {
-            playSound("santa_hohoho", 0.6);
-            score++;
-            doLevelup();
-            startTimer(`pc${i}`, 700);
-            p[1] = true;
-        }
-        if (p[0][1] > h + 50) {
-            lives--;
-            if (lives == 0) {
-                /* setScene(scene_gameover, true, {
-                    presents: score,
-                }); */
-            }
-            playSound("santa_baby", 0.5);
-            presents[i] = createPresent();
-        }
-        i++;
-    }
-
-    timerEnd(
-        "powerup",
-        () => {
-            powerup = false;
-        },
-        true,
-    );
-
-    sack.draw(sackX, h);
-
-    snow.draw(true);
-
-    score_display.draw();
-    lives_display.draw();
-
-    mutebutton.draw();
-}
-
-export async function init() {
-    presents = [createPresent(), createPresent(), createPresent(), createPresent()];
-    globalGravity = 1;
+    gravity = 1;
     score = 0;
     lives = 10;
-    snow.init();
-    score_display.init();
-    await present.load();
-    await sack.load();
-    await lives_display.load();
+    powerup = false;
+
+    constructor() {
+        super();
+
+        this.sack = new Sack();
+        this.add(this.sack, 2);
+
+        this.livesDisplay = new LivesDisplay();
+        this.add(this.livesDisplay, UI_LAYER);
+
+        this.scoreDisplay = new ScoreDisplay();
+        this.add(this.scoreDisplay, UI_LAYER);
+
+        this.presents = [];
+        this.presents.push(this.createPresent()); // needed for loading tha image
+    }
+
+    createPresent(): Present {
+        const p = new Present();
+        p.randomize();
+        this.add(p);
+        return p;
+    }
+
+    doLevelup() {
+        if (this.score % 5 == 0) {
+            this.gravity += 0.1;
+        }
+        if (this.score % 10 == 0) {
+            setTimeout(() => {
+                this.presents.push(this.createPresent());
+            }, 500);
+        }
+        if (this.score > 10 && Math.random() < 0.03 && !this.powerup) {
+            playSound("santa_sleighbells", 0.6);
+            this.powerup = true;
+            startTimer("powerup", 7000);
+        }
+    }
+
+    update() {
+        super.update();
+        const catchXMin = this.sack.x - (this.sack.getStretch() * Sack.SackGrabWidth) / 2;
+        const catchXMax = this.sack.x + (this.sack.getStretch() * Sack.SackGrabWidth) / 2;
+
+        let i = 0;
+        for (const p of this.presents) {
+            if (!p.collected && valueInRange(p.x, catchXMin, catchXMax) && p.y > h - Sack.SackGrabHeightMin) {
+                playSound("santa_hohoho", 0.6);
+                this.score++;
+                this.doLevelup();
+                p.collect();
+            }
+            if (p.y > h + 50) {
+                this.lives--;
+                if (this.lives == 0) {
+                    setScene(new GameOverScene(), false, {
+                        presents: this.score,
+                    });
+                }
+                playSound("santa_baby", 0.5);
+                this.remove(p);
+                this.presents[i] = this.createPresent();
+            }
+            i++;
+        }
+
+        timerEnd(
+            "powerup",
+            () => {
+                this.powerup = false;
+            },
+            true,
+        );
+
+        this.livesDisplay.lives = this.lives;
+        this.scoreDisplay.score = this.score;
+    }
+
+    async init() {
+        await super.init();
+
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                this.presents.push(this.createPresent());
+            }, i * 500);
+        }
+    }
 }

@@ -1,37 +1,64 @@
-import { ctx, d, loadImage, timer } from "../../lib/engine/engine";
+import { easeInCirc, easeOutCirc } from "../../lib/engine/ease";
+import { Axis, ctx, d, deltaTime, getAxis, getKey, h, loadImage, timer, w } from "../../lib/engine/engine";
+import { GameObject } from "../../lib/engine/object";
+import { clamp } from "../../lib/engine/utils";
+import { NULLTEXTURE } from "../../lib/ui/hcimage";
 
-let img: HTMLImageElement;
+export class Sack extends GameObject {
+    private _img: HTMLImageElement;
 
-export const SackGrabWidth = 140;
-export const SackGrabHeightMin = 200;
+    static SackGrabWidth = 150;
+    static SackGrabHeightMin = 200;
+    static SackSpeed = 500;
+    static SackSprintMult = 2;
 
-export const PowerUpMargin = 0.1;
-export const PowerUpScale = 2;
+    static PowerUpMargin = 0.1;
+    static PowerUpScale = 2;
 
-export function getStretch() {
-    const pu = timer("powerup");
-    if (pu) {
-        if (pu < PowerUpMargin) {
-            return 1 + (pu / PowerUpMargin) * PowerUpScale;
-        } else if (pu > 1 - PowerUpMargin) {
-            return 1 + (1 - (pu - (1 - PowerUpMargin)) / PowerUpMargin) * PowerUpScale;
-        } else {
-            return 1 + PowerUpScale;
-        }
+    constructor() {
+        super();
+
+        this._img = NULLTEXTURE;
+        this.x = w / 2;
+        this.y = h;
     }
-    return 1;
-}
 
-export function draw(x: number, y: number) {
-    let stretch = getStretch();
+    getStretch() {
+        const pu = timer("powerup");
+        if (pu) {
+            if (pu < Sack.PowerUpMargin) {
+                return 1 + easeOutCirc(pu / Sack.PowerUpMargin) * Sack.PowerUpScale;
+            } else if (pu > 1 - Sack.PowerUpMargin) {
+                return 1 + easeInCirc(1 - (pu - (1 - Sack.PowerUpMargin)) / Sack.PowerUpMargin) * Sack.PowerUpScale;
+            } else {
+                return 1 + Sack.PowerUpScale;
+            }
+        }
+        return 1;
+    }
 
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(stretch, 1);
-    d.quickImage(img, 0, 0, 0.4, "bc");
-    ctx.restore();
-}
+    update() {
+        let a = getAxis(Axis.Horizontal);
+        this.x += a * deltaTime * Sack.SackSpeed * (getKey("shift") ? Sack.SackSprintMult : 1);
+        this.x = clamp(this.x, 0, w);
+    }
 
-export async function load() {
-    img = await loadImage("santa/sack.png");
+    draw() {
+        // Drawing code goes here
+        let stretch = this.getStretch();
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(stretch, 1);
+        d.quickImage(this._img, 0, 0, 0.4, "bc");
+        ctx.restore();
+    }
+
+    init() {
+        // Init code goes here (if needed)
+    }
+
+    async load() {
+        this._img = await loadImage("santa/sack.png");
+    }
 }

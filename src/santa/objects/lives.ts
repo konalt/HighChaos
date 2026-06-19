@@ -1,18 +1,29 @@
 import { ctx, d, loadImage, w } from "../../lib/engine/engine";
-import { lives } from "../scenes/game";
+import { GameObject } from "../../lib/engine/object";
+import { NULLTEXTURE } from "../../lib/ui/hcimage";
 
-let img: HTMLImageElement;
+export class LivesDisplay extends GameObject {
+    private _img: HTMLImageElement;
 
-export function draw() {
-    ctx.save();
-    ctx.translate(w - 20, 20);
-    for (let i = 0; i < lives; i++) {
-        d.quickImage(img, 0, 0, 0.6, "tr");
-        ctx.translate(-100, 0);
+    lives = 0;
+
+    constructor() {
+        super();
+
+        this._img = NULLTEXTURE;
     }
-    ctx.restore();
-}
 
-export async function load() {
-    img = await loadImage("santa/baby.png");
+    draw() {
+        ctx.save();
+        ctx.translate(w - 20, 20);
+        for (let i = 0; i < this.lives; i++) {
+            d.quickImage(this._img, 0, 0, 0.6, "tr");
+            ctx.translate(-100, 0);
+        }
+        ctx.restore();
+    }
+
+    async load() {
+        this._img = await loadImage("santa/baby.png");
+    }
 }
