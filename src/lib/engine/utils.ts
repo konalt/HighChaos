@@ -151,3 +151,15 @@ export function sleep(time: number) {
 export function intList(listString: string): number[] {
     return listString.split(",").map((n) => parseInt(n));
 }
+
+export function uuidv4() {
+    let s: (n?: number) => string = (n = 1) =>
+        n == 1
+            ? Math.floor(Math.random() * 65535)
+                  .toString(16)
+                  .padStart(4, "0")
+            : Math.floor(Math.random() * 65535)
+                  .toString(16)
+                  .padStart(4, "0") + s(n - 1);
+    return [s(2), s(), s(), s(), s(3)].join("-");
+}

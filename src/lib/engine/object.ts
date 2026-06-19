@@ -1,5 +1,6 @@
 import { CanvasStyle } from "./engine";
 import { Scene } from "./scene";
+import { uuidv4 } from "./utils";
 
 export class GameObject {
     x: number;
@@ -9,6 +10,7 @@ export class GameObject {
     sceneLayer: number;
     enabled: boolean;
     visible: boolean;
+    uuid: string;
 
     constructor() {
         this.x = 0;
@@ -16,6 +18,7 @@ export class GameObject {
         this.color = "#ffffff";
         this.enabled = true;
         this.visible = true;
+        this.uuid = uuidv4();
     }
 
     draw() {

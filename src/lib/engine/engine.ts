@@ -457,7 +457,9 @@ export function startTimer(name: string, duration: number, inverse = false) {
     timers[name] = [globalTimer, duration, inverse];
 }
 export function timer(name: string, clamp = true) {
-    if (!timers[name]) return 0;
+    if (!timers[name]) {
+        return 0;
+    }
     let thisTimer = timers[name];
     let t = (globalTimer - thisTimer[0]) / thisTimer[1];
     if (thisTimer[2]) t = 1 - t;
@@ -469,8 +471,8 @@ export function timerEnd(name: string, cb = () => {}, remove = true) {
     let thisTimer = timers[name];
     let ended = globalTimer - thisTimer[0] >= thisTimer[1];
     if (ended) {
-        log("timers", `Timer ended: ${name}`);
         cb();
+        log("timers", `Timer ended: ${name}`);
         if (remove) delete timers[name];
     }
     return ended;
