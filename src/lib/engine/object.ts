@@ -11,6 +11,7 @@ export class GameObject {
     enabled: boolean;
     visible: boolean;
     uuid: string;
+    spawnTime: number;
 
     constructor() {
         this.x = 0;
@@ -19,6 +20,7 @@ export class GameObject {
         this.enabled = true;
         this.visible = true;
         this.uuid = uuidv4();
+        this.spawnTime = performance.now();
     }
 
     draw() {
