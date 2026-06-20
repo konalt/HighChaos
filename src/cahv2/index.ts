@@ -4,6 +4,7 @@ import { CAHMenuBaseScene } from "./scenes/menubase";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
 
 loadFonts().then(() => {
+    c.setFont("'Montserrat', sans-serif");
     c.setResolution(1);
 
     c.setScene(new CAHMainMenuScene());

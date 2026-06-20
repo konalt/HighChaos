@@ -856,7 +856,7 @@ export const d = {
 
 //#region typing shit
 export type TypeEvent = (text: string) => void;
-export type TypeCheckEvent = (text: string) => boolean;
+export type TypeCheckEvent = (text: string) => string | boolean;
 let typing = false;
 let typingId = "";
 let typingKeys: string[] = [];
@@ -1002,8 +1002,13 @@ function handleTyping() {
 
             if (typeEvent) {
                 let e = typeEvent(text);
-                if (e) {
-                    typingTexts[id] = text;
+                if (typeof e == "boolean") {
+                    if (e) {
+                        typingTexts[id] = text;
+                        typingCursorPositions[id] = cursor;
+                    }
+                } else {
+                    typingTexts[id] = e;
                     typingCursorPositions[id] = cursor;
                 }
             } else {

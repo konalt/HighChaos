@@ -49,7 +49,7 @@ export class CAHMenuTitle extends GameObject {
     }
 
     update() {
-        this.rotation = Math.cos(since(this._spawnTime) * 0.001) * 0.1;
+        this.rotation = Math.cos(since(this._spawnTime) * 0.0005) * 0.1;
 
         this.renderY = lerp(easeOutQuad(timer(`intro${this.uuid}`, true)), this.startY, this.endY);
 
