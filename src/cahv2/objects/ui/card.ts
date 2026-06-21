@@ -50,6 +50,7 @@ export class CAHCard extends GameObject {
     // things that would require updates / rerenders
     private _isWhite = false;
     private _text = "";
+    private _forceBigText = false;
 
     // bounding box
     private _bx = 0;
@@ -72,7 +73,7 @@ export class CAHCard extends GameObject {
         super();
     }
 
-    static renderCard(text: string, isWhite: boolean) {
+    static renderCard(text: string, isWhite: boolean, forceBigText = false) {
         // get a canvas
         const canvas = new OffscreenCanvas(CardWidth + 10, CardHeight + 10);
         const ctx = canvas.getContext("2d");
@@ -105,7 +106,7 @@ export class CAHCard extends GameObject {
         // text setup
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        if (isBack) {
+        if (isBack || forceBigText) {
             ctx.font = font(CardBackFontSize, CardBackFontWeight.toString());
         } else {
             ctx.font = font(CardFontSize, CardFontWeight.toString());
@@ -113,7 +114,7 @@ export class CAHCard extends GameObject {
         ctx.fillStyle = textColor;
 
         // wrap the text
-        let lines = wrap(text, CardWidth - CardMargin * 2);
+        let lines = wrap(text, CardWidth - CardMargin * 2, ctx.font);
 
         // calculate line height
         let lineheight = parseFloat(ctx.font.split(" ").find((p) => p.includes("px")) ?? "12") * 1.05;
@@ -135,7 +136,7 @@ export class CAHCard extends GameObject {
     }
 
     async createCache() {
-        this.cache = CAHCard.renderCard(this._text, this._isWhite);
+        this.cache = CAHCard.renderCard(this._text, this._isWhite, this._forceBigText);
     }
 
     private recalculateFlipShit() {
@@ -271,6 +272,7 @@ export class CAHCard extends GameObject {
         this.recalculateFlipShit();
     }
 
+    //#region getters n setters
     get text() {
         return this._text;
     }
@@ -285,9 +287,19 @@ export class CAHCard extends GameObject {
     }
 
     set isWhite(isWhite: boolean) {
-        this.isWhite = isWhite;
+        this._isWhite = isWhite;
         this.createCache();
     }
+
+    get forceBigText() {
+        return this._forceBigText;
+    }
+
+    set forceBigText(forceBigText: boolean) {
+        this._forceBigText = forceBigText;
+        this.createCache();
+    }
+    //#endregion
 }
 
 export const CardBackBlack = CAHCard.renderCard("_back_", false);
