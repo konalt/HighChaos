@@ -75,8 +75,39 @@ export function rectIntersect(
 export function valueInRange(val: number, min: number, max: number) {
     return val > min && val < max;
 }
-export function basicPointInRect(px: number, py: number, x: number, y: number, w: number, h: number) {
-    return valueInRange(px, x, x + w) && valueInRange(py, y, y + h);
+export function basicPointInRect(
+    px: number,
+    py: number,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    rotation = 0,
+    rotationCenterX = 0,
+    rotationCenterY = 0,
+) {
+    // if rectangle not rotated, simple dimple
+    if (rotation == 0) {
+        return valueInRange(px, x, x + w) && valueInRange(py, y, y + h);
+    }
+    // oh no, rotation
+    // find coords of center
+    const cx = x + w / 2 + rotationCenterX;
+    const cy = y + h / 2 + rotationCenterY;
+
+    // unrotate da point
+    const dx = px - cx; // point as offset from center
+    const dy = py - cy;
+
+    // unrotate with the mathematical
+    const cos = Math.cos(-rotation);
+    const sin = Math.sin(-rotation);
+
+    const urX = cx + (dx * cos - dy * sin);
+    const urY = cx + (dx * sin + dy * cos);
+
+    // final check
+    return valueInRange(urX, x, x + w) && valueInRange(urY, y, y + h);
 }
 
 export function degToRad(degrees: number) {

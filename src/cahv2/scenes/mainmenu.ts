@@ -32,7 +32,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
         this.testCard = new CAHCard();
         this.testCard.text = "hello";
-        this.testCard.x = w * 0.75;
+        this.testCard.x = w * 0.8;
         this.testCard.y = h / 2;
         this.testCard.onClick = () => {
             this.testCard.flip();
