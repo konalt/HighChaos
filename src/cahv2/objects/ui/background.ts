@@ -1,4 +1,4 @@
-import { ctx, d, h, w } from "../../../lib/engine/engine";
+import { ctx, d, getMouse, h, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { COLOR } from "../../color";
 
@@ -12,13 +12,14 @@ export class CAHBackground extends GameObject {
     }
 
     draw() {
-        d.rect(0, 0, w, h, this._grad);
+        ctx.save();
+        ctx.translate(...getMouse(true));
+        d.rect(-w, -h, w * 2, h * 2, this._grad);
+        ctx.restore();
     }
 
     private _createGradient() {
-        // center at [0, h*1.5]
-        // radius is w
-        const g = ctx.createRadialGradient(w / 2, h, 0, w / 2, h, w * 0.6);
+        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.6);
 
         // color stops
         g.addColorStop(0, COLOR.backgroundLight);
