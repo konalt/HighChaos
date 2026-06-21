@@ -1020,10 +1020,11 @@ function handleTyping() {
 }
 //#endregion
 
-export function wrap(text: string, width: number) {
+export function wrap(text: string, width: number, fontOverride = "") {
     function txtW(txt: string) {
         return ctx.measureText(txt).width;
     }
+    if (fontOverride != "") ctx.font = fontOverride;
     let lines = [];
     let curLine: string[] = [];
 
