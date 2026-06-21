@@ -22,7 +22,7 @@ import { basicPointInRect, FourNums, lerp } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 
-const introDuration = 1000;
+const introDuration = 1500;
 const beatPeriod = 800;
 const beatAttack = 0.05;
 const beatScale = 0.065;
@@ -70,7 +70,7 @@ export class CAHMenuTitle extends GameObject {
             this.isSecondFlip = !this.isSecondFlip;
         });
 
-        this.renderY = lerp(easeOutQuad(timer(`intro${this.uuid}`, true)), this.startY, this.endY);
+        this.renderY = lerp(easeOutCirc(timer(`intro${this.uuid}`, true)), this.startY, this.endY);
 
         const beat = timer(`beat${this.uuid}`);
         if (beat < beatAttack) {
