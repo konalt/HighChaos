@@ -1,5 +1,7 @@
 import { ctx, d, getMouse, globalTimer, h, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { sample } from "../../../lib/engine/utils";
+import { blackCardReplace, whiteCardReplace } from "../../utils";
 import { CAHCard, CardBackWhite } from "./card";
 
 export class CAHBetterBackground extends GameObject {
@@ -43,10 +45,14 @@ export class CAHBetterBackground extends GameObject {
 
         ctx.save();
         for (let i = 0; i < this._cardCount; i++) {
-            const img = CAHCard.renderCard(
-                Math.random().toString().split(".")[1].split("").join(" "),
-                Math.random() < 0.5,
-            );
+            const isWhite = Math.random() < 0.5;
+            let text = sample(isWhite ? window.cardsWhite : window.cardsBlack);
+            if (isWhite) {
+                text = whiteCardReplace(text);
+            } else {
+                text = blackCardReplace(text);
+            }
+            const img = CAHCard.renderCard(text, isWhite);
             ctx.drawImage(img, 0, 0, this._cardWidth, this._cardHeight);
             ctx.translate(this._cardWidth, 0);
         }
