@@ -4,6 +4,7 @@ const express = require("express");
 
 process.title = "High Chaos";
 
+const MODULES_ROOT = path.join(process.cwd(), "node_modules");
 const WEB_ROOT = path.join(process.cwd(), "web");
 
 let app = express();
@@ -55,11 +56,11 @@ function log(req, res, url) {
             status.startsWith("2")
                 ? logColors.statusOK
                 : status.startsWith("4") || status.startsWith("5")
-                ? logColors.statusERR
-                : logColors.statusOTHER,
+                  ? logColors.statusERR
+                  : logColors.statusOTHER,
             status,
             logColors.end,
-        ].join("")
+        ].join(""),
     );
 }
 
@@ -71,6 +72,11 @@ app.get("/", (req, res) => {
 app.get("/game/*game", async (req, res) => {
     const content = await fs.readFile(path.join(WEB_ROOT, "game.html"), "utf8");
     res.type("html").send(content.replace(/%game%/g, req.params.game));
+    log(req, res, req.url);
+});
+
+app.get("/node_modules/*mp", async (req, res) => {
+    res.sendFile(path.join(MODULES_ROOT, ...req.params.mp));
     log(req, res, req.url);
 });
 

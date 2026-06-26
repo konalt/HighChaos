@@ -14,3 +14,7 @@ export function whiteCardReplace(text: string) {
         return text + ".";
     }
 }
+
+export const API_URL = (path: string) => {
+    return "https://konalt.net:58996" + path;
+};

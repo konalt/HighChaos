@@ -453,7 +453,7 @@ export function setFont(newFont: string) {
 export let globalTimer = 0;
 let timers: Record<string, [number, number, boolean]> = {};
 export function startTimer(name: string, duration: number, inverse = false) {
-    log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
+    //log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
     timers[name] = [globalTimer, duration, inverse];
 }
 export function timer(name: string, clamp = true) {
@@ -472,7 +472,7 @@ export function timerEnd(name: string, cb = () => {}, remove = true) {
     let ended = globalTimer - thisTimer[0] >= thisTimer[1];
     if (ended) {
         cb();
-        log("timers", `Timer ended: ${name}`);
+        //log("timers", `Timer ended: ${name}`);
         if (remove) delete timers[name];
     }
     return ended;
