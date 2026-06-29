@@ -11,6 +11,7 @@ import { CAHMenuBaseScene } from "./menubase";
 import { API_URL } from "../utils";
 import { CAHGame, deserializeGame } from "../types";
 import { currentGame, setGame } from "../game";
+import { CAHInGameBaseScene } from "./ingamebase";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -49,7 +50,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.joinGameCard.scale = CardScale;
         this.joinGameCard.onClick = () => {
             this.joinGameCard.flip();
-            this.transitionToScene(new CAHMenuBaseScene());
+            this.transitionToScene(new CAHInGameBaseScene());
         };
         this.add(this.joinGameCard, UI_LAYER + 1);
 

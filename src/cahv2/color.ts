@@ -1,6 +1,6 @@
 export const COLOR = {
-    backgroundDark: "#11021f",
-    backgroundLight: "#640f75",
+    backgroundDark: "#15041d",
+    backgroundLight: "#300838",
     elementStroke: "#8effff",
     elementFill: "rgba(85,131,255,0.4)",
     cardWhite: "#e5e5e5",
