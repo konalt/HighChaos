@@ -69,7 +69,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
     private async _toLobby() {
         // TRANSITION TO LOBBY STATE
         console.log("lets go to tha lobby");
-        console.log(currentGame);
+        this.transitionToScene(new CAHInGameBaseScene());
     }
 
     private async _createGame() {

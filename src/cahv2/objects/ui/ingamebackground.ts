@@ -13,7 +13,7 @@ interface Particle {
 
 const ParticleSize = 10;
 const ParticleSpeed = 30;
-const ParticleAlpha = 0.3;
+const ParticleAlpha = 0.25;
 const ParticleColor = "#d896ff";
 const ParticleCount = 200;
 const Margin = 50;
