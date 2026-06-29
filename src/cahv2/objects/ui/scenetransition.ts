@@ -1,10 +1,13 @@
 import { easeOutCirc } from "../../../lib/engine/ease";
-import { ctx, d, h, removeTimer, startTimer, timer, timerEnd, w } from "../../../lib/engine/engine";
+import { ctx, d, h, loadImage, removeTimer, startTimer, timer, timerEnd, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 
 const Slant = 300;
-const Duration = 500;
+const Duration = 600;
+
+let _img: HTMLImageElement;
 
 export class CAHSceneTransition extends GameObject {
     state = 0;
@@ -51,8 +54,14 @@ export class CAHSceneTransition extends GameObject {
         ctx.lineTo(factor1 * TotalW - Slant, h);
         ctx.lineTo(factor2 * TotalW - Slant * 2, h);
         ctx.closePath();
-        ctx.fillStyle = COLOR.sceneTransition;
-        ctx.fill();
+
+        ctx.save();
+        // INSANE DEVELOPMENTS
+        ctx.clip();
+
+        if (_img) ctx.drawImage(_img, 0, 0, w, h);
+
+        ctx.restore();
     }
 
     cover(onFinish = () => {}) {
@@ -86,5 +95,11 @@ export class CAHSceneTransition extends GameObject {
         } else if (this.state == 2) {
             this.uncover(onFinish);
         }
+    }
+
+    async load() {
+        await super.load();
+        _img = NULLTEXTURE;
+        _img = await loadImage("cahv2/transition_teto.png");
     }
 }
