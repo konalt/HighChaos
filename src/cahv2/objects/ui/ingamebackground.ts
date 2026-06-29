@@ -123,7 +123,8 @@ export class CAHInGameBackground extends GameObject {
 
     draw() {
         ctx.save();
-        ctx.translate(...getMouse(true));
+        //ctx.translate(...getMouse(true));
+        ctx.translate(w / 2, h / 2);
         d.rect(-w, -h, w * 2, h * 2, this._grad);
         ctx.restore();
 
