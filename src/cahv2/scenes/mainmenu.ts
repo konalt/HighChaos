@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import { easeOutCirc, easeOutQuad } from "../../lib/engine/ease";
-import { debugMode, h, startTimer, timer, w } from "../../lib/engine/engine";
+import { debugMode, h, removeTimer, startTimer, timer, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { initialize } from "../network";
@@ -45,7 +45,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
         this.joinGameCard = new CAHCard();
         this.joinGameCard.text = "Join Game";
-        this.joinGameCard.x = w / 2 - CardCenterGap / 2;
+        this.joinGameCard.x = -200;
         this.joinGameCard.y = CardY;
         this.joinGameCard.scale = CardScale;
         this.joinGameCard.onClick = () => {
@@ -56,7 +56,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
         this.createGameCard = new CAHCard();
         this.createGameCard.text = "Create Game";
-        this.createGameCard.x = w / 2 + CardCenterGap / 2;
+        this.createGameCard.x = w + 200;
         this.createGameCard.y = CardY;
         this.createGameCard.isWhite = true;
         this.createGameCard.scale = CardScale;
@@ -120,6 +120,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
     async init() {
         await super.init();
+        removeTimer("joincard_slide");
         setTimeout(() => {
             startTimer("joincard_slide", 500);
         }, 1000);
