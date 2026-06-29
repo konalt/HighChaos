@@ -174,13 +174,13 @@ export class Scene {
         }
     }
 
-    async init(data?: Record<string, any>) {
+    async init(data?: any) {
         for (const [i] of this.layers) {
             await this.initLayer(i, data);
         }
     }
 
-    async initLayer(layer: number, data?: Record<string, any>) {
+    async initLayer(layer: number, data?: any) {
         await Promise.all(this.layers.get(layer).map((o) => o.load()));
 
         for (const o of this.layers.get(layer)) {

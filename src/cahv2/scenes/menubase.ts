@@ -1,22 +1,14 @@
-import { h } from "../../lib/engine/engine";
-import { Scene, UI_LAYER } from "../../lib/engine/scene";
-import { GradientType } from "../../lib/engine/utils";
-import { GradientBackground } from "../../lib/ui/background/gradientbackground";
-import { CAHBackground } from "../objects/ui/background";
+import { UI_LAYER } from "../../lib/engine/scene";
 import { CAHBetterBackground } from "../objects/ui/betterbackground";
-import { CAHErrorBox } from "../objects/ui/errorbox";
+import { CAHBaseScene } from "./base";
 
-export class CAHMenuBaseScene extends Scene {
+export class CAHMenuBaseScene extends CAHBaseScene {
     background: CAHBetterBackground;
-    error: CAHErrorBox;
 
     constructor() {
         super();
 
         this.background = new CAHBetterBackground();
         this.add(this.background, UI_LAYER);
-
-        this.error = new CAHErrorBox();
-        this.add(this.error, UI_LAYER + 10);
     }
 }

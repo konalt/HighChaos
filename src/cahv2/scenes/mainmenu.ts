@@ -49,7 +49,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.joinGameCard.scale = CardScale;
         this.joinGameCard.onClick = () => {
             this.joinGameCard.flip();
-            this.error.show("test");
+            this.transitionToScene(new CAHMenuBaseScene());
         };
         this.add(this.joinGameCard, UI_LAYER + 1);
 
