@@ -1,14 +1,15 @@
 import { CanvasStyle, ctx, debugMode, font, h, w } from "../../../lib/engine/engine";
 import { Anchor, anchorToCoords, lerp } from "../../../lib/engine/utils";
 import { Clickable } from "../../../lib/ui/clickable";
+import { COLOR } from "../../color";
 
 export class CAHButton extends Clickable {
     private _textImg: ImageBitmap;
 
     padding = 10;
     anchor: Anchor = "tl";
-    background: CanvasStyle = "#727272";
-    border: CanvasStyle = "#999999";
+    background: CanvasStyle = COLOR.btnBackground;
+    border: CanvasStyle = COLOR.btnBorder;
     disabled = false;
 
     constructor(text: string, fontSize = 40) {

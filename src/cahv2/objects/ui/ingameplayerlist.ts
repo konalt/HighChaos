@@ -5,6 +5,7 @@ import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 import { currentGame } from "../../game";
 import { CAHPlayer } from "../../types";
+import { generateEmptyAvatar } from "../../utils";
 
 const Round = 30;
 const Width = 500;
@@ -129,7 +130,13 @@ export class CAHInGamePlayerList extends GameObject {
 
         ctx.save();
         ctx.clip(avatarMask);
-        ctx.drawImage(NULLTEXTURE, PlayerPadding, (h - PlayerAvatarSize) / 2, PlayerAvatarSize, PlayerAvatarSize); // TODO: add avatars
+        ctx.drawImage(
+            generateEmptyAvatar(),
+            PlayerPadding,
+            (h - PlayerAvatarSize) / 2,
+            PlayerAvatarSize,
+            PlayerAvatarSize,
+        ); // TODO: add avatars
         ctx.restore();
 
         ctx.strokeStyle = "#fff";

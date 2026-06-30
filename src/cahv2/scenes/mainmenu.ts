@@ -15,6 +15,8 @@ import { CAHInGameBaseScene } from "./ingamebase";
 import { HCButton } from "../../lib/ui/hcbutton";
 import { CAHSettingsButton } from "../objects/ui/settingsbtn";
 import { CAHSettingsScene } from "./settings";
+import { CAHMenuProfile } from "../objects/ui/menuprofile";
+import { currentUsername } from "../profile";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -38,6 +40,8 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
     createGameCard: CAHCard;
 
     settingsButton: CAHSettingsButton;
+
+    menuProfile: CAHMenuProfile;
 
     socket: Socket | null = null;
 
@@ -145,6 +149,11 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
             this.transitionToScene(new CAHSettingsScene());
         };
         this.add(this.settingsButton, UI_LAYER);
+
+        this.menuProfile = new CAHMenuProfile();
+        this.menuProfile.x = 20;
+        this.menuProfile.y = 20;
+        this.add(this.menuProfile, UI_LAYER);
     }
 
     private _setCardsEnabled(e: boolean) {
@@ -204,7 +213,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
                 const socket = await initialize();
                 this.socket = socket;
 
-                socket.emit("join_game", code, token, (response: string) => {
+                socket.emit("join_game", code, currentUsername, token, (response: string) => {
                     const [responseType, responseData] = response.split("\uE000");
                     if (responseType != "OK") {
                         reject(response);
@@ -230,7 +239,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
             const socket = await initialize();
             this.socket = socket;
 
-            socket.emit("join_game", code, "", (response: string) => {
+            socket.emit("join_game", code, currentUsername, "", (response: string) => {
                 const [responseType, responseData] = response.split("\uE000");
                 if (responseType != "OK") {
                     reject(response);
