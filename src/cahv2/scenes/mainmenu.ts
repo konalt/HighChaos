@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { easeOutCirc, easeOutQuad } from "../../lib/engine/ease";
+import { easeOutQuad } from "../../lib/engine/ease";
 import { debugMode, font, h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
@@ -10,9 +10,11 @@ import { CAHMenuTitle } from "../objects/ui/menutitle";
 import { CAHMenuBaseScene } from "./menubase";
 import { API_URL } from "../utils";
 import { CAHGame, deserializeGame } from "../types";
-import { currentGame, setGame } from "../game";
+import { setGame } from "../game";
 import { CAHInGameBaseScene } from "./ingamebase";
 import { HCButton } from "../../lib/ui/hcbutton";
+import { CAHSettingsButton } from "../objects/ui/settingsbtn";
+import { CAHSettingsScene } from "./settings";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -34,6 +36,8 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
     joinGameCard: CAHCard;
     createGameCard: CAHCard;
+
+    settingsButton: CAHSettingsButton;
 
     socket: Socket | null = null;
 
@@ -135,6 +139,12 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
             this._joinGame(code);
         };
         this.add(this.roomCodeJoinButton, UI_LAYER);
+
+        this.settingsButton = new CAHSettingsButton();
+        this.settingsButton.onClick = () => {
+            this.transitionToScene(new CAHSettingsScene());
+        };
+        this.add(this.settingsButton, UI_LAYER);
     }
 
     private _setCardsEnabled(e: boolean) {
@@ -275,12 +285,18 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         }
     }
 
-    async init() {
-        await super.init();
+    async init(data: any) {
         removeTimer("roomcode_slide");
         removeTimer("joincard_slide");
-        setTimeout(() => {
-            startTimer("joincard_slide", TransitionDuration);
-        }, 1000);
+        if (data.skipIntro) {
+            this.title.skipIntro = true;
+            startTimer("joincard_slide", 1);
+        } else {
+            setTimeout(() => {
+                startTimer("joincard_slide", TransitionDuration);
+            }, 1000);
+        }
+
+        await super.init(data);
     }
 }

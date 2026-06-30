@@ -28,11 +28,15 @@ export class CAHBaseScene extends Scene {
         }
     }
 
-    transitionToScene(scene: CAHBaseScene) {
+    transitionToScene(scene: CAHBaseScene, data2: any = {}) {
         this.sceneTransition.cover(() => {
-            setScene(scene, false, {
-                uncover: true,
-            });
+            const data = Object.assign(
+                {
+                    uncover: true,
+                },
+                data2,
+            );
+            setScene(scene, false, data);
         });
     }
 }

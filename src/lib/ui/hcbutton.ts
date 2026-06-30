@@ -39,7 +39,6 @@ export class HCButton extends GameObject {
     private _updateBBox() {
         if (this.needsUpdate) {
             ctx.textBaseline = "top";
-            console.log(this.font);
 
             ctx.font = this.font;
 

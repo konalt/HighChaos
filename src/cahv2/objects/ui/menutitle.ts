@@ -46,6 +46,8 @@ export class CAHMenuTitle extends GameObject {
     endY: number;
     renderY: number;
 
+    skipIntro: boolean = false;
+
     constructor() {
         super();
 
@@ -113,7 +115,7 @@ export class CAHMenuTitle extends GameObject {
     }
 
     init() {
-        startTimer(`intro${this.uuid}`, introDuration);
+        startTimer(`intro${this.uuid}`, this.skipIntro ? 1 : introDuration);
         startTimer(`beat${this.uuid}`, beatPeriod);
         this._spawnTime = performance.now();
     }
