@@ -47,7 +47,7 @@ export class CAHTextInput extends GameObject {
     backgroundColor: CanvasStyle = COLOR.elementFill;
     strokeColor: CanvasStyle = COLOR.elementStroke;
     textColor: CanvasStyle = "#fff";
-    placeholderColor: CanvasStyle = "#ddd";
+    placeholderColor: CanvasStyle = "#a8a8a8";
 
     font = "32px sans-serif";
 
@@ -70,12 +70,7 @@ export class CAHTextInput extends GameObject {
         super();
     }
 
-    update(): void {
-        super.update();
-
-        ctx.textBaseline = "top";
-        ctx.font = this.font;
-
+    private _updateBBox() {
         if (this.needsUpdate) {
             this._bw = this.textWidth + this.padding * 2;
 
@@ -88,6 +83,15 @@ export class CAHTextInput extends GameObject {
 
             this.needsUpdate = false;
         }
+    }
+
+    update(): void {
+        super.update();
+
+        ctx.textBaseline = "top";
+        ctx.font = this.font;
+
+        this._updateBBox();
 
         // check if mouse is hovering over input
         let mouse = getMouse(true);
@@ -117,6 +121,8 @@ export class CAHTextInput extends GameObject {
     draw() {
         ctx.textBaseline = "top";
         ctx.font = this.font;
+
+        this._updateBBox();
 
         d.roundRect(
             this._bx,

@@ -25,6 +25,7 @@ export class HCButton extends GameObject {
     round: number | "capsule" = 10;
     font = "24px serif";
     hoverAnimationSpeed = 0.3;
+    invert = false;
 
     // Yeah
     needsUpdate = true;
@@ -35,16 +36,16 @@ export class HCButton extends GameObject {
         this.onClick = () => {};
     }
 
-    update(): void {
-        super.update();
-
+    private _updateBBox() {
         if (this.needsUpdate) {
             ctx.textBaseline = "top";
+            console.log(this.font);
+
             ctx.font = this.font;
 
             let measure = ctx.measureText(this.text);
             this._bw = measure.width + this.padding * 2;
-            this._bh = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent + this.padding * 2;
+            this._bh = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent + this.padding * 2;
 
             let [bx, by] = anchorToCoords(this.anchor, this.x, this.y, this._bw, this._bh);
             this._bx = bx;
@@ -52,6 +53,12 @@ export class HCButton extends GameObject {
 
             this.needsUpdate = false;
         }
+    }
+
+    update(): void {
+        super.update();
+
+        this._updateBBox();
 
         // reset clicked variable - should only be true for 1 frame
         if (this._clicked) this._clicked = false;
@@ -75,7 +82,13 @@ export class HCButton extends GameObject {
     }
 
     draw() {
+        this._updateBBox();
+
         let color = grey(lerp(this._hoverTransition, 1, 0.75));
+
+        if (this.invert) {
+            color = grey(lerp(this._hoverTransition, 0.05, 0.15));
+        }
 
         ctx.textBaseline = "top";
 
@@ -88,6 +101,13 @@ export class HCButton extends GameObject {
             color,
         );
 
-        d.text(this._bx + this.padding, this._by + this.padding, this.text, "black", this.font, "left");
+        d.text(
+            this._bx + this.padding,
+            this._by + this.padding,
+            this.text,
+            this.invert ? "white" : "black",
+            this.font,
+            "left",
+        );
     }
 }
