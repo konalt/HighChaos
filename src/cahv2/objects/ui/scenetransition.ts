@@ -5,7 +5,7 @@ import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 
 const Slant = 300;
-const Duration = 600;
+const Duration = 320;
 
 let _img: HTMLImageElement;
 
@@ -46,7 +46,7 @@ export class CAHSceneTransition extends GameObject {
         //if (this.state == 0) return;
 
         let factor1 = 1 - easeOutCirc(timer(`cover${this.uuid}`, true));
-        let factor2 = 1 - easeOutCirc(timer(`uncover${this.uuid}`, true));
+        let factor2 = easeOutCirc(1 - timer(`uncover${this.uuid}`, true));
         const TotalW = w + Slant * 2;
         ctx.beginPath();
         ctx.moveTo(factor2 * TotalW - Slant, 0);
@@ -99,7 +99,9 @@ export class CAHSceneTransition extends GameObject {
 
     async load() {
         await super.load();
-        _img = NULLTEXTURE;
-        _img = await loadImage("cahv2/transition_teto.png");
+        if (!_img) {
+            _img = NULLTEXTURE;
+            _img = await loadImage("cahv2/transition_teto.png");
+        }
     }
 }
