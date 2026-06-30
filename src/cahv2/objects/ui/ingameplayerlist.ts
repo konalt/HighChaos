@@ -1,4 +1,5 @@
-import { ctx, font, h } from "../../../lib/engine/engine";
+import { easeOutCirc } from "../../../lib/engine/ease";
+import { ctx, font, h, timer, timerEnd } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
@@ -21,7 +22,7 @@ const PlayerGap = 10;
 export class CAHInGamePlayerList extends GameObject {
     private _path: Path2D;
     private _element: ImageBitmap | null;
-    private _images: ImageBitmap[] = [];
+    private _images: Map<string, ImageBitmap> = new Map();
 
     constructor() {
         super();
@@ -182,9 +183,9 @@ export class CAHInGamePlayerList extends GameObject {
     }
 
     reloadPlayers() {
-        this._images = [];
-        for (const [_, ply] of currentGame.players) {
-            this._images.push(this._renderPlayer(ply));
+        this._images.clear();
+        for (const [id, ply] of currentGame.players) {
+            this._images.set(id, this._renderPlayer(ply));
         }
     }
 
@@ -194,9 +195,16 @@ export class CAHInGamePlayerList extends GameObject {
         ctx.drawImage(this._element, 0, 0);
 
         ctx.save();
-        ctx.translate(Padding, Padding + TitleFontSize + Padding);
-        for (const img of this._images) {
-            ctx.drawImage(img, 0, 0);
+        ctx.translate(Padding + PlayerWidth / 2, Padding + TitleFontSize + Padding + PlayerHeight / 2);
+        for (const [id, img] of this._images) {
+            ctx.save();
+            if (timer("plyj" + id, true)) {
+                const t = easeOutCirc(timer("plyj" + id, true));
+                ctx.scale(t, t);
+                timerEnd("plyj" + id);
+            }
+            ctx.drawImage(img, -PlayerWidth / 2, -PlayerHeight / 2, PlayerWidth, PlayerHeight);
+            ctx.restore();
             ctx.translate(0, img.height + PlayerGap);
         }
         ctx.restore();

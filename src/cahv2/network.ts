@@ -1,6 +1,9 @@
 import * as sio from "socket.io-client";
-import { setScene } from "../lib/engine/engine";
+import { currentScene, setScene, startTimer } from "../lib/engine/engine";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
+import { deserializePlayer } from "./types";
+import { currentGame } from "./game";
+import { CAHInGameBaseScene } from "./scenes/ingamebase";
 
 export let socket: sio.Socket | null = null;
 
@@ -12,7 +15,7 @@ export function initialize() {
     });
 
     return new Promise<sio.Socket>((resolve, reject) => {
-        if (socket && socket.connected) return reject("Socket already connected :(");
+        if (socket && socket.connected) return resolve(socket);
 
         const m = new sio.Manager("https://konalt.net:58996", {
             //reconnection: false, // i know i know!!!
@@ -31,6 +34,37 @@ export function initialize() {
             const s = new CAHMainMenuScene();
             await setScene(s);
             s.error.show(`Unfortunately, you were disconnected due to the error "${e}" :( Please report this!`, 10_000); // 10s
+        });
+
+        s.on("ply_join", (plyData) => {
+            if (!currentGame) return;
+
+            const ply = deserializePlayer(plyData);
+
+            if (currentGame.players.has(ply.id)) {
+                throw new Error("what????");
+            }
+
+            currentGame.players.set(ply.id, ply);
+
+            if (currentScene instanceof CAHInGameBaseScene) {
+                startTimer("plyj" + ply.id, 300);
+                currentScene.playerList.reloadPlayers();
+            }
+        });
+
+        s.on("ply_leave", (id) => {
+            if (!currentGame) return;
+
+            if (!currentGame.players.has(id)) {
+                throw new Error("unknown player left");
+            }
+
+            currentGame.players.delete(id);
+
+            if (currentScene instanceof CAHInGameBaseScene) {
+                currentScene.playerList.reloadPlayers();
+            }
         });
 
         s.once("ack", () => {
