@@ -64,7 +64,8 @@ export class CAHInGamePlayerList extends GameObject {
         const InnerSpikeY = 15;
         const TopSpikeY = 30;
         const SpikeBallRad = 4;
-        const ControlPointOffset = 10;
+        const ControlPointOffsetX = 5;
+        const ControlPointOffsetY = 6;
 
         const p = new Path2D();
 
@@ -90,7 +91,14 @@ export class CAHInGamePlayerList extends GameObject {
         p.lineTo(BaseWidth / 2, 0);
 
         // draw the base
-        p.quadraticCurveTo(0, ControlPointOffset, -BaseWidth / 2, 0);
+        p.bezierCurveTo(
+            ControlPointOffsetX,
+            ControlPointOffsetY,
+            -ControlPointOffsetX,
+            ControlPointOffsetY,
+            -BaseWidth / 2,
+            0,
+        );
 
         p.closePath();
 
