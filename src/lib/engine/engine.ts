@@ -73,6 +73,9 @@ export function onResize() {
     ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
 
     screenTransform = ctxMain.getTransform();
+
+    mouseX *= canvasMain.height / height;
+    mouseY *= canvasMain.height / height;
 }
 
 export function sz(size: number) {
