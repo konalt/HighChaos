@@ -12,6 +12,9 @@ export class CAHButton extends Clickable {
     border: CanvasStyle = COLOR.btnBorder;
     disabled = false;
 
+    minAlpha = 0.3;
+    maxAlpha = 0.75;
+
     constructor(text: string, fontSize = 40) {
         super();
 
@@ -79,6 +82,8 @@ export class CAHButton extends Clickable {
     }
 
     draw() {
+        [this.bx, this.by] = anchorToCoords(this.anchor, this.x, this.y, this.bw, this.bh);
+
         ctx.save();
 
         ctx.fillStyle = this.background;
@@ -86,7 +91,7 @@ export class CAHButton extends Clickable {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.roundRect(this.bx, this.by, this.bw, this.bh, 5);
-        ctx.globalAlpha = lerp(this.hoverTransition, 0.3, 0.75);
+        ctx.globalAlpha = lerp(this.hoverTransition, this.minAlpha, this.maxAlpha);
         ctx.fill();
         ctx.globalAlpha = 1;
         ctx.stroke();

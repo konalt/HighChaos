@@ -17,6 +17,8 @@ import { CAHSettingsButton } from "../objects/ui/settingsbtn";
 import { CAHSettingsScene } from "./settings";
 import { CAHMenuProfile } from "../objects/ui/menuprofile";
 import { currentUsername } from "../profile";
+import { CAHButton } from "../objects/ui/cahbtn";
+import { COLOR } from "../color";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -34,7 +36,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
     roomCodeCard: CAHCard;
     roomCodeBackCard: CAHCard;
     roomCodeInput: CAHTextInput;
-    roomCodeJoinButton: HCButton;
+    roomCodeJoinButton: CAHButton;
 
     joinGameCard: CAHCard;
     createGameCard: CAHCard;
@@ -111,12 +113,13 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         };
         this.add(this.roomCodeInput, UI_LAYER);
 
-        this.roomCodeJoinButton = new HCButton();
+        this.roomCodeJoinButton = new CAHButton("Join!", 52);
+        this.roomCodeJoinButton.minAlpha = 0.5;
+        this.roomCodeJoinButton.background = "black";
+        this.roomCodeJoinButton.border = COLOR.elementStroke;
         this.roomCodeJoinButton.x = this.roomCodeCard.x;
         this.roomCodeJoinButton.y = this.roomCodeCard.y + RoomCodeButtonYOffset;
-        this.roomCodeJoinButton.text = "Join!";
-        this.roomCodeJoinButton.font = font(48);
-        this.roomCodeJoinButton.invert = false;
+        this.roomCodeJoinButton.anchor = "cc";
         this.roomCodeJoinButton.onClick = async () => {
             const code = this.roomCodeInput.value;
 
