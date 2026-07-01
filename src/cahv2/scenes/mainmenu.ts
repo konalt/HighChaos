@@ -19,6 +19,7 @@ import { CAHMenuProfile } from "../objects/ui/menuprofile";
 import { currentUsername } from "../profile";
 import { CAHButton } from "../objects/ui/cahbtn";
 import { COLOR } from "../color";
+import { CAHIGLobbyState } from "./iglobby";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -173,7 +174,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
     private async _toLobby() {
         // TRANSITION TO LOBBY STATE
-        this.transitionToScene(new CAHInGameBaseScene());
+        this.transitionToScene(new CAHIGLobbyState());
     }
 
     private async _checkGameCode(code: string) {

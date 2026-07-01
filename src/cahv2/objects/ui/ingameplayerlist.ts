@@ -25,6 +25,8 @@ export class CAHInGamePlayerList extends GameObject {
     private _element: ImageBitmap | null;
     private _images: Map<string, ImageBitmap> = new Map();
 
+    width = 0;
+
     constructor() {
         super();
 
@@ -193,6 +195,12 @@ export class CAHInGamePlayerList extends GameObject {
         this._images.clear();
         for (const [id, ply] of currentGame.players) {
             this._images.set(id, this._renderPlayer(ply));
+        }
+    }
+
+    update() {
+        if (this._element) {
+            this.width = this._element.width;
         }
     }
 
