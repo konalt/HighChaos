@@ -2,6 +2,7 @@ import { CursorMode, setCursorMode } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
+import { ASGEnemy } from "../objects/enemy";
 import { ASGPlayer } from "../objects/player";
 
 export class ASGInGameScene extends Scene {
@@ -23,6 +24,11 @@ export class ASGInGameScene extends Scene {
         r.w = 500;
         r.h = 10;
         this.add(r);
+
+        const e = new ASGEnemy();
+        e.x = 200;
+        e.y = 200;
+        this.add(e);
     }
 
     // camera following

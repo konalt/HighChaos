@@ -3,8 +3,8 @@ import { GameObject } from "../../lib/engine/object";
 import { getAngle } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 
-export const PLAYER_SPRITE_SIZE = 50;
-export const PLAYER_HITBOX_RAD = 7;
+export const PLAYER_SPRITE_SIZE = 60;
+export const PLAYER_HITBOX_RAD = 10;
 
 export const PLAYER_SPEED_BASE = 500;
 export const PLAYER_SPEED_FOCUS_MULT = 0.46;
