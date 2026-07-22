@@ -2,21 +2,27 @@ import { CursorMode, setCursorMode } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
+import { ASGLayer } from "../layers";
 import { ASGEnemy } from "../objects/enemy";
+import { ASGHitbox } from "../objects/hitbox";
 import { ASGPlayer } from "../objects/player";
 
 export class ASGInGameScene extends Scene {
     player: ASGPlayer;
+    hitbox: ASGHitbox;
 
     constructor() {
         super();
 
         let bg = new Background();
         bg.color = "#001";
-        this.add(bg, -1);
+        this.add(bg, ASGLayer.BG);
 
         this.player = new ASGPlayer();
-        this.add(this.player, 5);
+        this.add(this.player, ASGLayer.PLAYER);
+
+        this.hitbox = new ASGHitbox();
+        this.add(this.hitbox, ASGLayer.HITBOX);
 
         const r = new HCRect();
         r.x = -10;
@@ -28,7 +34,7 @@ export class ASGInGameScene extends Scene {
         const e = new ASGEnemy();
         e.x = 200;
         e.y = 200;
-        this.add(e);
+        this.add(e, ASGLayer.ENEMY);
     }
 
     // camera following

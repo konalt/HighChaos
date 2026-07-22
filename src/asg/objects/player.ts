@@ -75,17 +75,6 @@ export class ASGPlayer extends GameObject {
             PLAYER_SPRITE_SIZE,
         );
 
-        if (this.focus) {
-            // draw the hitbox
-            ctx.drawImage(
-                this._hb,
-                -PLAYER_HITBOX_RAD,
-                -PLAYER_HITBOX_RAD,
-                PLAYER_HITBOX_RAD * 2,
-                PLAYER_HITBOX_RAD * 2,
-            );
-        }
-
         // return canvas to normalcy
         ctx.restore();
 

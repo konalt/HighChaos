@@ -1,4 +1,4 @@
-import { CanvasStyle } from "./engine";
+import { CanvasStyle, removeTimer, startTimer, timer, timerEnd } from "./engine";
 import { Scene } from "./scene";
 import { uuidv4 } from "./utils";
 
@@ -42,4 +42,22 @@ export class GameObject {
     async load() {
         // Async load code here
     }
+
+    //#region timer shit
+    objStartTimer(name: string, duration: number, inverse = false) {
+        startTimer(this.uuid + name, duration, inverse);
+    }
+
+    objTimer(name: string, clamp = true) {
+        return timer(this.uuid + name);
+    }
+
+    objTimerEnd(name: string, cb = () => {}, remove = true) {
+        return timerEnd(this.uuid + name, cb, remove);
+    }
+
+    objRemoveTimer(name: string) {
+        return removeTimer(this.uuid + name);
+    }
+    //#endregion
 }

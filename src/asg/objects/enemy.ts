@@ -1,7 +1,9 @@
-import { ctx, deltaTime, loadImage } from "../../lib/engine/engine";
+import { ctx, deltaTime, globalTimer, loadImage, timerEnd } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { getAngle, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
+import { basicShootBullet, bulletArc } from "../bullets";
+import { BulletType } from "../bullettypes";
 import { ASGInGameScene } from "../scenes/ingame";
 
 export const ENEMY_SPRITE_SIZE = 70;
@@ -52,6 +54,15 @@ export class ASGEnemy extends GameObject {
         this.targetX = this.scene.player.x;
         this.targetY = this.scene.player.y;
         this._updateLook();
+
+        this.objTimerEnd(
+            "shoot",
+            () => {
+                bulletArc({}, [this.x, this.y], 12, 0, globalTimer * 0.001);
+                this.objStartTimer("shoot", 150);
+            },
+            false,
+        );
     }
 
     draw() {
@@ -73,5 +84,9 @@ export class ASGEnemy extends GameObject {
             sprite = await loadImage("asg/pa_enemy.png");
             spriteLoaded = true; // mark it as loaded
         }
+    }
+
+    init() {
+        this.objStartTimer("shoot", 200);
     }
 }
