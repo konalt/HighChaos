@@ -3,12 +3,14 @@ import { getAngle, TwoNums } from "../lib/engine/utils";
 import { BulletType } from "./bullettypes";
 import { ASGLayer } from "./layers";
 import { ASGBullet } from "./objects/bullet";
+import { ASGInGameScene } from "./scenes/ingame";
 
 export interface BulletSpawnData {
     type: BulletType;
     isPlayerBullet: boolean;
     scale: number;
     speed: number;
+    angularVelocity: number;
 }
 
 export const DEFAULT_BULLET_SPAWN_DATA: BulletSpawnData = {
@@ -16,6 +18,7 @@ export const DEFAULT_BULLET_SPAWN_DATA: BulletSpawnData = {
     isPlayerBullet: false,
     scale: 1,
     speed: 400,
+    angularVelocity: 0,
 };
 
 /**
@@ -38,6 +41,8 @@ function unpartial(data: Partial<BulletSpawnData>) {
  * @param isPlayerBullet whether or not the player fired this bullet
  */
 export function basicShootBullet(spawnData: Partial<BulletSpawnData>, origin: TwoNums, angle: number): ASGBullet {
+    if (!(currentScene instanceof ASGInGameScene)) throw "Must be run in ASGInGameScene";
+
     // get the data
     const sd = unpartial(spawnData);
 
@@ -51,9 +56,10 @@ export function basicShootBullet(spawnData: Partial<BulletSpawnData>, origin: Tw
     bulletObject.velocity = [sd.speed, 0]; // straight line, rotation is handled by the angle
     bulletObject.scale = sd.scale;
     bulletObject.isPlayerBullet = sd.isPlayerBullet;
+    bulletObject.angularVelocity = sd.angularVelocity;
 
     // add it and return it
-    currentScene.add(bulletObject, ASGLayer.BULLET);
+    currentScene.addBullet(bulletObject);
     return bulletObject;
 }
 
@@ -66,6 +72,8 @@ export function bulletArc(
     startAngle = 0,
     endAngle = Math.PI * 2,
 ): ASGBullet[] {
+    if (!(currentScene instanceof ASGInGameScene)) throw "Must be run in ASGInGameScene";
+
     // angle between bullets
     const deltaTheta = (endAngle - startAngle) / count;
 

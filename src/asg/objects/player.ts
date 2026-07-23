@@ -1,15 +1,34 @@
-import { Axis, ctx, deltaTime, getAxis, getKey, getMouse, globalTimer, h, loadImage, w } from "../../lib/engine/engine";
+import {
+    Axis,
+    ctx,
+    d,
+    deltaTime,
+    getAxis,
+    getKey,
+    getMouse,
+    globalTimer,
+    h,
+    loadImage,
+    loadSounds,
+    playSound,
+    w,
+} from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
-import { getAngle } from "../../lib/engine/utils";
+import { Scene } from "../../lib/engine/scene";
+import { getAngle, grey, lerp, ThreeNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
-
-export const PLAYER_SPRITE_SIZE = 60;
-export const PLAYER_HITBOX_RAD = 10;
-
-export const PLAYER_SPEED_BASE = 500;
-export const PLAYER_SPEED_FOCUS_MULT = 0.46;
+import {
+    PLAYER_SPEED_FOCUS_MULT,
+    PLAYER_SPEED_BASE,
+    PLAYER_SPRITE_SIZE,
+    PLAYER_HITBOX_RAD,
+    PLAYER_GRAZE_RADIUS,
+} from "../config";
+import { ASGInGameScene } from "../scenes/ingame";
+import { circlesIntersect } from "../util";
 
 const CURSOR_SIZE = 30;
+const GRAZE_EFFECT_DURATION = 200;
 
 export class ASGPlayer extends GameObject {
     private _ang = 0; // Angle
@@ -23,6 +42,9 @@ export class ASGPlayer extends GameObject {
 
     // If the player is focused
     focus = false;
+
+    // Graze indicator shit
+    showGrazeIndicator = false;
 
     constructor() {
         super();
@@ -52,12 +74,40 @@ export class ASGPlayer extends GameObject {
         this.y += dy * PLAYER_SPEED_BASE * deltaTime;
     }
 
+    private _handleCollisions() {
+        if (!(this.scene instanceof ASGInGameScene)) throw "fuck you";
+
+        this.showGrazeIndicator = false;
+        for (const b of this.scene.bullets) {
+            const bulletCirc: ThreeNums = [b.x, b.y, b.hitboxRadius];
+
+            // grazing
+            if (circlesIntersect(...bulletCirc, this.x, this.y, PLAYER_GRAZE_RADIUS)) {
+                if (!b.grazed) {
+                    console.log("grazed!");
+
+                    playSound("asg_graze");
+
+                    // graze happened
+                    b.grazed = true;
+
+                    this.objStartTimer("graze", GRAZE_EFFECT_DURATION);
+                }
+
+                // since we are in grazing radius we show the thing
+                this.showGrazeIndicator = true;
+            }
+        }
+    }
+
     update() {
         // update looking
         this._updateLook();
 
         // movement
         this._handleMove();
+
+        this._handleCollisions();
     }
 
     draw() {
@@ -75,6 +125,10 @@ export class ASGPlayer extends GameObject {
             PLAYER_SPRITE_SIZE,
         );
 
+        if (this.showGrazeIndicator) {
+            d.circ(0, 0, PLAYER_GRAZE_RADIUS, "transparent", grey(lerp(this.objTimer("graze", true), 1, 0.5)), 1);
+        }
+
         // return canvas to normalcy
         ctx.restore();
 
@@ -91,5 +145,7 @@ export class ASGPlayer extends GameObject {
 
         // load the hitbox sprite
         this._hb = await loadImage("asg/pa_hitbox.png");
+
+        await loadSounds([`asg/graze`]);
     }
 }

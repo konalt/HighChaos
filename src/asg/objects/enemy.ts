@@ -4,9 +4,8 @@ import { getAngle, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { basicShootBullet, bulletArc } from "../bullets";
 import { BulletType } from "../bullettypes";
+import { ENEMY_SPRITE_SIZE } from "../config";
 import { ASGInGameScene } from "../scenes/ingame";
-
-export const ENEMY_SPRITE_SIZE = 70;
 
 // store sprite here so we dont have to waste memory on it
 let sprite = NULLTEXTURE;
@@ -58,7 +57,15 @@ export class ASGEnemy extends GameObject {
         this.objTimerEnd(
             "shoot",
             () => {
-                bulletArc({}, [this.x, this.y], 12, 0, globalTimer * 0.001);
+                bulletArc(
+                    {
+                        angularVelocity: -0.1,
+                    },
+                    [this.x, this.y],
+                    12,
+                    0,
+                    globalTimer * 0.001,
+                );
                 this.objStartTimer("shoot", 150);
             },
             false,

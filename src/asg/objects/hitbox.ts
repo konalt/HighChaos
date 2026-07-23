@@ -3,7 +3,7 @@ import { GameObject } from "../../lib/engine/object";
 import { alpha, clamp } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { ASGInGameScene } from "../scenes/ingame";
-import { PLAYER_HITBOX_RAD } from "./player";
+import { PLAYER_HITBOX_RAD } from "../config";
 
 const FADE_SPEED = 20;
 

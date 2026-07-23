@@ -3,6 +3,8 @@ import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
 import { ASGLayer } from "../layers";
+import { ASGScrollingBackground } from "../objects/bg/scrolling_bg";
+import { ASGBullet } from "../objects/bullet";
 import { ASGEnemy } from "../objects/enemy";
 import { ASGHitbox } from "../objects/hitbox";
 import { ASGPlayer } from "../objects/player";
@@ -11,11 +13,12 @@ export class ASGInGameScene extends Scene {
     player: ASGPlayer;
     hitbox: ASGHitbox;
 
+    bullets: ASGBullet[];
+
     constructor() {
         super();
 
-        let bg = new Background();
-        bg.color = "#001";
+        let bg = new ASGScrollingBackground("asg/bg/pa_scary.png");
         this.add(bg, ASGLayer.BG);
 
         this.player = new ASGPlayer();
@@ -23,6 +26,8 @@ export class ASGInGameScene extends Scene {
 
         this.hitbox = new ASGHitbox();
         this.add(this.hitbox, ASGLayer.HITBOX);
+
+        this.bullets = [];
 
         const r = new HCRect();
         r.x = -10;
@@ -41,6 +46,11 @@ export class ASGInGameScene extends Scene {
     private _updateCamera() {
         this.camera.x = this.player.x;
         this.camera.y = this.player.y;
+    }
+
+    addBullet(b: ASGBullet) {
+        this.add(b, ASGLayer.BULLET);
+        this.bullets.push(b);
     }
 
     update(): void {

@@ -27,6 +27,10 @@ export class ASGBullet extends GameObject {
     type: BulletType = BulletType.BallSmall;
     isPlayerBullet = false;
 
+    // collision stuff
+    grazed = false;
+    hitboxRadius = 0;
+
     scale = 0;
 
     constructor() {
@@ -49,6 +53,9 @@ export class ASGBullet extends GameObject {
         this.y += dyActual * deltaTime;
 
         this.totalDistanceTravelled += (Math.abs(dxActual) + Math.abs(dyActual)) * deltaTime;
+
+        // update hb radius
+        this.hitboxRadius = BULLET_DATA[this.type].hitboxRadius * this.scale;
 
         // out of bounds check
         if (this.totalDistanceTravelled > 1e4) {
