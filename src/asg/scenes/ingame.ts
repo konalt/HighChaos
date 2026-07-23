@@ -49,6 +49,7 @@ export class ASGInGameScene extends Scene {
         // disable mouse cursor
         setCursorMode(CursorMode.None);
 
-        this._updateCamera();
+        // * removed - i dont like it anymore
+        //this._updateCamera();
     }
 }
