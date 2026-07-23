@@ -15,7 +15,7 @@ import {
 } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { Scene } from "../../lib/engine/scene";
-import { getAngle, grey, lerp, ThreeNums } from "../../lib/engine/utils";
+import { clamp, getAngle, grey, lerp, ThreeNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import {
     PLAYER_SPEED_FOCUS_MULT,
@@ -72,6 +72,9 @@ export class ASGPlayer extends GameObject {
 
         this.x += dx * PLAYER_SPEED_BASE * deltaTime;
         this.y += dy * PLAYER_SPEED_BASE * deltaTime;
+
+        this.x = clamp(this.x, 30, w - 30);
+        this.y = clamp(this.y, 30, h - 30);
     }
 
     private _handleCollisions() {

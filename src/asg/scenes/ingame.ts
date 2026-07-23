@@ -1,4 +1,4 @@
-import { CursorMode, setCursorMode } from "../../lib/engine/engine";
+import { CursorMode, h, setCursorMode, w } from "../../lib/engine/engine";
 import { Scene, UI_LAYER } from "../../lib/engine/scene";
 import { Background } from "../../lib/ui/background/background";
 import { HCRect } from "../../lib/ui/hcrect";
@@ -22,6 +22,8 @@ export class ASGInGameScene extends Scene {
         this.add(bg, ASGLayer.BG);
 
         this.player = new ASGPlayer();
+        this.player.x = w / 2;
+        this.player.y = h - 100;
         this.add(this.player, ASGLayer.PLAYER);
 
         this.hitbox = new ASGHitbox();
@@ -29,16 +31,9 @@ export class ASGInGameScene extends Scene {
 
         this.bullets = [];
 
-        const r = new HCRect();
-        r.x = -10;
-        r.y = -10;
-        r.w = 500;
-        r.h = 10;
-        this.add(r);
-
         const e = new ASGEnemy();
-        e.x = 200;
-        e.y = 200;
+        e.x = w / 2;
+        e.y = 100;
         this.add(e, ASGLayer.ENEMY);
     }
 
