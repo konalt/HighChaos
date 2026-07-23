@@ -1,6 +1,6 @@
-import { ctx, deltaTime, loadImage } from "../../lib/engine/engine";
+import { ctx, deltaTime, h, loadImage, w } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
-import { getAngle, TwoNums, valueInRange } from "../../lib/engine/utils";
+import { basicPointInRect, getAngle, TwoNums, valueInRange } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { BULLET_DATA, BulletType } from "../bullettypes";
 import { ASGInGameScene } from "../scenes/ingame";
@@ -58,7 +58,7 @@ export class ASGBullet extends GameObject {
         this.hitboxRadius = BULLET_DATA[this.type].hitboxRadius * this.scale;
 
         // out of bounds check
-        if (this.totalDistanceTravelled > 1e4) {
+        if (this.totalDistanceTravelled > 1e4 && !basicPointInRect(this.x, this.y, -100, -100, w + 200, h + 200)) {
             this.enabled = false;
             this.scene.remove(this);
         }
