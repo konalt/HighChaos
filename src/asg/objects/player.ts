@@ -84,11 +84,8 @@ export class ASGPlayer extends GameObject {
             // grazing
             if (circlesIntersect(...bulletCirc, this.x, this.y, PLAYER_GRAZE_RADIUS)) {
                 if (!b.grazed) {
-                    console.log("grazed!");
+                    playSound("asg_graze", 0.5);
 
-                    playSound("asg_graze");
-
-                    // graze happened
                     b.grazed = true;
 
                     this.objStartTimer("graze", GRAZE_EFFECT_DURATION);
@@ -126,7 +123,14 @@ export class ASGPlayer extends GameObject {
         );
 
         if (this.showGrazeIndicator) {
-            d.circ(0, 0, PLAYER_GRAZE_RADIUS, "transparent", grey(lerp(this.objTimer("graze", true), 1, 0.5)), 1);
+            d.circ(
+                0,
+                0,
+                PLAYER_GRAZE_RADIUS,
+                "transparent",
+                `rgba(255,255,255,${lerp(this.objTimer("graze", true), 1, 0.2)}`,
+                1,
+            );
         }
 
         // return canvas to normalcy
