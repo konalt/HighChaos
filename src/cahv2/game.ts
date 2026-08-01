@@ -10,4 +10,5 @@ export let currentPlayer: CAHPlayer;
 
 export function setPlayer(ply: CAHPlayer) {
     currentPlayer = ply;
+    console.log(ply);
 }
