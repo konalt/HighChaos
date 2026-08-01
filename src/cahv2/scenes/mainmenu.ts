@@ -10,7 +10,7 @@ import { CAHMenuTitle } from "../objects/ui/menutitle";
 import { CAHMenuBaseScene } from "./menubase";
 import { API_URL } from "../utils";
 import { CAHGame, deserializeGame } from "../types";
-import { setGame } from "../game";
+import { setGame, setPlayer } from "../game";
 import { CAHInGameBaseScene } from "./ingamebase";
 import { HCButton } from "../../lib/ui/hcbutton";
 import { CAHSettingsButton } from "../objects/ui/settingsbtn";
@@ -224,6 +224,11 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
                         return;
                     }
                     const game = deserializeGame(responseData);
+
+                    const p = game.players.get(socket.id ?? "");
+                    if (!p) throw "what the FUCK";
+
+                    setPlayer(p);
                     setGame(game);
                     this._toLobby();
                     resolve(game);
@@ -250,6 +255,11 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
                     return;
                 }
                 const game = deserializeGame(responseData);
+
+                const p = game.players.get(socket.id ?? "");
+                if (!p) throw "what the FUCK";
+
+                setPlayer(p);
                 setGame(game);
                 this._toLobby();
                 resolve(game);
