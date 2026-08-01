@@ -8,6 +8,7 @@ import { ASGBullet } from "../objects/bullet";
 import { ASGEnemy } from "../objects/enemy";
 import { ASGHitbox } from "../objects/hitbox";
 import { ASGPlayer } from "../objects/player";
+import { BPBulletFlower } from "../patterns/bulletflower";
 
 export class ASGInGameScene extends Scene {
     player: ASGPlayer;
@@ -31,7 +32,7 @@ export class ASGInGameScene extends Scene {
 
         this.bullets = [];
 
-        const e = new ASGEnemy();
+        const e = new ASGEnemy(new BPBulletFlower());
         e.x = w / 2;
         e.y = 100;
         this.add(e, ASGLayer.ENEMY);

@@ -15,7 +15,7 @@ import {
 } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
 import { Scene } from "../../lib/engine/scene";
-import { clamp, getAngle, grey, lerp, ThreeNums } from "../../lib/engine/utils";
+import { basicPointInRect, clamp, getAngle, grey, lerp, rectIntersect, ThreeNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import {
     PLAYER_SPEED_FOCUS_MULT,
@@ -50,6 +50,12 @@ export class ASGPlayer extends GameObject {
         super();
     }
 
+    private _filterBullets() {
+        if (!(this.scene instanceof ASGInGameScene)) throw "fuck you";
+
+        return this.scene.bullets.filter((b) => basicPointInRect(b.x, b.y, this.x - 200, this.y - 200, 400, 400));
+    }
+
     private _updateLook() {
         // Update where the player is looking based on mouse
         const m = getMouse();
@@ -81,7 +87,7 @@ export class ASGPlayer extends GameObject {
         if (!(this.scene instanceof ASGInGameScene)) throw "fuck you";
 
         this.showGrazeIndicator = false;
-        for (const b of this.scene.bullets) {
+        for (const b of this._filterBullets()) {
             const bulletCirc: ThreeNums = [b.x, b.y, b.hitboxRadius];
 
             // grazing

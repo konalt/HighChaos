@@ -5,6 +5,7 @@ import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { basicShootBullet, bulletArc } from "../bullets";
 import { BulletType } from "../bullettypes";
 import { ENEMY_SPRITE_SIZE } from "../config";
+import { ASGBulletPattern, createContext as createBPContext } from "../patterns/base";
 import { ASGInGameScene } from "../scenes/ingame";
 
 // store sprite here so we dont have to waste memory on it
@@ -20,8 +21,11 @@ export class ASGEnemy extends GameObject {
 
     rotateSpeed = 5;
 
-    constructor() {
+    pattern: ASGBulletPattern;
+
+    constructor(p: ASGBulletPattern) {
         super();
+        this.pattern = p;
     }
 
     // update looking shit
@@ -54,22 +58,7 @@ export class ASGEnemy extends GameObject {
         this.targetY = this.scene.player.y;
         this._updateLook();
 
-        this.objTimerEnd(
-            "shoot",
-            () => {
-                bulletArc(
-                    {
-                        angularVelocity: -0.1,
-                    },
-                    [this.x, this.y],
-                    12,
-                    0,
-                    globalTimer * 0.001,
-                );
-                this.objStartTimer("shoot", 150);
-            },
-            false,
-        );
+        this.pattern.externalUpdate(createBPContext(this));
     }
 
     draw() {
@@ -94,6 +83,6 @@ export class ASGEnemy extends GameObject {
     }
 
     init() {
-        this.objStartTimer("shoot", 200);
+        this.pattern.externalStart(createBPContext(this));
     }
 }
