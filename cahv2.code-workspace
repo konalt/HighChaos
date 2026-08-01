@@ -1,0 +1,13 @@
+{
+    "folders": [
+		{
+			"name": "cahv2-server",
+			"path": "../servers/Custom/cahv2-server"
+		},
+		{
+			"name": "HighChaos",
+			"path": "."
+		}
+	],
+    "settings": {}
+}

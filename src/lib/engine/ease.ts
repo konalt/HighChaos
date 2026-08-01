@@ -33,3 +33,12 @@ export function easeInOutCirc(x: number): number {
     if (!settings.easing) return x;
     return x < 0.5 ? (1 - Math.sqrt(1 - Math.pow(2 * x, 2))) / 2 : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2;
 }
+
+export function easeInOutBack(x: number, c1 = 1.70158, c2m = 1.525) {
+    if (!settings.easing) return x;
+    const c2 = c1 * c2m;
+
+    return x < 0.5
+        ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+        : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+}

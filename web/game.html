@@ -33,6 +33,13 @@
         <script>
             window.hcGameID = "%game%";
         </script>
+        <script type="importmap">
+            {
+                "imports": {
+                    "socket.io-client": "/node_modules/socket.io-client/dist/socket.io.esm.min.js"
+                }
+            }
+        </script>
     </head>
     <body>
         <canvas id="canvas" data-real="yes"></canvas>

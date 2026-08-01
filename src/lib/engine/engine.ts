@@ -73,6 +73,9 @@ export function onResize() {
     ctxMain.scale(canvasMain.height / height, canvasMain.height / height);
 
     screenTransform = ctxMain.getTransform();
+
+    mouseX *= canvasMain.height / height;
+    mouseY *= canvasMain.height / height;
 }
 
 export function sz(size: number) {
@@ -453,11 +456,13 @@ export function setFont(newFont: string) {
 export let globalTimer = 0;
 let timers: Record<string, [number, number, boolean]> = {};
 export function startTimer(name: string, duration: number, inverse = false) {
-    log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
+    //log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
     timers[name] = [globalTimer, duration, inverse];
 }
 export function timer(name: string, clamp = true) {
-    if (!timers[name]) return 0;
+    if (!timers[name]) {
+        return 0;
+    }
     let thisTimer = timers[name];
     let t = (globalTimer - thisTimer[0]) / thisTimer[1];
     if (thisTimer[2]) t = 1 - t;
@@ -469,14 +474,14 @@ export function timerEnd(name: string, cb = () => {}, remove = true) {
     let thisTimer = timers[name];
     let ended = globalTimer - thisTimer[0] >= thisTimer[1];
     if (ended) {
-        log("timers", `Timer ended: ${name}`);
         cb();
+        //log("timers", `Timer ended: ${name}`);
         if (remove) delete timers[name];
     }
     return ended;
 }
 export function removeTimer(name: string) {
-    delete timers[name];
+    if (timers[name]) delete timers[name];
 }
 //#endregion
 
@@ -854,7 +859,7 @@ export const d = {
 
 //#region typing shit
 export type TypeEvent = (text: string) => void;
-export type TypeCheckEvent = (text: string) => boolean;
+export type TypeCheckEvent = (text: string) => string | boolean;
 let typing = false;
 let typingId = "";
 let typingKeys: string[] = [];
@@ -1000,8 +1005,13 @@ function handleTyping() {
 
             if (typeEvent) {
                 let e = typeEvent(text);
-                if (e) {
-                    typingTexts[id] = text;
+                if (typeof e == "boolean") {
+                    if (e) {
+                        typingTexts[id] = text;
+                        typingCursorPositions[id] = cursor;
+                    }
+                } else {
+                    typingTexts[id] = e;
                     typingCursorPositions[id] = cursor;
                 }
             } else {
@@ -1013,10 +1023,11 @@ function handleTyping() {
 }
 //#endregion
 
-export function wrap(text: string, width: number) {
+export function wrap(text: string, width: number, fontOverride = "") {
     function txtW(txt: string) {
         return ctx.measureText(txt).width;
     }
+    if (fontOverride != "") ctx.font = fontOverride;
     let lines = [];
     let curLine: string[] = [];
 
