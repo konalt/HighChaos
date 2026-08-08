@@ -1,3 +1,4 @@
+import { NULLTEXTURE } from "../ui/hcimage";
 import { SceneCamera } from "./camera";
 import { FadeDuration } from "./constants";
 import { log } from "./log";
@@ -360,6 +361,12 @@ export function getMouse(screenSpace = false): TwoNums {
         return zoomed;
     }
 }
+export function transformPoint(point: TwoNums, transform: DOMMatrix): TwoNums {
+    const p = new DOMPoint(...point);
+    const t = p.matrixTransform(transform);
+
+    return [t.x, t.y];
+}
 export function forceKeyDown(code: string) {
     justPressed.push(code);
     heldKeys.push(code);
@@ -496,6 +503,7 @@ export enum CursorMode {
     ResizeNESW,
     ResizeNWSE,
     Text,
+    None,
 }
 export function setCursorMode(mode: CursorMode) {
     switch (mode) {
@@ -526,6 +534,9 @@ export function setCursorMode(mode: CursorMode) {
         case CursorMode.Text:
             canvas.style.cursor = "text";
             break;
+        case CursorMode.None:
+            canvas.style.cursor = "none";
+            break;
     }
 }
 //#endregion
@@ -536,6 +547,10 @@ export async function loadImage(url: string) {
         const img = new Image();
         img.onload = () => {
             resolve(img);
+        };
+        img.onerror = (e) => {
+            console.error(`Error while loading image ${url}`, e);
+            resolve(NULLTEXTURE);
         };
         img.src = `/assets/img/${url}`;
     });
@@ -600,7 +615,7 @@ export function setGlobalVolume(newVolume: number) {
 export let deltaTime = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
-const fpscc = 30;
+const fpscc = 5;
 let targetFramerate = 1000;
 export function setTargetFramerate(fps: number) {
     targetFramerate = fps;
