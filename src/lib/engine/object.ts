@@ -12,6 +12,7 @@ export class GameObject {
     visible: boolean;
     uuid: string;
     spawnTime: number;
+    user: Record<string, any> = {};
 
     constructor() {
         this.x = 0;

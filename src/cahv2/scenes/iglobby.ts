@@ -1,16 +1,20 @@
-import { h, w } from "../../lib/engine/engine";
+import { easeOutQuad } from "../../lib/engine/ease";
+import { h, setScene, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
+import { lerp } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
 import { CAHButton } from "../objects/ui/cahbtn";
+import { Particle } from "../objects/ui/ingamebackground";
 import { CAHLobbyCodeDisplay } from "../objects/ui/lobbycodedisplay";
+import { CAHIGPlayState } from "./igplay";
 import { CAHInGameBaseScene } from "./ingamebase";
 
 export class CAHIGLobbyState extends CAHInGameBaseScene {
     codeDisplay: CAHLobbyCodeDisplay;
     startButton: CAHButton;
 
-    constructor() {
-        super();
+    constructor(bgp: Particle[]) {
+        super(bgp);
 
         this.codeDisplay = new CAHLobbyCodeDisplay();
         this.codeDisplay.y = 200;
@@ -27,14 +31,20 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
         this.startButton.y = h - 20;
         this.startButton.disabled = true;
         this.startButton.enabled = currentPlayer.isHost;
+        this.startButton.onClick = () => {
+            this.finish(new CAHIGPlayState(this.background.particles));
+        };
         this.add(this.startButton, UI_LAYER);
     }
 
     update(): void {
         this.codeDisplay.x = this.centerLine;
+        this.codeDisplay.y = this.tlerp(-200, 200);
+        this.startButton.x = this.tlerp(w + 400, w - 20);
 
         // only enable start button if there are enough players
-        this.startButton.disabled = currentGame.players.size < 2;
+        //this.startButton.disabled = currentGame.players.size < 2;
+        this.startButton.disabled = false;
 
         super.update();
     }

@@ -3,7 +3,7 @@ import { GameObject } from "../../../lib/engine/object";
 import { TwoNums } from "../../../lib/engine/utils";
 import { COLOR } from "../../color";
 
-interface Particle {
+export interface Particle {
     x: number;
     y: number;
     z: number;
@@ -20,17 +20,20 @@ const Margin = 50;
 const Background = "#110e13";
 
 export class CAHInGameBackground extends GameObject {
-    private _particles: Particle[] = [];
+    particles: Particle[] = [];
     private _grad: CanvasGradient;
 
-    constructor() {
+    constructor(particles: Particle[] = []) {
         super();
 
         this._grad = this._createGradient();
+        this.particles = particles;
     }
 
     init() {
-        this._populate();
+        if (this.particles.length == 0) {
+            this._populate();
+        }
     }
 
     private _createGradient() {
@@ -44,11 +47,11 @@ export class CAHInGameBackground extends GameObject {
     }
 
     private _populate() {
-        this._particles = [];
+        this.particles = [];
         for (let i = 0; i < ParticleCount; i++) {
             const pos = this._randomIBCoords();
             const dv = this._randomDVector();
-            this._particles.push({
+            this.particles.push({
                 x: pos[0],
                 y: pos[1],
                 z: (Math.random() + 0.2) * 0.8,
@@ -116,7 +119,7 @@ export class CAHInGameBackground extends GameObject {
     }
 
     update() {
-        for (const p of this._particles) {
+        for (const p of this.particles) {
             this._updateParticle(p);
         }
     }
@@ -128,7 +131,7 @@ export class CAHInGameBackground extends GameObject {
         d.rect(-w, -h, w * 2, h * 2, this._grad);
         ctx.restore();
 
-        for (const p of this._particles) {
+        for (const p of this.particles) {
             this._drawParticle(p);
         }
     }
