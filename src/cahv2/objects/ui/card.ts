@@ -22,16 +22,16 @@ import { GameObject } from "../../../lib/engine/object";
 import { basicPointInRect, clamp } from "../../../lib/engine/utils";
 import { COLOR } from "../../color";
 
-const CardWidth = 330;
-const CardHeight = 450;
-const CardRadius = 10;
-const CardMargin = 20;
-const CardOutline = 5;
-const CardFontSize = 30;
-const CardBackFontSize = 56;
-const CardFontWeight = 700;
-const CardBackFontWeight = 800;
-const CardFlipDuration = 300;
+export const CardWidth = 330;
+export const CardHeight = 450;
+export const CardRadius = 10;
+export const CardMargin = 20;
+export const CardOutline = 5;
+export const CardFontSize = 30;
+export const CardBackFontSize = 56;
+export const CardFontWeight = 700;
+export const CardBackFontWeight = 800;
+export const CardFlipDuration = 300;
 
 export class CAHCard extends GameObject {
     // le cache
@@ -39,7 +39,7 @@ export class CAHCard extends GameObject {
 
     // hovering stuff
     private _hovered = false;
-    private _hoverTransition = 0;
+    _hoverTransition = 0;
     private _clicked = false;
     hoverAnimationSpeed = 20;
 
