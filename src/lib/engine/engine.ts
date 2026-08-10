@@ -5,6 +5,14 @@ import { log } from "./log";
 import { Scene } from "./scene";
 import { Anchor, anchorToCoords, basicPointInRect, TwoNums } from "./utils";
 
+declare global {
+    interface Window {
+        hc: Record<string, any>;
+    }
+}
+
+window.hc = {};
+
 let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
 
@@ -343,8 +351,10 @@ function handleKeyUp(event: KeyboardEvent) {
 }
 let mouseX = 0;
 let mouseY = 0;
+let mouseConsumed = false;
 let screenTransform: DOMMatrix | undefined;
 export function getMouse(screenSpace = false): TwoNums {
+    //if (mouseConsumed) return [-Infinity, -Infinity];
     if (screenSpace) {
         if (!screenTransform) return [0, 0];
         const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
@@ -360,6 +370,12 @@ export function getMouse(screenSpace = false): TwoNums {
         zoomed = [zoomed[0] + w / 2, zoomed[1] + h / 2]; // put it back
         return zoomed;
     }
+}
+export function consumeMouse() {
+    mouseConsumed = true;
+}
+export function canHover() {
+    return !mouseConsumed;
 }
 export function transformPoint(point: TwoNums, transform: DOMMatrix): TwoNums {
     const p = new DOMPoint(...point);
@@ -461,6 +477,8 @@ export function setFont(newFont: string) {
 
 //#region timers
 export let globalTimer = 0;
+let globalTimerOffset = 0;
+let tsChangeTime = 0;
 let timers: Record<string, [number, number, boolean]> = {};
 export function startTimer(name: string, duration: number, inverse = false) {
     //log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
@@ -613,6 +631,7 @@ export function setGlobalVolume(newVolume: number) {
 
 //#region drawing shit
 export let deltaTime = 1;
+let timeScale = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
 const fpscc = 5;
@@ -627,8 +646,17 @@ function calculateFPS() {
     if (fpsc.length > fpscc) fpsc.shift();
     deltaTime = (thisLoop - lastLoop) / targetFramerate;
     if (deltaTime > 2) deltaTime = 2;
+    deltaTime *= timeScale;
     lastLoop = thisLoop;
 }
+
+export function setTimeScale(n: number) {
+    globalTimerOffset = globalTimer;
+    tsChangeTime = performance.now();
+    timeScale = n;
+}
+
+window.hc.setTimeScale = setTimeScale;
 
 /**
  * Must be called after calculateFPS()
@@ -726,13 +754,14 @@ function drawDebugInfo() {
 }
 
 function draw() {
-    globalTimer = performance.now();
+    globalTimer = globalTimerOffset + (performance.now() - tsChangeTime) * timeScale;
     try {
         if (!currentScene) {
             if (isLoadingScene) {
                 justPressed = [];
                 justReleased = [];
                 typingKeys = [];
+                mouseConsumed = false;
                 requestAnimationFrame(draw);
                 ctx.clearRect(0, 0, w, h);
                 text(w / 2, h / 2, "Loading...", "white", font(46), "center");
@@ -746,6 +775,7 @@ function draw() {
             justPressed = [];
             justReleased = [];
             typingKeys = [];
+            mouseConsumed = false;
             requestAnimationFrame(draw);
             return;
         }
@@ -802,6 +832,7 @@ function draw() {
     justPressed = [];
     justReleased = [];
     typingKeys = [];
+    mouseConsumed = false;
     requestAnimationFrame(draw);
 }
 //#endregion
