@@ -1,6 +1,8 @@
 import { easeOutQuad } from "../../../lib/engine/ease";
 import {
+    canHover,
     canvas,
+    consumeMouse,
     ctx,
     CursorMode,
     d,
@@ -19,7 +21,7 @@ import {
     wrap,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { basicPointInRect, clamp } from "../../../lib/engine/utils";
+import { basicPointInRect, clamp, debugDrawUnrotatedPoint } from "../../../lib/engine/utils";
 import { COLOR } from "../../color";
 
 export const CardWidth = 330;
@@ -38,14 +40,17 @@ export class CAHCard extends GameObject {
     private cache: ImageBitmap | null = null;
 
     // hovering stuff
-    private _hovered = false;
+    _hovered = false;
+    _lastHovered = false;
     _hoverTransition = 0;
-    private _clicked = false;
+    _clicked = false;
     hoverAnimationSpeed = 20;
 
     // clicking stuff
     clickable = true;
     onClick: () => void = () => {};
+    onMouseEnter: () => void = () => {};
+    onMouseLeave: () => void = () => {};
 
     // things that would require updates / rerenders
     private _isWhite = false;
@@ -59,15 +64,20 @@ export class CAHCard extends GameObject {
     private _bh = 0;
 
     // oh flip! math!
-    private _flip = 0;
-    private _isFlipping = false;
-    private _flipOrigin = 0;
-    private _flipScaleFactor = 0;
+    _flip = 0;
+    _isFlipping = false;
+    _flipOrigin = 0;
+    _flipScaleFactor = 0;
+
+    flipScalesBoundingBox = false;
 
     // scaling
     private _scale = 1; // final scale w/ everything taken into account
     hoverScaleAmount = 0.05; // how much to change da scale when hovered
     scale = 1; // global scale to modify
+
+    // rotation
+    rotation = 0;
 
     constructor() {
         super();
@@ -151,7 +161,10 @@ export class CAHCard extends GameObject {
 
     private recalculateBoundingBox() {
         // calculate bounding box
-        this._bw = CardWidth * this._scale * this._flipScaleFactor;
+        this._bw = CardWidth * this._scale;
+        if (this.flipScalesBoundingBox) {
+            this._bw *= this._flipScaleFactor;
+        }
         this._bh = CardHeight * this._scale;
         this._bx = this.x - this._bw / 2;
         this._by = this.y - this._bh / 2;
@@ -176,29 +189,44 @@ export class CAHCard extends GameObject {
         // reset clicked variable - should only be true for 1 frame
         if (this._clicked) this._clicked = false;
 
-        // check if mouse is hovering over button
-        let mouse = getMouse(true);
-        this._hovered = this.clickable && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
+        if (this.clickable) {
+            // check if mouse is hovering over button
+            let mouse = getMouse(false);
+            this._hovered =
+                basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh, this.rotation) && canHover();
 
-        if (this._hovered) {
-            // hovering - advance hover animation
-            this._hoverTransition += this.hoverAnimationSpeed * deltaTime;
+            if (this._hovered) {
+                if (!this._lastHovered) {
+                    this.onMouseEnter();
+                }
 
-            // set the cursor mode
-            setCursorMode(CursorMode.Click);
+                consumeMouse();
 
-            // handle clicking
-            if (getKeyDown("mouse1")) {
-                this.onClick();
-                this._clicked = true;
+                // hovering - advance hover animation
+                this._hoverTransition += this.hoverAnimationSpeed * deltaTime;
+
+                // set the cursor mode
+                setCursorMode(CursorMode.Click);
+
+                // handle clicking
+                if (getKeyDown("mouse1")) {
+                    this.onClick();
+                    this._clicked = true;
+                }
+            } else {
+                if (this._lastHovered) {
+                    this.onMouseLeave();
+                }
+                // not hovered - reverse hover anim
+                this._hoverTransition -= this.hoverAnimationSpeed * deltaTime;
             }
-        } else {
-            // not hovered - reverse hover anim
-            this._hoverTransition -= this.hoverAnimationSpeed * deltaTime;
-        }
 
-        // clamp that shit
-        this._hoverTransition = clamp(this._hoverTransition);
+            // clamp that shit
+            this._hoverTransition = clamp(this._hoverTransition);
+
+            // store last hover state
+            this._lastHovered = this._hovered;
+        }
 
         // apply a scaling thing
         this._scale = this.scale * (1 + this._hoverTransition * this.hoverScaleAmount);
@@ -208,6 +236,7 @@ export class CAHCard extends GameObject {
         // setup
         ctx.save();
         ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
         ctx.scale(this._scale * this._flipScaleFactor, this._scale);
 
         // safety - if there is no cached image, draw a scary rectangle instead
@@ -231,15 +260,22 @@ export class CAHCard extends GameObject {
             ctx.strokeRect(-CardWidth / 2, -CardHeight / 2, CardWidth, CardHeight);
         }
 
-        // return to normalcy
-        ctx.restore();
-
         // debug
         if (debugMode) {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 1;
-            ctx.strokeRect(this._bx, this._by, this._bw, this._bh);
+            ctx.strokeRect(
+                -this._bw / 2 / this._scale,
+                -this._bh / 2 / this._scale,
+                this._bw / this._scale,
+                this._bh / this._scale,
+            );
+
+            //debugDrawUnrotatedPoint(...getMouse(), this._bx, this._by, this._bw, this._bh, this.rotation);
         }
+
+        // return to normalcy
+        ctx.restore();
     }
 
     flip(duration = CardFlipDuration) {
