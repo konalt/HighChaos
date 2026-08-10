@@ -64,6 +64,8 @@ export class CAHBetterBackground extends GameObject {
     }
 
     draw() {
+        if (this._rows.length == 0) return;
+
         ctx.save();
 
         const offset = (globalTimer * this.scrollSpeed) % this._rows[0].width;
