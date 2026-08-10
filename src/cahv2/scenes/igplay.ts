@@ -1,25 +1,35 @@
+import { d } from "../../lib/engine/engine";
+import { Layer } from "../../lib/engine/layer";
 import { UI_LAYER } from "../../lib/engine/scene";
-import { randint } from "../../lib/engine/utils";
+import { randint, sample } from "../../lib/engine/utils";
 import { currentPlayer } from "../game";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
+import { whiteCardReplace } from "../utils";
 import { CAHInGameBaseScene } from "./ingamebase";
 
 const BigCardGap = 850;
 const BigCardScale = 1.15;
 
-const CardScale = 0.6;
-const CardGap = -100;
-const CardHoverGap = 50;
+const CardScale = 0.85;
+const CardGap = -200;
+const CardHoverGap = 0.6;
 const CardY = 1080 - 60 - (CardScale / 2) * CardHeight;
+const CardLayerID = UI_LAYER + 3;
+const CardHighlightLayerID = UI_LAYER + 4;
+const HandRadius = 1400;
+const HandY = 2300;
 
 export class CAHIGPlayState extends CAHInGameBaseScene {
     // 👀
     bigBlackCard: CAHCard;
     playableCards: CAHCard[];
+    highlightPlayableCard: CAHCard;
 
     constructor(bgp: Particle[]) {
         super(bgp);
+
+        this.reverseUpdate = true;
 
         this.bigBlackCard = new CAHCard();
         this.bigBlackCard.text = "Bitches said I was testing the UI, I was actually ______.";
@@ -27,8 +37,24 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.bigBlackCard.clickable = false;
         this.add(this.bigBlackCard, UI_LAYER + 2);
 
+        // add custom card layer
+        const cardLayer = this.addLayer(CardLayerID);
+        cardLayer.reverseUpdate = true;
+
         this.playableCards = [];
-        this._initCards("abcdefg".split(""));
+        this._initCards(new Array(7).fill("").map((_) => whiteCardReplace(sample(window.cardsWhite))));
+
+        const cardHighlightLayer = this.addLayer(CardHighlightLayerID);
+        cardHighlightLayer.reverseUpdate = true;
+
+        this.highlightPlayableCard = new CAHCard();
+        this.highlightPlayableCard.text = "?";
+        this.highlightPlayableCard.scale = CardScale;
+        this.highlightPlayableCard.isWhite = true;
+        this.highlightPlayableCard.clickable = false;
+        this.highlightPlayableCard.hoverAnimationSpeed = 0;
+        this.highlightPlayableCard.user.reference = null;
+        this.add(this.highlightPlayableCard, CardHighlightLayerID);
     }
 
     private _clearCards() {
@@ -48,25 +74,49 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
             card.onClick = () => {
                 card.flip();
             };
+            card.hoverAnimationSpeed = 15;
             this.playableCards.push(card);
-            this.add(card, UI_LAYER + 2);
+            this.add(card, CardLayerID);
         }
     }
 
     private _updateCards() {
-        let totalWidth = 0;
+        let totalArc = 0;
+        let addArc = 0.1;
+        let hoverArc = 0;
 
         for (const pc of this.playableCards) {
-            pc.x = totalWidth + (CardWidth * pc.scale) / 2;
-            pc.y = CardY;
-
-            const addWidth = CardWidth * pc.scale + CardGap;
-            totalWidth += addWidth;
+            let thisHoverArc = pc._hoverTransition * hoverArc;
+            pc.user.theta = totalArc + addArc + thisHoverArc / 2 - addArc / 2;
+            totalArc += addArc + thisHoverArc;
         }
 
         // loop through AGAIIIIN lolw
+        this.highlightPlayableCard._hoverTransition = 0;
+        this.highlightPlayableCard.visible = false;
         for (const pc of this.playableCards) {
-            pc.x += this.centerLine - totalWidth / 2;
+            let theta = pc.user.theta - totalArc / 2 - Math.PI / 2;
+            let rad = HandRadius + pc._hoverTransition * 70;
+            pc.x = Math.cos(theta) * rad + this.centerLine;
+            pc.y = Math.sin(theta) * rad + HandY;
+            pc.rotation = theta + Math.PI / 2;
+
+            if (pc._hovered) {
+                pc.visible = false;
+
+                this.highlightPlayableCard.visible = true;
+                this.highlightPlayableCard.text = pc.text;
+                this.highlightPlayableCard.x = pc.x;
+                this.highlightPlayableCard.y = pc.y;
+                this.highlightPlayableCard.scale = pc.scale;
+                this.highlightPlayableCard.rotation = pc.rotation;
+                this.highlightPlayableCard._hovered = pc._hovered;
+                this.highlightPlayableCard._hoverTransition = pc._hoverTransition;
+                this.highlightPlayableCard.setFlip(pc._flip);
+                this.highlightPlayableCard.user.reference = pc;
+            } else {
+                pc.visible = true;
+            }
         }
     }
 
@@ -77,5 +127,11 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.bigBlackCard.y = this.tlerp(-400, 340);
 
         this._updateCards();
+    }
+
+    draw() {
+        super.draw();
+
+        //d.circ(this.centerLine, HandY, HandRadius, "transparent", "red", 2);
     }
 }
