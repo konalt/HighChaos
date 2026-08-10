@@ -174,7 +174,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
     private async _toLobby() {
         // TRANSITION TO LOBBY STATE
-        this.transitionToScene(new CAHIGLobbyState());
+        this.transitionToScene(new CAHIGLobbyState([]));
     }
 
     private async _checkGameCode(code: string) {
