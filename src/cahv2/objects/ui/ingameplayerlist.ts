@@ -1,5 +1,5 @@
 import { easeOutCirc } from "../../../lib/engine/ease";
-import { ctx, font, h, timer, timerEnd } from "../../../lib/engine/engine";
+import { addToAtlas, ctx, font, h, timer, timerEnd } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
@@ -56,7 +56,9 @@ export class CAHInGamePlayerList extends GameObject {
         ctx.fillStyle = "white";
         ctx.fillText("Players", textX, textY, Width);
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     private _crown(): Path2D {
@@ -176,7 +178,9 @@ export class CAHInGamePlayerList extends GameObject {
             ctx.restore();
         }
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     private _createPath() {

@@ -1,4 +1,4 @@
-import { ctx, d, getMouse, globalTimer, h, w } from "../../../lib/engine/engine";
+import { addToAtlas, ctx, d, getMouse, globalTimer, h, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { sample } from "../../../lib/engine/utils";
 import { blackCardReplace, whiteCardReplace } from "../../utils";
@@ -59,6 +59,8 @@ export class CAHBetterBackground extends GameObject {
         ctx.restore();
 
         const final = canvas.transferToImageBitmap();
+
+        addToAtlas(final);
 
         return final;
     }

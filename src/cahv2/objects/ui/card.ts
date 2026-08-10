@@ -1,5 +1,6 @@
 import { easeOutQuad } from "../../../lib/engine/ease";
 import {
+    addToAtlas,
     canHover,
     canvas,
     consumeMouse,
@@ -142,7 +143,9 @@ export class CAHCard extends GameObject {
         // Cleanup
         ctx.restore();
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     async createCache() {

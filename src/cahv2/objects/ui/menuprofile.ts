@@ -1,4 +1,4 @@
-import { ctx, font } from "../../../lib/engine/engine";
+import { addToAtlas, ctx, font } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { lerp } from "../../../lib/engine/utils";
 import { Clickable } from "../../../lib/ui/clickable";
@@ -80,6 +80,8 @@ export class CAHMenuProfile extends Clickable {
         ctx.strokeStyle = "white";
         ctx.stroke();
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 }

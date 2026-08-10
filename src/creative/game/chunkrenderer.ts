@@ -1,4 +1,14 @@
-import { canvas, ctx, currentScene, getCanvas, h, loadImageAbsolute, useCanvas, w } from "../../lib/engine/engine";
+import {
+    addToAtlas,
+    canvas,
+    ctx,
+    currentScene,
+    getCanvas,
+    h,
+    loadImageAbsolute,
+    useCanvas,
+    w,
+} from "../../lib/engine/engine";
 import { intList, sample, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { drawBlockRaw } from "../objects/world";
@@ -42,7 +52,9 @@ export async function cacheChunk(chunk: Chunk) {
 
     rendererCache.set(`${chunk.x},${chunk.y}`, c);
 
-    return c;
+    const img = c.transferToImageBitmap();
+    addToAtlas(img, `${chunk.x},${chunk.y}`);
+    return img;
 }
 
 export function isInRenderDistance(cx: number, cy: number) {

@@ -1,3 +1,5 @@
+import { addToAtlas } from "../lib/engine/engine";
+
 export function blackCardReplace(text: string, replacements: string[] = []) {
     let noAsterisks = text.replace(/\*/g, "");
     let replaced = noAsterisks.replace(/%%%/g, (_, i) => {
@@ -46,7 +48,9 @@ export function generateEmptyAvatar() {
     ctx.fillStyle = "#555";
     ctx.fill();
 
-    return canvas.transferToImageBitmap();
+    const img = canvas.transferToImageBitmap();
+    addToAtlas(img, "emptyavatar");
+    return img;
 }
 
 export const IDBName = "CAHV2";

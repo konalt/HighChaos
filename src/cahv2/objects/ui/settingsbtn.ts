@@ -1,4 +1,4 @@
-import { ctx, debugMode, deltaTime, font, h, w } from "../../../lib/engine/engine";
+import { addToAtlas, ctx, debugMode, deltaTime, font, h, w } from "../../../lib/engine/engine";
 import { lerp } from "../../../lib/engine/utils";
 import { Clickable } from "../../../lib/ui/clickable";
 
@@ -50,7 +50,9 @@ export class CAHSettingsButton extends Clickable {
         ctx.fillStyle = "white";
         ctx.fillText(t, 5, 5);
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     private _createGear() {

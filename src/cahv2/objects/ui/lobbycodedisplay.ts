@@ -1,4 +1,4 @@
-import { ctx, font, wrap } from "../../../lib/engine/engine";
+import { addToAtlas, ctx, font, wrap } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { COLOR } from "../../color";
 
@@ -49,7 +49,9 @@ export class CAHLobbyCodeDisplay extends GameObject {
         ctx.fillText(this._code, Width / 2, cy);
         cy += ctx.measureText(this._code).fontBoundingBoxDescent;
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     draw() {

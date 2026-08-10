@@ -3,7 +3,8 @@ import { SceneCamera } from "./camera";
 import { FadeDuration } from "./constants";
 import { log } from "./log";
 import { Scene } from "./scene";
-import { Anchor, anchorToCoords, basicPointInRect, TwoNums } from "./utils";
+import { DebugAtlas } from "./scenes/atlas";
+import { Anchor, anchorToCoords, basicPointInRect, TwoNums, uuidv4 } from "./utils";
 
 declare global {
     interface Window {
@@ -560,10 +561,15 @@ export function setCursorMode(mode: CursorMode) {
 //#endregion
 
 //#region Assets
+export const images: Map<string, HTMLImageElement | ImageBitmap> = new Map();
+
 export async function loadImage(url: string) {
+    if (images.get(url)) return images.get(url);
+
     return new Promise<HTMLImageElement>((resolve) => {
         const img = new Image();
         img.onload = () => {
+            images.set(url, img);
             resolve(img);
         };
         img.onerror = (e) => {
@@ -572,6 +578,12 @@ export async function loadImage(url: string) {
         };
         img.src = `/assets/img/${url}`;
     });
+}
+
+export function addToAtlas(img: HTMLImageElement | ImageBitmap, id = "") {
+    if (!id) id = uuidv4();
+
+    images.set(id, img);
 }
 
 export async function loadImageAbsolute(url: string) {
@@ -784,6 +796,9 @@ function draw() {
             debugMode = !debugMode;
             debugCameraFollowsSceneCamera = true;
             localStorage.setItem("debug", Number(debugMode).toString());
+        }
+        if (getKeyDown("F4")) {
+            setScene(new DebugAtlas());
         }
         if (debugMode) {
             handleDebugKeys();
