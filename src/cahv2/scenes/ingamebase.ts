@@ -56,24 +56,26 @@ export class CAHInGameBaseScene extends CAHBaseScene {
 
     draw() {
         super.draw();
+    }
 
-        if (debugMode) {
-            ctx.lineWidth = 2;
+    debugDraw(): void {
+        super.debugDraw();
 
-            ctx.beginPath();
-            ctx.moveTo(this.leftStart, 0);
-            ctx.lineTo(this.leftStart, h);
+        ctx.lineWidth = 2;
 
-            ctx.strokeStyle = "lime";
-            ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(this.leftStart, 0);
+        ctx.lineTo(this.leftStart, h);
 
-            ctx.beginPath();
-            ctx.moveTo(this.centerLine, 0);
-            ctx.lineTo(this.centerLine, h);
+        ctx.strokeStyle = "lime";
+        ctx.stroke();
 
-            ctx.strokeStyle = "blue";
-            ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(this.centerLine, 0);
+        ctx.lineTo(this.centerLine, h);
+
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
     }
 
     async init(a: any) {
