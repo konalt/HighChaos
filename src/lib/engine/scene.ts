@@ -1,12 +1,18 @@
 import { SceneCamera } from "./camera";
-import { ctx, d, debugCamera, debugMode, h, w } from "./engine";
+import { ctx, d, debugCamera, debugMode, getKeyDown, h, w } from "./engine";
+import { Layer, LayerSpace } from "./layer";
 import { GameObject } from "./object";
 
 export const UI_LAYER = 1000;
 
 export class Scene {
-    layers: Map<number, GameObject[]>;
+    layers: Map<number, Layer>;
     camera: SceneCamera;
+    reverseUpdate = false;
+    reverseDraw = false;
+
+    private _sortedLayersUpdate: Layer[] = [];
+    private _sortedLayersDraw: Layer[] = [];
 
     constructor() {
         this.layers = new Map();
@@ -15,73 +21,84 @@ export class Scene {
 
     private _sortLayers() {
         // layers must be sorted for correct drawing order
-        this.layers = new Map(Array.from(this.layers).sort((a, b) => a[0] - b[0]));
+        this._sortedLayersDraw = Array.from(this.layers)
+            .sort((a, b) => (this.reverseDraw ? b[0] - a[0] : a[0] - b[0]))
+            .map(([_, l]) => l);
+        this._sortedLayersUpdate = Array.from(this.layers)
+            .sort((a, b) => (this.reverseUpdate ? b[0] - a[0] : a[0] - b[0]))
+            .map(([_, l]) => l);
     }
 
-    add(object: GameObject, layer = 0) {
-        if (!this.layers.get(layer)) {
-            this.layers.set(layer, []);
-            this._sortLayers();
+    addLayer(id: number) {
+        let layer = new Layer(this, id);
+        layer.reverseUpdate = this.reverseUpdate;
+        layer.reverseDraw = this.reverseDraw;
+        this.layers.set(id, layer);
+        this._sortLayers();
+        return layer;
+    }
+
+    add(object: GameObject, layerId = 0) {
+        console.log(`adding ${object.constructor.name} to layer ${layerId}`);
+
+        let layer = this.layers.get(layerId);
+        if (!layer) {
+            layer = this.addLayer(layerId);
         }
-        object.scene = this;
-        object.sceneLayer = layer;
-        this.layers.get(layer).push(object);
+        layer.add(object);
     }
 
     remove(object: GameObject) {
-        this.layers.set(
-            object.sceneLayer,
-            this.layers.get(object.sceneLayer).filter((o) => o != object),
-        );
+        const l = this.layers.get(object.sceneLayer);
+
+        if (!l) {
+            throw "tried to remove object from nonexistent layer";
+        }
+
+        l.remove(object);
     }
 
     fixedUpdate() {
-        for (const [i] of this.layers) {
-            this.fixedUpdateLayer(i);
-        }
-    }
-
-    fixedUpdateLayer(layer: number) {
-        for (const o of this.layers.get(layer)) {
-            if (!o.enabled) continue;
-            o.fixedUpdate();
+        for (const layer of this._sortedLayersUpdate) {
+            layer.fixedUpdate();
         }
     }
 
     update() {
-        for (const [i] of this.layers) {
-            this.updateLayer(i);
+        for (const layer of this._sortedLayersUpdate) {
+            layer.update();
         }
-    }
 
-    updateLayer(layer: number) {
-        for (const o of this.layers.get(layer)) {
-            if (!o.enabled) continue;
-            o.update();
+        if (getKeyDown("keyp")) {
+            console.log(this.layers);
         }
     }
 
     draw() {
-        // draw layers < 0 before camera transform
-        for (const [i] of this.layers) {
-            if (i >= 0) break;
-            this.drawLayer(i);
+        // draw layers in bg space before camera transform
+        for (const layer of this._sortedLayersDraw) {
+            if (layer.space == LayerSpace.Background) {
+                layer.draw();
+            }
         }
 
         ctx.save();
         this.camera.transform();
 
-        for (const [i] of this.layers) {
-            if (i < 0) continue;
-            if (i >= UI_LAYER) continue;
-            this.drawLayer(i);
+        // draw world space layers
+        for (const layer of this._sortedLayersDraw) {
+            if (layer.space == LayerSpace.World) {
+                layer.draw();
+            }
         }
 
         ctx.restore();
 
-        for (const [i] of this.layers) {
-            if (i < UI_LAYER) continue;
-            this.drawLayer(i);
+        // draw ui layers
+        for (const layer of this._sortedLayersDraw) {
+            if (layer.space == LayerSpace.UI) {
+                layer.draw();
+            }
         }
     }
 
@@ -94,19 +111,20 @@ export class Scene {
 
         ctx.translate(this.camera.x - cw / 2, this.camera.y - ch / 2);
         ctx.scale(1 / this.camera.zoom, 1 / this.camera.zoom);
-        for (const [i] of this.layers) {
-            if (i >= 0) break;
-            this.drawLayer(i);
+        for (const [_, layer] of this.layers) {
+            if (layer.space == LayerSpace.Background) {
+                layer.draw();
+            }
         }
         ctx.restore();
 
         ctx.save();
         debugCamera.transform();
 
-        for (const [i] of this.layers) {
-            if (i < 0) continue;
-            if (i >= UI_LAYER) continue;
-            this.drawLayer(i);
+        for (const [_, layer] of this.layers) {
+            if (layer.space == LayerSpace.World) {
+                layer.draw();
+            }
         }
         ctx.restore();
 
@@ -115,9 +133,10 @@ export class Scene {
 
         ctx.translate(this.camera.x - cw / 2, this.camera.y - ch / 2);
         ctx.scale(1 / this.camera.zoom, 1 / this.camera.zoom);
-        for (const [i] of this.layers) {
-            if (i < UI_LAYER) continue;
-            this.drawLayer(i);
+        for (const [_, layer] of this.layers) {
+            if (layer.space == LayerSpace.UI) {
+                layer.draw();
+            }
         }
         ctx.restore();
 
@@ -167,24 +186,9 @@ export class Scene {
         ctx.stroke();
     }
 
-    drawLayer(layer: number) {
-        for (const o of this.layers.get(layer)) {
-            if (!o.enabled || !o.visible) continue;
-            o.draw();
-        }
-    }
-
     async init(data?: any) {
-        for (const [i] of this.layers) {
-            await this.initLayer(i, data);
-        }
-    }
-
-    async initLayer(layer: number, data?: any) {
-        await Promise.all(this.layers.get(layer).map((o) => o.load()));
-
-        for (const o of this.layers.get(layer)) {
-            o.init();
+        for (const [_, layer] of this.layers) {
+            await layer.init();
         }
     }
 }
