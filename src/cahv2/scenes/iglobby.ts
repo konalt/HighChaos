@@ -3,15 +3,18 @@ import { h, setScene, startTimer, timer, timerEnd, w } from "../../lib/engine/en
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
+import { socket } from "../network";
 import { CAHButton } from "../objects/ui/cahbtn";
 import { Particle } from "../objects/ui/ingamebackground";
 import { CAHLobbyCodeDisplay } from "../objects/ui/lobbycodedisplay";
+import { CAHLobbyCountdown } from "../objects/ui/lobbycountdown";
 import { CAHIGPlayState } from "./igplay";
 import { CAHInGameBaseScene } from "./ingamebase";
 
 export class CAHIGLobbyState extends CAHInGameBaseScene {
     codeDisplay: CAHLobbyCodeDisplay;
     startButton: CAHButton;
+    countdown: CAHLobbyCountdown;
 
     constructor(bgp: Particle[]) {
         super(bgp);
@@ -21,7 +24,7 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
         if (currentGame) {
             this.codeDisplay.code = currentGame.code;
         }
-        this.add(this.codeDisplay, UI_LAYER + 10);
+        this.add(this.codeDisplay, UI_LAYER + 1);
 
         this.startButton = new CAHButton("Start!", 48);
         this.startButton.background = "#45b32f";
@@ -32,9 +35,15 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
         this.startButton.disabled = true;
         this.startButton.enabled = currentPlayer.isHost;
         this.startButton.onClick = () => {
-            this.finish(new CAHIGPlayState(this.background.particles));
+            if (socket) {
+                socket.emit("start");
+            }
+            //this.finish(new CAHIGPlayState(this.background.particles));
         };
         this.add(this.startButton, UI_LAYER);
+
+        this.countdown = new CAHLobbyCountdown();
+        this.add(this.countdown, UI_LAYER + 1);
     }
 
     update(): void {
