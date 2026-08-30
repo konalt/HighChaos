@@ -1,15 +1,6 @@
-import {
-    ctx,
-    CursorMode,
-    d,
-    getKeyDown,
-    getMouse,
-    h,
-    loadImage,
-    setCursorMode,
-    setGlobalVolume,
-} from "../../lib/engine/engine";
+import { ctx, CursorMode, d, getKeyDown, getMouse, h, loadImage, setCursorMode } from "../../lib/engine/engine";
 import { GameObject } from "../../lib/engine/object";
+import { setMasterVolume } from "../../lib/engine/sound";
 import { basicPointInRect, FourNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 
@@ -40,9 +31,9 @@ export class MuteButton extends GameObject {
             setCursorMode(CursorMode.Click);
             if (getKeyDown("mouse1")) {
                 if (this._muted) {
-                    setGlobalVolume(0.8);
+                    setMasterVolume(0.8);
                 } else {
-                    setGlobalVolume(0);
+                    setMasterVolume(0);
                 }
                 this._muted = !this._muted;
             }

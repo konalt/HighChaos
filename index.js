@@ -80,6 +80,30 @@ app.get("/node_modules/*mp", async (req, res) => {
     log(req, res, req.url);
 });
 
+// Sound manifests
+app.get("/sndmanifest/*id", async (req, res) => {
+    // read directory
+    let list = await fs
+        .readdir(path.join(WEB_ROOT, "assets", "snd", ...req.params.id), {
+            recursive: true,
+        })
+        .catch((e) => {
+            res.type("txt").status(400).send(`Unable to create sound manifest for ${req.params.id}`);
+            log(req, res, req.url);
+        });
+
+    if (!list) return;
+
+    // filter to only mp3 files
+    list = list.filter((f) => f.endsWith(".mp3"));
+    // remove .mp3 extension
+    list = list.map((f) => f.substring(0, f.length - 4));
+
+    // reply
+    res.type("txt").send(list.join("\n"));
+    log(req, res, req.url);
+});
+
 app.get("*path", (req, res) => {
     try {
         let p = path.join(WEB_ROOT, req.path);

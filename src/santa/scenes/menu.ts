@@ -1,5 +1,6 @@
-import { w, h, loadImage, d, loadSounds, font, playSound, setScene } from "../../lib/engine/engine";
+import { w, h, loadImage, d, font, setScene } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
+import { loadSounds, playSound } from "../../lib/engine/sound";
 import { HCButton } from "../../lib/ui/hcbutton";
 import { HCImage } from "../../lib/ui/hcimage";
 import { MuteButton } from "../objects/mutebutton";
@@ -37,7 +38,7 @@ export class MenuScene extends SantaScene {
         this.playButton.font = font(72);
         this.playButton.text = "Play";
         this.playButton.onClick = () => {
-            playSound("santa_merrychristmas", 0.5);
+            playSound("merrychristmas", 0.5);
             setScene(new GameScene());
         };
         this.add(this.playButton, UI_LAYER + 1);
@@ -45,6 +46,7 @@ export class MenuScene extends SantaScene {
 
     async init() {
         super.init();
-        await loadSounds([`santa/hohoho`, `santa/merrychristmas`, `santa/sleighbells`, `santa/baby`]);
+        await loadSounds("santa");
+        //await loadSounds([`santa/hohoho`, `santa/merrychristmas`, `santa/sleighbells`, `santa/baby`]);
     }
 }

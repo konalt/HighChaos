@@ -597,50 +597,6 @@ export async function loadImageAbsolute(url: string) {
 }
 //#endregion
 
-//#region Sound
-const sounds: Record<string, AudioBuffer> = {};
-const sources: Record<string, AudioBufferSourceNode[]> = {};
-
-export async function loadSounds(soundList: string[]) {
-    for (const path of soundList) {
-        const id = path.replace(/\//g, "_");
-        const arrayBuffer = await (await fetch(`/assets/snd/${path}.mp3`)).arrayBuffer();
-        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
-            sounds[id] = audioBuffer;
-        });
-    }
-}
-
-let audioContext: AudioContext;
-let volume = 1;
-let gains: [number, GainNode][] = [];
-export function playSound(sndID: string, vol = 1, loop = false) {
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = vol * volume;
-    gainNode.connect(audioContext.destination);
-    gains.push([vol, gainNode]);
-    const source = audioContext.createBufferSource();
-    source.loop = loop;
-    source.buffer = sounds[sndID];
-    source.connect(gainNode);
-    source.start(0);
-    if (!sources[sndID]) sources[sndID] = [];
-    sources[sndID].push(source);
-    source.addEventListener("ended", () => {
-        if (!source.loop) {
-            gains = gains.filter((g) => g[1] !== gainNode);
-        }
-    });
-    return source;
-}
-export function setGlobalVolume(newVolume: number) {
-    volume = newVolume;
-    for (const [originalVolume, node] of gains) {
-        node.gain.value = originalVolume * newVolume;
-    }
-}
-//#endregion
-
 //#region drawing shit
 export let deltaTime = 1;
 let timeScale = 1;
@@ -751,9 +707,9 @@ function drawDebugInfo() {
     debugText.push(HEAD("Debug Camera"));
     debugText.push(`Center: ${Math.floor(debugCamera.x)} ${Math.floor(debugCamera.y)}`);
     debugText.push(`Zoom: ${Math.floor(debugCamera.zoom * 1e4) / 1e4}x`);
-    debugText.push(HEAD("Sound"));
+    /* debugText.push(HEAD("Sound"));
     debugText.push(`Current volume: ${Math.round(volume * 100)}%`);
-    debugText.push(`Sounds playing: ${gains.length}`);
+    debugText.push(`Sounds playing: ${gains.length}`); */
     if (debugLines.length > 0) {
         debugText.push(HEAD("Game Debug"));
         debugText.push(...debugLines);
@@ -883,7 +839,6 @@ export function init(_g: string) {
     );
     onResize();
     window.setResolution = setResolution;
-    audioContext = new AudioContext();
     window.addEventListener("resize", onResize);
     lastLoop = performance.now();
     draw();

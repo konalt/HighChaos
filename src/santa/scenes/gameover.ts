@@ -1,4 +1,4 @@
-import { d, font, h, playSound, setScene, w } from "../../lib/engine/engine";
+import { d, font, h, setScene, w } from "../../lib/engine/engine";
 import { getSavedBest, saveBest } from "../save";
 import { SantaScene } from "./santascene";
 import { HCButton } from "../../lib/ui/hcbutton";
@@ -6,6 +6,7 @@ import { UI_LAYER } from "../../lib/engine/scene";
 import { GameScene } from "./game";
 import { HCRect } from "../../lib/ui/hcrect";
 import { MenuScene } from "./menu";
+import { playSound } from "../../lib/engine/sound";
 
 let presentsCollected = 0;
 let best = 0;
@@ -38,7 +39,7 @@ export class GameOverScene extends SantaScene {
         this.playButton.font = font(72);
         this.playButton.text = "Play again";
         this.playButton.onClick = () => {
-            playSound("santa_merrychristmas", 0.5);
+            playSound("merrychristmas", 0.5);
             setScene(new GameScene());
         };
         this.add(this.playButton, UI_LAYER + 1);
