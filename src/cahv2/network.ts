@@ -2,8 +2,10 @@ import * as sio from "socket.io-client";
 import { currentScene, setScene, startTimer } from "../lib/engine/engine";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
 import { deserializePlayer } from "./types";
-import { currentGame } from "./game";
+import { currentGame, currentPlayer } from "./game";
 import { CAHInGameBaseScene } from "./scenes/ingamebase";
+import { CAHIGLobbyState } from "./scenes/iglobby";
+import { CAHIGPlayState } from "./scenes/igplay";
 
 export let socket: sio.Socket | null = null;
 
@@ -66,6 +68,48 @@ export function initialize() {
                 currentScene.playerList.reloadPlayers();
             }
         });
+
+        //#region card shit
+        s.on("blackcard", (card: string) => {
+            if (!currentGame) return;
+
+            console.log("new black card: " + card);
+
+            currentGame.currentBlackCard = card;
+        });
+
+        s.on("whitecards", (cards: string[]) => {
+            if (!currentGame) return;
+            if (!currentPlayer) return;
+
+            console.log("new white cards", cards);
+
+            currentPlayer.cardsWhite = cards;
+        });
+        //#endregion
+
+        //#region game flow shit
+        s.on("countdown_start", (duration) => {
+            if (!currentGame) return;
+
+            console.log(`start countdown duration ${duration}`);
+
+            if (currentScene instanceof CAHIGLobbyState) {
+                currentScene.countdown.startCountdown(duration);
+            }
+        });
+
+        s.on("start", () => {
+            if (!currentGame) return;
+
+            // game starting!!!!
+            console.log("game starting!");
+
+            if (currentScene instanceof CAHIGLobbyState) {
+                currentScene.finish(new CAHIGPlayState(currentScene.background.particles));
+            }
+        });
+        //#endregion
 
         s.once("ack", () => {
             socket = s;
