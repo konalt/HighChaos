@@ -39,7 +39,7 @@ export class Scene {
     }
 
     add(object: GameObject, layerId = 0) {
-        console.log(`adding ${object.constructor.name} to layer ${layerId}`);
+        //console.log(`adding ${object.constructor.name} to layer ${layerId}`);
 
         let layer = this.layers.get(layerId);
         if (!layer) {
