@@ -2,10 +2,10 @@ import { d } from "../../lib/engine/engine";
 import { Layer } from "../../lib/engine/layer";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { randint, sample } from "../../lib/engine/utils";
-import { currentPlayer } from "../game";
+import { currentGame, currentPlayer } from "../game";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
-import { whiteCardReplace } from "../utils";
+import { blackCardReplace, whiteCardReplace } from "../utils";
 import { CAHInGameBaseScene } from "./ingamebase";
 
 const BigCardGap = 850;
@@ -32,7 +32,10 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.reverseUpdate = true;
 
         this.bigBlackCard = new CAHCard();
-        this.bigBlackCard.text = "Bitches said I was testing the UI, I was actually ______.";
+        this.bigBlackCard.text = blackCardReplace("Big boner down the %%%.");
+        if (currentGame) {
+            this.bigBlackCard.text = blackCardReplace(currentGame.currentBlackCard);
+        }
         this.bigBlackCard.scale = BigCardScale;
         this.bigBlackCard.clickable = false;
         this.add(this.bigBlackCard, UI_LAYER + 2);
@@ -42,7 +45,9 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         cardLayer.reverseUpdate = true;
 
         this.playableCards = [];
-        this._initCards(new Array(7).fill("").map((_) => whiteCardReplace(sample(window.cardsWhite))));
+        if (currentPlayer) {
+            this._initCards(currentPlayer.cardsWhite);
+        }
 
         const cardHighlightLayer = this.addLayer(CardHighlightLayerID);
         cardHighlightLayer.reverseUpdate = true;
@@ -65,10 +70,9 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
     }
 
     private _initCards(cards: string[]) {
-        let x = 0;
         for (const cardText of cards) {
             const card = new CAHCard();
-            card.text = cardText;
+            card.text = whiteCardReplace(cardText);
             card.isWhite = true;
             card.scale = CardScale;
             card.onClick = () => {

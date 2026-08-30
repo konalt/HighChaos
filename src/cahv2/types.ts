@@ -30,6 +30,7 @@ export interface CAHGame {
     settings: CAHGameSettings;
     state: CAHGameState;
     hostId: string;
+    currentBlackCard: string;
 }
 
 export function deserializePlayer(data: string) {
@@ -52,6 +53,7 @@ export function deserializeGame(data: string) {
         settings: parsed.settings,
         hostId: parsed.hostId,
         state: parsed.state,
+        currentBlackCard: parsed.currentBlackCard,
     };
     for (const playerData of parsed.players) {
         const playerParsed = JSON.parse(playerData);
