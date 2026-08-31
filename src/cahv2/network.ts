@@ -6,6 +6,7 @@ import { currentGame, currentPlayer } from "./game";
 import { CAHInGameBaseScene } from "./scenes/ingamebase";
 import { CAHIGLobbyState } from "./scenes/iglobby";
 import { CAHIGPlayState } from "./scenes/igplay";
+import { playSound } from "../lib/engine/sound";
 
 export let socket: sio.Socket | null = null;
 
@@ -36,6 +37,8 @@ export function initialize() {
             const s = new CAHMainMenuScene();
             await setScene(s);
             s.error.show(`Unfortunately, you were disconnected due to the error "${e}" :( Please report this!`, 10_000); // 10s
+
+            playSound("ui_error");
         });
 
         s.on("ply_join", (plyData) => {
@@ -52,6 +55,8 @@ export function initialize() {
             if (currentScene instanceof CAHInGameBaseScene) {
                 startTimer("plyj" + ply.id, 300);
                 currentScene.playerList.reloadPlayers();
+
+                playSound("ui/player_join");
             }
         });
 

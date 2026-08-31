@@ -2,6 +2,7 @@ import { loadFonts } from "../lib/engine/fonts";
 import * as c from "../lib/engine/engine";
 import { CAHMenuBaseScene } from "./scenes/menubase";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
+import { loadSounds } from "../lib/engine/sound";
 
 declare global {
     interface Window {
@@ -25,6 +26,9 @@ loadFonts().then(async () => {
         .then((r) => {
             window.cardsBlack = r.split("\n").map((c) => c.replace(/\\n/g, "\n"));
         });
+
+    await loadSounds("cahv2");
+    await loadSounds("ui");
 
     c.setFont("'Montserrat', sans-serif");
     c.setResolution(1);

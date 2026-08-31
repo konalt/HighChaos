@@ -1,6 +1,7 @@
 import { easeOutCirc } from "../../../lib/engine/ease";
 import { ctx, d, h, loadImage, removeTimer, startTimer, timer, timerEnd, w } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { playSound } from "../../../lib/engine/sound";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 
@@ -69,6 +70,8 @@ export class CAHSceneTransition extends GameObject {
         this.state = 1;
         this._onFinish = onFinish;
         startTimer(`cover${this.uuid}`, Duration);
+
+        playSound("ui/skinslide", 0.8);
     }
 
     uncover(onFinish = () => {}) {
@@ -76,6 +79,8 @@ export class CAHSceneTransition extends GameObject {
         this.state = 3;
         this._onFinish = onFinish;
         startTimer(`uncover${this.uuid}`, Duration);
+
+        playSound("ui/skinslide_back", 0.8);
     }
 
     instaCover() {

@@ -18,6 +18,7 @@ import {
     w,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { playSound } from "../../../lib/engine/sound";
 import { basicPointInRect, FourNums, lerp } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
@@ -99,6 +100,7 @@ export class CAHMenuTitle extends GameObject {
             if (getKeyDown("mouse1") && !this.isFlipping) {
                 this.isFlipping = true;
                 startTimer(`flip${this.uuid}`, 500);
+                playSound("cards/slip", 0.6);
             }
         }
     }
