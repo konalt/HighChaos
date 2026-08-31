@@ -96,8 +96,8 @@ app.get("/sndmanifest/*id", async (req, res) => {
 
     // filter to only mp3 files
     list = list.filter((f) => f.endsWith(".mp3"));
-    // remove .mp3 extension
-    list = list.map((f) => f.substring(0, f.length - 4));
+    // remove .mp3 extension and replace \ with /
+    list = list.map((f) => f.substring(0, f.length - 4).replace(/\\/g, "/"));
 
     // reply
     res.type("txt").send(list.join("\n"));
