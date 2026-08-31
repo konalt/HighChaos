@@ -19,7 +19,7 @@ export async function loadSounds(id: string) {
     for (const sound of manifest) {
         // Handle group sound names: they must match a regex.
         if (sound.match(GROUP_SOUND_REGEX)) {
-            const sndid = sound.split("_")[0];
+            const sndid = sound.split("_").slice(0, -1).join("_");
 
             // if we havent loaded any of these sounds yet, make a new array for them
             if (!loadedSounds[sndid]) loadedSounds[sndid] = [];
@@ -59,10 +59,13 @@ export function setMasterVolume(newVolume: number) {
 //#endregion
 
 const sources: Record<string, AudioBufferSourceNode[]> = {};
-export function playSound(sound: string, volume = 1, loop = false) {
+export function playSound(sound: string, volume = 1, loop = false, forceIndex = -1) {
     if (!loadedSounds[sound]) {
         console.error(`Tried to play unknown sound ${sound}!`);
     }
+
+    log("sound", `Playing sound ${sound}`);
+
     // Create gain node for volume adjustment
     const gainNode = audioContext.createGain();
     gainNode.gain.value = volume * masterVolume;
@@ -72,7 +75,9 @@ export function playSound(sound: string, volume = 1, loop = false) {
     // create the audio source
     const source = audioContext.createBufferSource();
     source.loop = loop;
-    source.buffer = sample(loadedSounds[sound]); // random one from the soundgroup
+    let index = Math.floor(Math.random() * loadedSounds[sound].length);
+    if (forceIndex != -1) index = forceIndex;
+    source.buffer = loadedSounds[sound][index]; // random one from the soundgroup
     source.connect(gainNode);
 
     if (!sources[sound]) sources[sound] = [];
@@ -83,7 +88,9 @@ export function playSound(sound: string, volume = 1, loop = false) {
             gains = gains.filter((g) => g[1] !== gainNode);
         } else {
             // replace with a new buffer
-            source.buffer = sample(loadedSounds[sound]);
+            if (forceIndex != -1) {
+                source.buffer = sample(loadedSounds[sound]); // random one from the soundgroup
+            }
         }
     });
 
