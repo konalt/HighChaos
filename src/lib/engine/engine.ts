@@ -564,7 +564,7 @@ export function setCursorMode(mode: CursorMode) {
 export const images: Map<string, HTMLImageElement | ImageBitmap> = new Map();
 
 export async function loadImage(url: string) {
-    if (images.get(url)) return images.get(url);
+    //if (images.get(url)) return images.get(url) ?? NULLTEXTURE;
 
     return new Promise<HTMLImageElement>((resolve) => {
         const img = new Image();
