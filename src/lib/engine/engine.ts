@@ -581,6 +581,8 @@ export async function loadImage(url: string) {
 }
 
 export function addToAtlas(img: HTMLImageElement | ImageBitmap, id = "") {
+    if (!debugMode) return;
+
     if (!id) id = uuidv4();
 
     images.set(id, img);
