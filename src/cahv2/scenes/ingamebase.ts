@@ -40,7 +40,7 @@ export class CAHInGameBaseScene extends CAHBaseScene {
                     console.log("transition ended with no scene??");
                 }
             },
-            true,
+            false,
         );
 
         timerEnd(
