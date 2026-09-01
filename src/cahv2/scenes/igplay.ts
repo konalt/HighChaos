@@ -1,12 +1,14 @@
 import { easeInOutBack, easeOutQuad } from "../../lib/engine/ease";
-import { d, globalTimer, startTimer, timer } from "../../lib/engine/engine";
+import { d, globalTimer, startTimer, timer, w } from "../../lib/engine/engine";
 import { Layer } from "../../lib/engine/layer";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { playSound } from "../../lib/engine/sound";
 import { lerp, randint, sample } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
+import { socket } from "../network";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
+import { CAHInGamePlayerSubmitCounter } from "../objects/ui/ingameplayersubmitcounter";
 import { blackCardReplace, whiteCardReplace } from "../utils";
 import { CAHInGameBaseScene } from "./ingamebase";
 
@@ -27,6 +29,8 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
     bigBlackCard: CAHCard;
     playableCards: CAHCard[];
     highlightPlayableCard: CAHCard;
+
+    playerSubmitCounter: CAHInGamePlayerSubmitCounter;
 
     canPlay = true;
 
@@ -74,6 +78,12 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.highlightPlayableCard.hoverAnimationSpeed = 0;
         this.highlightPlayableCard.user.reference = null;
         this.add(this.highlightPlayableCard, CardHighlightLayerID);
+
+        this.playerSubmitCounter = new CAHInGamePlayerSubmitCounter();
+        if (currentGame) {
+            this.playerSubmitCounter.updateTotalPlayers();
+        }
+        this.add(this.playerSubmitCounter, UI_LAYER + 2);
     }
 
     private _clearCards() {
@@ -177,6 +187,9 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.bigBlackCard.x = this.centerLine - BigCardGap / 2;
         this.bigBlackCard.y = this.tlerp(-400, 340);
 
+        this.playerSubmitCounter.x = this.tlerp(w + 300, this.centerLine + BigCardGap / 2);
+        this.playerSubmitCounter.y = 340;
+
         this._updateCards();
     }
 
@@ -193,6 +206,10 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.setCanPlay(false);
 
         startTimer("cardsubmit", 250);
+
+        if (socket) {
+            socket.emit("cardsubmit", currentPlayer.cardsWhite[index]);
+        }
     }
     //#endregion
 }
