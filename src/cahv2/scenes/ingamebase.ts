@@ -1,5 +1,5 @@
 import { easeOutQuad } from "../../lib/engine/ease";
-import { ctx, debugMode, h, setScene, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
+import { ctx, debugMode, h, removeTimer, setScene, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { CAHInGameBackground, Particle } from "../objects/ui/ingamebackground";
@@ -38,6 +38,7 @@ export class CAHInGameBaseScene extends CAHBaseScene {
                     setScene(this._nextScene);
                 } else {
                     console.log("transition ended with no scene??");
+                    removeTimer("s_finish");
                 }
             },
             false,
