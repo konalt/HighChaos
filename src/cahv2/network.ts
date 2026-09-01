@@ -129,7 +129,7 @@ export function initialize() {
             sply.chosenWhiteCard = card;
 
             if (currentScene instanceof CAHIGPlayState) {
-                currentScene.playerSubmitCounter.updateCurrentPlayers();
+                currentScene.playerSubmitCounter.updateCurrentPlayers((ply) => !!ply.chosenWhiteCard);
             }
         });
 
