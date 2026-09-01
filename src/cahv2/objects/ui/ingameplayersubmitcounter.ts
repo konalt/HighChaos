@@ -3,6 +3,8 @@ import { ctx, font, globalTimer } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { createOffscreenCanvas, lerp } from "../../../lib/engine/utils";
 import { currentGame } from "../../game";
+import { CAHInGameBaseScene } from "../../scenes/ingamebase";
+import { CAHPlayer } from "../../types";
 
 const Radius = 190;
 
@@ -13,17 +15,28 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
     private _currentPlayers = 0;
     private _totalPlayers = 1;
 
-    constructor() {
+    scale = 1;
+
+    constructor(text: string) {
         super();
 
         this._octagon = this._createOctagon();
-        this._subtitleText = this._createSubtitleText();
+        this._subtitleText = this._createSubtitleText(text);
     }
 
     draw() {
+        if (!(this.scene instanceof CAHInGameBaseScene)) return;
+
         // move to where we wanna be
         ctx.save();
         ctx.translate(this.x, this.y);
+
+        // transition the alpha.
+        ctx.globalAlpha = this.scene.tlerp(0, 1, 0, false);
+
+        // scale transition
+        const globalScale = this.scene.tlerp(0, 1, 0) * this.scale;
+        ctx.scale(globalScale, globalScale);
 
         // rotate the octagon
         ctx.save();
@@ -57,7 +70,11 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
         ctx.restore();
     }
 
-    updateCurrentPlayers() {
+    updateCurrentPlayers(
+        predicate: (p: CAHPlayer) => boolean = (p) => {
+            return false;
+        },
+    ) {
         if (!currentGame) throw new Error("tried to update player counter without a game");
 
         this.updateTotalPlayers();
@@ -67,8 +84,8 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
 
         // count them
         let count = 0;
-        for (const [id, ply] of currentGame.players) {
-            if (ply.chosenWhiteCard) {
+        for (const [_, ply] of currentGame.players) {
+            if (predicate(ply)) {
                 count++;
             }
         }
@@ -112,7 +129,7 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
         return c.transferToImageBitmap();
     }
 
-    private _createSubtitleText() {
+    private _createSubtitleText(text: string) {
         const [c, ctx] = createOffscreenCanvas(Radius * 2, 100);
 
         // setup
@@ -122,7 +139,7 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
         ctx.fillStyle = "white";
 
         // draw it
-        ctx.fillText("Players Ready", c.width / 2, c.height / 2);
+        ctx.fillText(text, c.width / 2, c.height / 2);
 
         return c.transferToImageBitmap();
     }
