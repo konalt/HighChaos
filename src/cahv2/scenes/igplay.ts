@@ -155,10 +155,10 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
                 const ds = lerp(t, CardScale, BigCardScale);
 
                 // ending transition (moving into the big card) must be tlerped
+                pc.scale = this.tlerp(0.2, ds); // 1 is small compared to bigcard
                 pc.x = this.tlerp(this.bigBlackCard.x, dx);
                 pc.y = this.tlerp(this.bigBlackCard.y, dy);
                 pc.rotation = dr; // doesnt need to be transitioned, its already 0
-                pc.scale = this.tlerp(0.2, ds); // 1 is small compared to bigcard
 
                 // this always has to be visible
                 pc.visible = true;

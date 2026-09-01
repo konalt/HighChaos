@@ -144,6 +144,21 @@ export function initialize() {
                 currentScene.finish(new CAHIGVoteState(currentScene.background.particles));
             }
         });
+
+        s.on("vote", ([vid, tid]) => {
+            if (!currentGame) return;
+            // voting player
+            const vply = currentGame.players.get(vid);
+            if (!vply) return;
+
+            console.log(`player ${vid} voted for ${tid}`);
+
+            vply.voteTarget = tid;
+
+            if (currentScene instanceof CAHIGVoteState) {
+                currentScene.voteCounter.updateCurrentPlayers((ply) => !!ply.voteTarget);
+            }
+        });
         //#endregion
 
         s.once("ack", () => {

@@ -57,6 +57,7 @@ export class CAHCard extends GameObject {
     private _isWhite = false;
     private _text = "";
     private _forceBigText = false;
+    private _fontSizeFactor = 1;
 
     // bounding box
     private _bx = 0;
@@ -84,7 +85,7 @@ export class CAHCard extends GameObject {
         super();
     }
 
-    static renderCard(text: string, isWhite: boolean, forceBigText = false) {
+    static renderCard(text: string, isWhite: boolean, forceBigText = false, fontSizeFactor = 1) {
         // get a canvas
         const canvas = new OffscreenCanvas(CardWidth + 10, CardHeight + 10);
         const ctx = canvas.getContext("2d");
@@ -118,9 +119,9 @@ export class CAHCard extends GameObject {
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         if (isBack || forceBigText) {
-            ctx.font = font(CardBackFontSize, CardBackFontWeight.toString());
+            ctx.font = font(CardBackFontSize * fontSizeFactor, CardBackFontWeight.toString());
         } else {
-            ctx.font = font(CardFontSize, CardFontWeight.toString());
+            ctx.font = font(CardFontSize * fontSizeFactor, CardFontWeight.toString());
         }
         ctx.fillStyle = textColor;
 
@@ -149,7 +150,7 @@ export class CAHCard extends GameObject {
     }
 
     async createCache() {
-        this.cache = CAHCard.renderCard(this._text, this._isWhite, this._forceBigText);
+        this.cache = CAHCard.renderCard(this._text, this._isWhite, this._forceBigText, this._fontSizeFactor);
     }
 
     private recalculateFlipShit() {
@@ -336,6 +337,15 @@ export class CAHCard extends GameObject {
 
     set forceBigText(forceBigText: boolean) {
         this._forceBigText = forceBigText;
+        this.createCache();
+    }
+
+    get fontSizeFactor() {
+        return this._fontSizeFactor;
+    }
+
+    set fontSizeFactor(fontSizeFactor: number) {
+        this._fontSizeFactor = fontSizeFactor;
         this.createCache();
     }
     //#endregion
