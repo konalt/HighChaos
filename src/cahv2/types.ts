@@ -4,6 +4,7 @@ export interface CAHPlayer {
     isHost: boolean;
     cardsWhite: string[];
     cardsBlack: string[];
+    chosenWhiteCard: string;
 }
 
 export enum CAHGameState {
@@ -41,6 +42,7 @@ export function deserializePlayer(data: string) {
         isHost: parsed.isHost,
         cardsBlack: parsed.cardsBlack,
         cardsWhite: parsed.cardsWhite,
+        chosenWhiteCard: parsed.chosenWhiteCard,
     };
     return player;
 }

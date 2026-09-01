@@ -114,6 +114,21 @@ export function initialize() {
                 currentScene.finish(new CAHIGPlayState(currentScene.background.particles));
             }
         });
+
+        s.on("cardsubmit", ([id, card]) => {
+            if (!currentGame) return;
+            // submitting player
+            const sply = currentGame.players.get(id);
+            if (!sply) return;
+
+            console.log(`player ${id} submitted ${card}`);
+
+            sply.chosenWhiteCard = card;
+
+            if (currentScene instanceof CAHIGPlayState) {
+                currentScene.playerSubmitCounter.updateCurrentPlayers();
+            }
+        });
         //#endregion
 
         s.once("ack", () => {
