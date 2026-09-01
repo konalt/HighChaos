@@ -1,7 +1,9 @@
-import { d } from "../../lib/engine/engine";
+import { easeInOutBack, easeOutQuad } from "../../lib/engine/ease";
+import { d, globalTimer, startTimer, timer } from "../../lib/engine/engine";
 import { Layer } from "../../lib/engine/layer";
 import { UI_LAYER } from "../../lib/engine/scene";
-import { randint, sample } from "../../lib/engine/utils";
+import { playSound } from "../../lib/engine/sound";
+import { lerp, randint, sample } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
@@ -25,6 +27,18 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
     bigBlackCard: CAHCard;
     playableCards: CAHCard[];
     highlightPlayableCard: CAHCard;
+
+    canPlay = true;
+
+    setCanPlay(s: boolean) {
+        this.canPlay = s;
+
+        for (const pc of this.playableCards) {
+            pc.clickable = false;
+        }
+
+        startTimer("canplaytoggle", 200);
+    }
 
     constructor(bgp: Particle[]) {
         super(bgp);
@@ -76,8 +90,11 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
             card.isWhite = true;
             card.scale = CardScale;
             card.onClick = () => {
-                card.flip();
+                playSound("cards/slip", 0.7);
+                //card.flip();
+                this.submitCard(card.user.index);
             };
+            card.user.index = this.playableCards.length;
             card.hoverAnimationSpeed = 15;
             this.playableCards.push(card);
             this.add(card, CardLayerID);
@@ -89,38 +106,68 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         let addArc = 0.1;
         let hoverArc = 0;
 
+        let i = 0;
         for (const pc of this.playableCards) {
             let thisHoverArc = pc._hoverTransition * hoverArc;
-            pc.user.theta = totalArc + addArc + thisHoverArc / 2 - addArc / 2;
-            totalArc += addArc + thisHoverArc;
+
+            let mult = 1;
+            if (i == this._submittedCardIndex) mult = easeOutQuad(1 - timer("cardsubmit", true));
+
+            pc.user.theta = totalArc + (addArc / 2 + thisHoverArc / 2) * mult;
+            totalArc += (addArc + thisHoverArc) * mult;
+            i++;
         }
 
         // loop through AGAIIIIN lolw
+        i = 0;
         this.highlightPlayableCard._hoverTransition = 0;
         this.highlightPlayableCard.visible = false;
         for (const pc of this.playableCards) {
             let theta = pc.user.theta - totalArc / 2 - Math.PI / 2;
             let rad = HandRadius + pc._hoverTransition * 70;
-            pc.x = Math.cos(theta) * rad + this.centerLine;
-            pc.y = Math.sin(theta) * rad + HandY;
-            pc.rotation = theta + Math.PI / 2;
+            rad -= this.tlerp(CardHeight, 0); // in/out transition effect
+            rad -= lerp(easeOutQuad(timer("canplaytoggle", true)) * (this.canPlay ? -1 : 1), 0, CardHeight / 2); // play ability effect
 
-            if (pc._hovered) {
-                pc.visible = false;
+            if (i == this._submittedCardIndex) {
+                // this card has been submitted we need to move it to the right place
+                // calculate origin coords
+                const ox = Math.cos(theta) * rad + this.centerLine;
+                const oy = Math.sin(theta) * rad + HandY;
+                const or = theta + Math.PI / 2;
 
-                this.highlightPlayableCard.visible = true;
-                this.highlightPlayableCard.text = pc.text;
-                this.highlightPlayableCard.x = pc.x;
-                this.highlightPlayableCard.y = pc.y;
-                this.highlightPlayableCard.scale = pc.scale;
-                this.highlightPlayableCard.rotation = pc.rotation;
-                this.highlightPlayableCard._hovered = pc._hovered;
-                this.highlightPlayableCard._hoverTransition = pc._hoverTransition;
-                this.highlightPlayableCard.setFlip(pc._flip);
-                this.highlightPlayableCard.user.reference = pc;
-            } else {
+                // interpolate it
+                const t = timer("cardsubmit", true);
+                pc.x = lerp(easeOutQuad(t), ox, this.centerLine);
+                pc.y = lerp(easeOutQuad(t), oy, 340);
+                pc.rotation = lerp(easeInOutBack(t), or, 0);
+                pc.scale = lerp(t, CardScale, BigCardScale);
+
+                // this always has to be visible
                 pc.visible = true;
+            } else {
+                pc.x = Math.cos(theta) * rad + this.centerLine;
+                pc.y = Math.sin(theta) * rad + HandY;
+                pc.rotation = theta + Math.PI / 2;
+                pc.scale = CardScale;
+
+                if (pc._hovered) {
+                    pc.visible = false;
+
+                    this.highlightPlayableCard.visible = true;
+                    this.highlightPlayableCard.text = pc.text;
+                    this.highlightPlayableCard.x = pc.x;
+                    this.highlightPlayableCard.y = pc.y;
+                    this.highlightPlayableCard.scale = pc.scale;
+                    this.highlightPlayableCard.rotation = pc.rotation;
+                    this.highlightPlayableCard._hovered = pc._hovered;
+                    this.highlightPlayableCard._hoverTransition = pc._hoverTransition;
+                    this.highlightPlayableCard.setFlip(pc._flip);
+                    this.highlightPlayableCard.user.reference = pc;
+                } else {
+                    pc.visible = true;
+                }
             }
+            i++;
         }
     }
 
@@ -135,7 +182,17 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
 
     draw() {
         super.draw();
-
-        //d.circ(this.centerLine, HandY, HandRadius, "transparent", "red", 2);
     }
+
+    //#region card submitting things
+    private _submittedCardIndex = -1;
+
+    submitCard(index: number) {
+        this._submittedCardIndex = index;
+
+        this.setCanPlay(false);
+
+        startTimer("cardsubmit", 250);
+    }
+    //#endregion
 }
