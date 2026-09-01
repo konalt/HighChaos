@@ -37,6 +37,7 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
         this.startButton.onClick = () => {
             if (socket) {
                 socket.emit("start");
+                this.startButton.disabled = true;
             }
             //this.finish(new CAHIGPlayState(this.background.particles));
         };
