@@ -23,6 +23,9 @@ export class CAHInGameBaseScene extends CAHBaseScene {
         this.add(this.background, UI_LAYER);
 
         this.playerList = new CAHInGamePlayerList();
+        this.leftStart = this.playerList.width;
+        this.width = w - this.leftStart;
+        this.centerLine = w / 2 + this.leftStart / 2;
         this.add(this.playerList, UI_LAYER + 1);
     }
 
@@ -96,7 +99,7 @@ export class CAHInGameBaseScene extends CAHBaseScene {
         startTimer("s_finish", this.transitionDuration);
     }
 
-    tlerp(a: number, b: number, ease = true) {
+    tlerp(a: number, b: number, end: number | null = null, ease = true) {
         if (!this._isTransitioning) {
             return b;
         }
@@ -104,9 +107,9 @@ export class CAHInGameBaseScene extends CAHBaseScene {
         if (this._isFinishing) {
             const t = timer("s_finish", true);
             if (ease) {
-                return lerp(easeOutQuad(t), b, a);
+                return lerp(easeOutQuad(t), b, end ?? a);
             } else {
-                return lerp(t, b, a);
+                return lerp(t, b, end ?? a);
             }
         } else {
             const t = timer("s_start", true);

@@ -22,7 +22,7 @@ const PlayerGap = 10;
 
 export class CAHInGamePlayerList extends GameObject {
     private _path: Path2D;
-    private _element: ImageBitmap | null;
+    private _element: ImageBitmap;
     private _images: Map<string, ImageBitmap> = new Map();
 
     width = 0;
@@ -31,7 +31,9 @@ export class CAHInGamePlayerList extends GameObject {
         super();
 
         this._path = this._createPath();
-        this._element = null;
+        this._element = this._render();
+
+        this.width = this._element.width;
     }
 
     private _render(): ImageBitmap {
@@ -203,9 +205,7 @@ export class CAHInGamePlayerList extends GameObject {
     }
 
     update() {
-        if (this._element) {
-            this.width = this._element.width;
-        }
+        this.width = this._element.width;
     }
 
     draw() {
@@ -230,8 +230,6 @@ export class CAHInGamePlayerList extends GameObject {
     }
 
     init() {
-        this._element = this._render();
-
         this.reloadPlayers();
     }
 }
