@@ -6,6 +6,7 @@ export interface CAHPlayer {
     cardsBlack: string[];
     chosenWhiteCard: string;
     voteTarget: string;
+    votesReceived: number;
 }
 
 export enum CAHGameState {
@@ -13,6 +14,7 @@ export enum CAHGameState {
     Countdown,
     Play,
     Vote,
+    VoteResults,
 }
 
 export interface CAHGameSettings {
@@ -42,6 +44,7 @@ export function deserializePlayer(data: string) {
         cardsWhite: parsed.cardsWhite,
         chosenWhiteCard: parsed.chosenWhiteCard,
         voteTarget: parsed.voteTarget,
+        votesReceived: parsed.votesReceived,
     };
     return player;
 }

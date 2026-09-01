@@ -8,6 +8,7 @@ import { CAHIGLobbyState } from "./scenes/iglobby";
 import { CAHIGPlayState } from "./scenes/igplay";
 import { playSound } from "../lib/engine/sound";
 import { CAHIGVoteState } from "./scenes/igvote";
+import { CAHIGVoteResultsState } from "./scenes/igvoteresults";
 
 export let socket: sio.Socket | null = null;
 
@@ -157,6 +158,28 @@ export function initialize() {
 
             if (currentScene instanceof CAHIGVoteState) {
                 currentScene.voteCounter.updateCurrentPlayers((ply) => !!ply.voteTarget);
+            }
+        });
+
+        s.on("voteresults", (tally: Record<string, number>) => {
+            if (!currentGame) return;
+
+            console.log("votes received", tally);
+
+            // parse the votes
+            for (const [id, count] of Object.entries(tally)) {
+                const ply = currentGame.players.get(id);
+
+                if (!ply) {
+                    console.log(`votes received for unknown player ${id}`);
+                    continue;
+                }
+
+                ply.votesReceived = count;
+            }
+
+            if (currentScene instanceof CAHIGVoteState) {
+                currentScene.finish(new CAHIGVoteResultsState(currentScene.background.particles));
             }
         });
         //#endregion
