@@ -10,9 +10,10 @@ import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
 import { CAHInGamePlayerSubmitCounter } from "../objects/ui/ingameplayersubmitcounter";
 import { blackCardReplace, whiteCardReplace } from "../utils";
+import { CAHIGVoteState } from "./igvote";
 import { CAHInGameBaseScene } from "./ingamebase";
 
-const BigCardGap = 850;
+export const BigCardGap = 850;
 const BigCardScale = 1.15;
 
 const CardScale = 0.85;
@@ -56,7 +57,7 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         }
         this.bigBlackCard.scale = BigCardScale;
         this.bigBlackCard.clickable = false;
-        this.add(this.bigBlackCard, UI_LAYER + 2);
+        this.add(this.bigBlackCard, UI_LAYER + 5);
 
         // add custom card layer
         const cardLayer = this.addLayer(CardLayerID);
@@ -79,7 +80,7 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
         this.highlightPlayableCard.user.reference = null;
         this.add(this.highlightPlayableCard, CardHighlightLayerID);
 
-        this.playerSubmitCounter = new CAHInGamePlayerSubmitCounter();
+        this.playerSubmitCounter = new CAHInGamePlayerSubmitCounter("Players Ready");
         if (currentGame) {
             this.playerSubmitCounter.updateTotalPlayers();
         }
@@ -145,12 +146,19 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
                 const oy = Math.sin(theta) * rad + HandY;
                 const or = theta + Math.PI / 2;
 
+                // calculate interpolated destination coords
                 // interpolate it
                 const t = timer("cardsubmit", true);
-                pc.x = lerp(easeOutQuad(t), ox, this.centerLine);
-                pc.y = lerp(easeOutQuad(t), oy, 340);
-                pc.rotation = lerp(easeInOutBack(t), or, 0);
-                pc.scale = lerp(t, CardScale, BigCardScale);
+                const dx = lerp(easeOutQuad(t), ox, this.centerLine);
+                const dy = lerp(easeOutQuad(t), oy, 340);
+                const dr = lerp(easeInOutBack(t), or, 0);
+                const ds = lerp(t, CardScale, BigCardScale);
+
+                // ending transition (moving into the big card) must be tlerped
+                pc.x = this.tlerp(this.bigBlackCard.x, dx);
+                pc.y = this.tlerp(this.bigBlackCard.y, dy);
+                pc.rotation = dr; // doesnt need to be transitioned, its already 0
+                pc.scale = this.tlerp(0.2, ds); // 1 is small compared to bigcard
 
                 // this always has to be visible
                 pc.visible = true;
@@ -184,10 +192,15 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
     update(): void {
         super.update();
 
-        this.bigBlackCard.x = this.centerLine - BigCardGap / 2;
-        this.bigBlackCard.y = this.tlerp(-400, 340);
+        // big black card x
+        const bbcx = this.centerLine - BigCardGap / 2;
+        this.bigBlackCard.x = this.tlerp(bbcx, bbcx, this.leftStart + CAHIGVoteState.BigCardXOffset);
+        this.bigBlackCard.y = this.tlerp(-400, 340, CAHIGVoteState.BigCardY);
+        this.bigBlackCard.scale = this.tlerp(1, BigCardScale, CAHIGVoteState.BigCardScale);
 
-        this.playerSubmitCounter.x = this.tlerp(w + 300, this.centerLine + BigCardGap / 2);
+        // player submit counter x
+        const pscx = this.centerLine + BigCardGap / 2;
+        this.playerSubmitCounter.x = this.tlerp(w + 300, pscx, pscx);
         this.playerSubmitCounter.y = 340;
 
         this._updateCards();

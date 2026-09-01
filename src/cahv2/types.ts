@@ -11,10 +11,7 @@ export enum CAHGameState {
     WaitingForPlayers,
     Countdown,
     Play,
-    Slideshow,
-    Voting,
-    VoteSlideshow,
-    Leaderboard,
+    Vote,
 }
 
 export interface CAHGameSettings {

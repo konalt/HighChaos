@@ -1,12 +1,13 @@
 import * as sio from "socket.io-client";
 import { currentScene, setScene, startTimer } from "../lib/engine/engine";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
-import { deserializePlayer } from "./types";
+import { CAHGameState, deserializePlayer } from "./types";
 import { currentGame, currentPlayer } from "./game";
 import { CAHInGameBaseScene } from "./scenes/ingamebase";
 import { CAHIGLobbyState } from "./scenes/iglobby";
 import { CAHIGPlayState } from "./scenes/igplay";
 import { playSound } from "../lib/engine/sound";
+import { CAHIGVoteState } from "./scenes/igvote";
 
 export let socket: sio.Socket | null = null;
 
@@ -110,6 +111,8 @@ export function initialize() {
             // game starting!!!!
             console.log("game starting!");
 
+            currentGame.state = CAHGameState.Play;
+
             if (currentScene instanceof CAHIGLobbyState) {
                 currentScene.finish(new CAHIGPlayState(currentScene.background.particles));
             }
@@ -127,6 +130,18 @@ export function initialize() {
 
             if (currentScene instanceof CAHIGPlayState) {
                 currentScene.playerSubmitCounter.updateCurrentPlayers();
+            }
+        });
+
+        s.on("startvoting", () => {
+            if (!currentGame) return;
+
+            console.log("voting time");
+
+            currentGame.state = CAHGameState.Vote;
+
+            if (currentScene instanceof CAHIGPlayState) {
+                currentScene.finish(new CAHIGVoteState(currentScene.background.particles));
             }
         });
         //#endregion
