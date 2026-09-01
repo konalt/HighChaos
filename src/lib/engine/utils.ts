@@ -225,3 +225,28 @@ export function uuidv4() {
                   .padStart(4, "0") + s(n - 1);
     return [s(2), s(), s(), s(), s(3)].join("-");
 }
+
+/**
+ * Creates an offscreen canvas. Defaults to a square if only width is supplied.
+ * @param width The width
+ * @param height The height (optional)
+ * @returns [OffscreenCanvas, OffscreenCanvasRenderingContext2D]
+ */
+export function createOffscreenCanvas(
+    width: number,
+    height = -1,
+): [OffscreenCanvas, OffscreenCanvasRenderingContext2D] {
+    // override height if not set to make a square
+    if (height == -1) {
+        height = width;
+    }
+
+    // create the canvas and get the context
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+
+    // error handling
+    if (!ctx) throw new Error("Failed to get offscreen canvas context");
+
+    return [canvas, ctx];
+}
