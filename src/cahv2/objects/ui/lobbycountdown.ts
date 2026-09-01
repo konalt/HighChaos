@@ -20,7 +20,7 @@ export class CAHLobbyCountdown extends GameObject {
         if (!this._isCountingDown) return;
 
         // fade out alpha - overrides
-        const fadeOut = this.scene.tlerp(0, 1, false);
+        const fadeOut = this.scene.tlerp(0, 1);
 
         const t = since(this._start);
 
@@ -36,7 +36,7 @@ export class CAHLobbyCountdown extends GameObject {
         ctx.translate(w / 2, h * 1.5 - easeOutQuad(transition) * h);
         ctx.rotate(this._getRotation(t));
 
-        const scale = this.scene.tlerp(0, 1, true);
+        const scale = this.scene.tlerp(0, 1);
         ctx.scale(scale, scale);
 
         ctx.globalAlpha = fadeOut;
