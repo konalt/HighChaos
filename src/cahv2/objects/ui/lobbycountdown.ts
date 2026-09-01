@@ -3,6 +3,7 @@ import { ctx, d, font, globalTimer, h, since, timer, w } from "../../../lib/engi
 import { GameObject } from "../../../lib/engine/object";
 import { playSound } from "../../../lib/engine/sound";
 import { clamp, lerp } from "../../../lib/engine/utils";
+import { CAHIGLobbyState } from "../../scenes/iglobby";
 import { CAHInGameBaseScene } from "../../scenes/ingamebase";
 
 const MiddleBoxSize = 350;
@@ -95,6 +96,11 @@ export class CAHLobbyCountdown extends GameObject {
     private _isCountingDown = false;
 
     startCountdown(duration = 3000) {
+        // ensure its an ingame scene
+        if (!(this.scene instanceof CAHIGLobbyState)) return;
+
+        this.scene.isStarting = true;
+
         this._isCountingDown = true;
         this._duration = duration;
         this._start = globalTimer;
