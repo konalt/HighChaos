@@ -1,5 +1,5 @@
 import { easeInOutCirc, easeInQuad, easeOutQuad } from "../../../lib/engine/ease";
-import { ctx, font, globalTimer } from "../../../lib/engine/engine";
+import { ctx, font, globalTimer, timer } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
 import { createOffscreenCanvas, lerp } from "../../../lib/engine/utils";
 import { currentGame } from "../../game";
@@ -16,26 +16,35 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
     private _totalPlayers = 1;
 
     scale = 1;
+    overrideText: string | null = null;
 
     constructor(text: string) {
         super();
 
         this._octagon = this._createOctagon();
         this._subtitleText = this._createSubtitleText(text);
+
+        this.show(1);
     }
 
     draw() {
         if (!(this.scene instanceof CAHInGameBaseScene)) return;
+
+        const showHideFactor = this._showing
+            ? this.objTimer("showhidetoggle", true)
+            : 1 - this.objTimer("showhidetoggle", true);
+
+        if (showHideFactor == 0) return;
 
         // move to where we wanna be
         ctx.save();
         ctx.translate(this.x, this.y);
 
         // transition the alpha.
-        ctx.globalAlpha = this.scene.tlerp(0, 1, 0, false);
+        ctx.globalAlpha = this.scene.tlerp(0, 1, 0, false) * showHideFactor;
 
         // scale transition
-        const globalScale = this.scene.tlerp(0, 1, 0) * this.scale;
+        const globalScale = this.scene.tlerp(0, 1, 0) * this.scale * easeOutQuad(showHideFactor);
         ctx.scale(globalScale, globalScale);
 
         // rotate the octagon
@@ -65,7 +74,7 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "white";
-        ctx.fillText(`${this._currentPlayers}/${this._totalPlayers}`, 0, 0);
+        ctx.fillText(this.overrideText ?? `${this._currentPlayers}/${this._totalPlayers}`, 0, 0);
 
         ctx.restore();
     }
@@ -142,6 +151,20 @@ export class CAHInGamePlayerSubmitCounter extends GameObject {
         ctx.fillText(text, c.width / 2, c.height / 2);
 
         return c.transferToImageBitmap();
+    }
+    //#endregion
+
+    //#region showing/hiding
+    private _showing = true;
+
+    show(transition = 200) {
+        this._showing = true;
+        this.objStartTimer("showhidetoggle", transition);
+    }
+
+    hide(transition = 200) {
+        this._showing = false;
+        this.objStartTimer("showhidetoggle", transition);
     }
     //#endregion
 }
