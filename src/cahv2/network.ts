@@ -182,6 +182,17 @@ export function initialize() {
                 currentScene.finish(new CAHIGVoteResultsState(currentScene.background.particles));
             }
         });
+
+        s.on("advancevotes", ([id, duration]) => {
+            if (!currentGame) return;
+
+            console.log(`advancing votes (${id}) for ${duration}ms`);
+
+            // just put the update in the bag bro
+            if (currentScene instanceof CAHIGVoteResultsState) {
+                currentScene.advance(id, duration);
+            }
+        });
         //#endregion
 
         s.once("ack", () => {
