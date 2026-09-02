@@ -40,7 +40,7 @@ export function initialize() {
             await setScene(s);
             s.error.show(`Unfortunately, you were disconnected due to the error "${e}" :( Please report this!`, 10_000); // 10s
 
-            playSound("ui_error");
+            playSound("ui_error", 0.3);
         });
 
         s.on("ply_join", (plyData) => {
