@@ -25,6 +25,8 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
     static BigCardXOffset = BigCardXOffset;
     static BigCardY = BigCardY;
     static BigCardScale = BigCardScale;
+
+    static VoteCardScale = VoteCardScale;
     //#endregion
 
     bigCard: CAHCard;
@@ -60,7 +62,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
         }
         this.add(this.voteCounter, UI_LAYER + 2);
 
-        this.voteTitle = new CAHInGameVoteText("Vote for your favourite!");
+        this.voteTitle = new CAHInGameVoteText("Vote for your favourite!", "a");
         this.add(this.voteTitle, UI_LAYER + 7);
 
         // hopefully you never have to touch this again
@@ -72,6 +74,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
         const l = this.addLayer(UI_LAYER + 5);
         l.reverseUpdate = true;
 
+        // vote card creation
         this.voteCards = [];
         if (currentGame) {
             // create votable cards from players
@@ -99,7 +102,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
                       )
                 : currentGame.players) {
                 const card = new CAHCard();
-                card.text = ply.chosenWhiteCard;
+                card.text = whiteCardReplace(ply.chosenWhiteCard);
                 card.isWhite = true;
                 card.fontSizeFactor = 1.2;
                 card.scale = VoteCardScale;
@@ -132,23 +135,15 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
                 }
             }
         }
-
-        /* const r = new HCRect();
-        r.x = this._voteCardsAreaX;
-        r.y = this._voteCardsAreaY;
-        r.w = this._voteCardsAreaWidth;
-        r.h = this._voteCardsAreaHeight;
-        r.color = "rgba(128,128,255,0.5)";
-        this.add(r, UI_LAYER + 20); */
     }
 
     update(): void {
-        this.bigCard.x = this.leftStart + BigCardXOffset;
-        this.bigCard.y = this.tlerp(BigCardY, BigCardY, 0);
-        this.bigCard.scale = this.tlerp(BigCardScale, BigCardScale, 0);
-
         this.voteTitle.x = this.centerLine;
-        this.voteTitle.y = this.tlerp(-this.voteTitle.height, this.voteTitle.height / 2 + 10);
+        this.voteTitle.y = this.tlerp(
+            -this.voteTitle.height,
+            this.voteTitle.height / 2 + 10,
+            this.voteTitle.height / 2 + 10,
+        );
 
         this._updateInterval();
         this._updateVoteCards();
@@ -170,9 +165,11 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
             card.y = lerp(easeOutQuad(t), oy, dy);
 
             if (this._votedCardIndex != -1) {
+                card.hoverScaleAmount = lerp(easeOutQuad(timer("voted", true)), 0.05, 0);
+
                 if (card.user.voted) {
                     // make the card slightly bigger
-                    const transitionScale = lerp(easeOutQuad(timer("voted", true)), 1, 1.1);
+                    const transitionScale = lerp(easeOutQuad(timer("voted", true)), 1, 1.2);
                     card.scale = VoteCardScale * transitionScale;
                 } else {
                     // make the card slightly smaller
@@ -188,11 +185,6 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
         timerEnd(
             "cardinterval",
             () => {
-                // if its the first one
-                /* if (this._curIntervalIndex == 0) {
-                    playSound("cards/shuffle");
-                } */
-
                 console.log(`showing card ${this._curIntervalIndex}`);
 
                 playSound("cards/slip", 0.3);
