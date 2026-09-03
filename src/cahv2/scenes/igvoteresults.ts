@@ -1,11 +1,12 @@
 import { easeOutQuad } from "../../lib/engine/ease";
-import { h, removeTimer, startTimer, timer, timerEnd } from "../../lib/engine/engine";
+import { h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp, sample } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
 import { CAHInGamePlayerSubmitCounter } from "../objects/ui/ingameplayersubmitcounter";
+import { CAHInGameReactions } from "../objects/ui/ingamereactions";
 import { CAHInGameVoteText } from "../objects/ui/ingamevotetext";
 import { CAHPlayer } from "../types";
 import { blackCardReplace, whiteCardReplace } from "../utils";
@@ -16,6 +17,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     bigCard: CAHCard;
     voteCounter: CAHInGamePlayerSubmitCounter;
     voteTitle: CAHInGameVoteText;
+    reactions: CAHInGameReactions;
 
     voteCards: CAHCard[];
 
@@ -28,6 +30,10 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     private _scX: number; // showcase card X
     private _scY: number; // showcase card Y
     private _scScale: number; // showcase card Scale
+
+    private _rcX: number; // reactions card X
+    private _rcY: number; // reactions card Y
+    private _rcScale: number; // reactions card Scale
     //#endregion
 
     constructor(bgp: Particle[]) {
@@ -143,6 +149,24 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
             30 +
             (CardWidth * this._scScale) / 2;
         this._scY = this.voteCounter.y;
+
+        this._rcScale = this._scScale;
+        this._rcX = w - (CardWidth * this._rcScale) / 2 - (h - (this._scY + (CardHeight * this._scScale) / 2));
+        this._rcY = this._scY;
+
+        // calculate reactions box size
+
+        const reactionsHeight = CardHeight * this._scScale * 0.9;
+        const reactionsY = this._scY - reactionsHeight / 2;
+
+        const reactionsX =
+            this.leftStart + CAHIGVoteState.BigCardXOffset + (CardWidth * CAHIGVoteState.BigCardScale) / 2 + 30 + 10;
+        const reactionsWidth = this._rcX - (CardWidth * this._rcScale) / 2 - 20 - reactionsX;
+
+        this.reactions = new CAHInGameReactions(reactionsWidth, reactionsHeight);
+        this.reactions.x = reactionsX;
+        this.reactions.y = reactionsY;
+        this.add(this.reactions, UI_LAYER + 4);
     }
 
     update() {
@@ -150,6 +174,15 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         timerEnd("showcase_showvotes", () => {
             this.voteCounter.show();
+        });
+
+        timerEnd("showcase_move", () => {
+            if (this._currentShowcaseCard) {
+                this._currentShowcaseCard.user.showcaseMoving = true;
+                this.reactions.clipXStart = 0;
+                this.reactions.clipXEnd = 0;
+            }
+            startTimer("showcase_move_slide", 300);
         });
 
         timerEnd("showcase_end", () => {
@@ -166,20 +199,15 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     private _updateCards() {
         for (const card of this.voteCards) {
             if (card.user.showcasing) {
-                if (!card.user.showcaseEnding) {
-                    // the timer
-                    const t = timer("showcase_start", true);
-
-                    // intro animation
-                    card.x = lerp(easeOutQuad(t), card.user.ox, this._scX);
-                    card.y = lerp(easeOutQuad(t), card.user.oy, this._scY);
-                    card.scale = lerp(easeOutQuad(t), card.user.os, this._scScale);
-                } else {
+                if (card.user.showcaseEnding) {
                     // the timer
                     const t = timer("showcase_end_slide", true);
 
                     // outro (slide offscreen)
-                    card.y = lerp(easeOutQuad(t), this._scY, h + (CardHeight * this._scScale) / 2 + 10);
+                    card.y = lerp(easeOutQuad(t), this._rcY, h + (CardHeight * this._rcScale) / 2 + 10);
+
+                    // clip the other thing haha
+                    this.reactions.clipXStart = lerp(easeOutQuad(t), 0, this.reactions.width);
 
                     // on end, remove timer and make sure this card doesnt reappear
                     timerEnd("showcase_end_slide", () => {
@@ -189,6 +217,24 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
                         // remove the other timer
                         removeTimer("showcase_start");
                     });
+                } else if (card.user.showcaseMoving) {
+                    // the timer
+                    const t = timer("showcase_move_slide", true);
+
+                    // move animation
+                    card.x = lerp(easeOutQuad(t), this._scX, this._rcX);
+                    this.reactions.clipXEnd = card.x - this.reactions.x;
+                    // the y and scale are the same (for now)
+                    //card.y = lerp(easeOutQuad(t), this._scX, this._scY);
+                    //card.scale = lerp(easeOutQuad(t), card.user.os, this._scScale);
+                } else {
+                    // the timer
+                    const t = timer("showcase_start", true);
+
+                    // intro animation
+                    card.x = lerp(easeOutQuad(t), card.user.ox, this._scX);
+                    card.y = lerp(easeOutQuad(t), card.user.oy, this._scY);
+                    card.scale = lerp(easeOutQuad(t), card.user.os, this._scScale);
                 }
             }
         }
@@ -227,10 +273,12 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         card.flipFaceUp();
 
         this.voteCounter.overrideText = player.votesReceived.toString();
+        this.reactions.username = player.name;
 
         startTimer("showcase_start", 200);
         startTimer("showcase_showvotes", 1000);
-        startTimer("showcase_end", duration - 1000);
+        startTimer("showcase_move", 3000);
+        //startTimer("showcase_end", duration - 1000);
         startTimer("showcase_total", duration);
     }
 }
