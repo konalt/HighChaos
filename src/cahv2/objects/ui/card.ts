@@ -264,13 +264,12 @@ export class CAHCard extends GameObject {
                     img = CardBackBlack;
                 }
             }
-            ctx.drawImage(
-                img,
-                -this.cache.width / Resolution / 2,
-                -this.cache.height / Resolution / 2,
-                this.cache.width / Resolution,
-                this.cache.height / Resolution,
-            );
+
+            // calculate draw size
+            const drawWidth = (this.cache.width - 10) / Resolution + 10;
+            const drawHeight = (this.cache.height - 10) / Resolution + 10;
+
+            ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
         } else {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 2;
