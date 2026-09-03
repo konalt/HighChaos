@@ -160,6 +160,9 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
                 pc.y = this.tlerp(this.bigBlackCard.y, dy);
                 pc.rotation = dr; // doesnt need to be transitioned, its already 0
 
+                // make sure it does this jgjdngjhae
+                pc.hoverScaleAmount = lerp(easeOutQuad(t), 0.05, 0);
+
                 // this always has to be visible
                 pc.visible = true;
             } else {
