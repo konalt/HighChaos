@@ -36,6 +36,8 @@ export const CardFontWeight = 700;
 export const CardBackFontWeight = 800;
 export const CardFlipDuration = 300;
 
+export const Resolution = 1.5;
+
 export class CAHCard extends GameObject {
     // le cache
     private cache: ImageBitmap | null = null;
@@ -86,8 +88,12 @@ export class CAHCard extends GameObject {
     }
 
     static renderCard(text: string, isWhite: boolean, forceBigText = false, fontSizeFactor = 1) {
+        // upscale the render size
+        const rW = CardWidth * Resolution;
+        const rH = CardHeight * Resolution;
+
         // get a canvas
-        const canvas = new OffscreenCanvas(CardWidth + 10, CardHeight + 10);
+        const canvas = new OffscreenCanvas(rW + 10, rH + 10);
         const ctx = canvas.getContext("2d");
 
         // hahaha! you may be using a browser from the stone age!
@@ -104,6 +110,7 @@ export class CAHCard extends GameObject {
         // canvas setup
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(1.5, 1.5);
         ctx.fillStyle = backgroundColor;
         ctx.strokeStyle = textColor;
         ctx.lineWidth = CardOutline;
@@ -257,7 +264,13 @@ export class CAHCard extends GameObject {
                     img = CardBackBlack;
                 }
             }
-            ctx.drawImage(img, -this.cache.width / 2, -this.cache.height / 2);
+            ctx.drawImage(
+                img,
+                -this.cache.width / Resolution / 2,
+                -this.cache.height / Resolution / 2,
+                this.cache.width / Resolution,
+                this.cache.height / Resolution,
+            );
         } else {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 2;
