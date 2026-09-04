@@ -3,6 +3,7 @@ import * as c from "../lib/engine/engine";
 import { CAHMenuBaseScene } from "./scenes/menubase";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
 import { loadSounds } from "../lib/engine/sound";
+import { loadEmojis } from "./reactions";
 
 declare global {
     interface Window {
@@ -29,6 +30,8 @@ loadFonts().then(async () => {
 
     await loadSounds("cahv2");
     await loadSounds("ui");
+
+    await loadEmojis();
 
     c.setFont("'Montserrat', sans-serif");
     c.setResolution(1);

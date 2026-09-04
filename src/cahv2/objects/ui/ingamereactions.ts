@@ -1,9 +1,24 @@
-import { ctx, font } from "../../../lib/engine/engine";
+import { easeInOutBack } from "../../../lib/engine/ease";
+import { consumeMouse, ctx, CursorMode, d, deltaTime, font, getMouse, setCursorMode } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { clamp, createOffscreenCanvas, grey } from "../../../lib/engine/utils";
+import { basicPointInRect, clamp, createOffscreenCanvas, FourNums, grey, TwoNums } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { currentUsername } from "../../profile";
+import { Reaction, REACTION_IMAGES } from "../../reactions";
 import { generateEmptyAvatar } from "../../utils";
+
+const emojiSize = 95;
+
+const reactionsOrder: Reaction[] = [
+    Reaction.Joy,
+    Reaction.XD,
+    Reaction.MiddleFinger,
+    Reaction.ThumbsUp,
+    Reaction.Sob,
+    Reaction.Neutral,
+    Reaction.Teto,
+    Reaction.ThumbsDown,
+];
 
 export class CAHInGameReactions extends GameObject {
     clipXStart = 0;
@@ -22,8 +37,11 @@ export class CAHInGameReactions extends GameObject {
 
         this._background = this._renderBackground();
         this._submitter = this._renderSubmitter();
+
+        this._calculateEmojiLocations();
     }
 
+    //#region username stuff
     private _username: string = "username";
 
     set username(s: string) {
@@ -35,6 +53,7 @@ export class CAHInGameReactions extends GameObject {
     get username() {
         return this._username;
     }
+    //#endregion
 
     private _clip() {
         ctx.beginPath();
@@ -58,6 +77,25 @@ export class CAHInGameReactions extends GameObject {
         ctx.drawImage(this._background, 0, 0);
         ctx.drawImage(this._submitter, 0, 0);
 
+        // Draw emojis
+        let i = 0;
+        for (const [x, y] of this._emojiLocations) {
+            const hover = this._emojiHovers[i];
+            const scale = 1 + easeInOutBack(hover) * 0.3;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            ctx.drawImage(
+                REACTION_IMAGES[reactionsOrder[i]] ?? NULLTEXTURE,
+                -emojiSize / 2,
+                -emojiSize / 2,
+                emojiSize,
+                emojiSize,
+            );
+            ctx.restore();
+            i++;
+        }
         ctx.restore();
     }
 
@@ -68,6 +106,62 @@ export class CAHInGameReactions extends GameObject {
         // clamp that shi
         this.clipXStart = clamp(this.clipXStart, 0, this.width);
         this.clipXEnd = clamp(this.clipXEnd, 0, this.width);
+
+        this._updateEmojis();
+    }
+
+    private _emojiLocations: [number, number][] = new Array(reactionsOrder.length).fill([0, 0]);
+    private _emojiHovers: number[] = new Array(reactionsOrder.length).fill(0);
+
+    private _calculateEmojiLocations() {
+        // empty it out
+        this._emojiLocations = [];
+
+        // the margins (x is the same on both sides)
+        const marginX = 40 + emojiSize / 2;
+        const marginYTop = 20 + emojiSize / 2 + 60; // 20 for top margin, 55 for the text
+        const marginYBottom = 25 + emojiSize / 2; // 25 for the bottom margin
+
+        const emojiSpanX = this.width - marginX * 2;
+        const emojiSpanY = this.height - marginYBottom - marginYTop;
+
+        for (let y = 0; y < 2; y++) {
+            // 2 rows
+            for (let x = 0; x < 4; x++) {
+                // 4 cols
+                const emojiX = marginX + (emojiSpanX / 3) * x;
+                const emojiY = marginYTop + emojiSpanY * y;
+
+                this._emojiLocations.push([emojiX, emojiY]);
+            }
+        }
+    }
+
+    private _updateEmojis() {
+        // get the mouse (and transform it)
+        const mouse = getMouse();
+        const translatedMouse = [mouse[0] - this.x, mouse[1] - this.y] as TwoNums;
+
+        let i = 0;
+        for (const l of this._emojiLocations) {
+            // loop thru all locations
+            const rect: FourNums = [l[0] - emojiSize / 2, l[1] - emojiSize / 2, emojiSize, emojiSize];
+
+            // check if hovered
+            if (basicPointInRect(...translatedMouse, ...rect)) {
+                consumeMouse();
+                setCursorMode(CursorMode.Click);
+
+                this._emojiHovers[i] += 5 * deltaTime;
+            } else {
+                this._emojiHovers[i] -= 5 * deltaTime;
+            }
+
+            // clampmeat
+            this._emojiHovers[i] = clamp(this._emojiHovers[i]);
+
+            i++;
+        }
     }
 
     //#region rendering
