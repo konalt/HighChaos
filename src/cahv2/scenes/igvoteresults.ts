@@ -179,9 +179,12 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         timerEnd("showcase_move", () => {
             if (this._currentShowcaseCard) {
                 this._currentShowcaseCard.user.showcaseMoving = true;
-                this.reactions.clipXStart = 0;
-                this.reactions.clipXEnd = 0;
             }
+
+            this.reactions.clipXStart = 0;
+            this.reactions.clipXEnd = 0;
+            this.reactions.startProgressBar(this._currentShowcaseDuration - 3500);
+
             startTimer("showcase_move_slide", 300);
         });
 
@@ -250,6 +253,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
     private _currentShowcasePlayer: CAHPlayer | null = null;
     private _currentShowcaseCard: CAHCard | null = null;
+    private _currentShowcaseDuration = -1;
 
     advance(id: string, duration: number) {
         const card = this.voteCards.find((c) => c.user.submitterId == id);
@@ -268,6 +272,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         this._currentShowcaseCard = card;
         this._currentShowcasePlayer = player;
+        this._currentShowcaseDuration = duration;
 
         card.user.showcasing = true;
         card.flipFaceUp();
@@ -277,8 +282,8 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         startTimer("showcase_start", 200);
         startTimer("showcase_showvotes", 1000);
-        startTimer("showcase_move", 3000);
-        //startTimer("showcase_end", duration - 1000);
+        startTimer("showcase_move", 2500);
+        startTimer("showcase_end", duration - 1000);
         startTimer("showcase_total", duration);
     }
 }

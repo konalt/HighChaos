@@ -100,30 +100,10 @@ export class CAHInGameReactions extends GameObject {
         ctx.drawImage(this._background, 0, 0);
         ctx.drawImage(this._submitter, 0, 0);
 
-        // Draw emojis
-        if (!this._emojisEnabled) {
-            const t = this.objTimer("emojis_disable");
-            ctx.globalAlpha = 1 - t * 0.5;
-        }
+        this._drawEmojis();
 
-        let i = 0;
-        for (const [x, y] of this._emojiLocations) {
-            const hover = this._emojiHovers[i];
-            const scale = this._emojiScale * (1 + easeInOutQuad(hover) * 0.3);
+        this._drawProgressBar();
 
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
-            ctx.drawImage(
-                REACTION_IMAGES[reactionsOrder[i]] ?? NULLTEXTURE,
-                -emojiSize / 2,
-                -emojiSize / 2,
-                emojiSize,
-                emojiSize,
-            );
-            ctx.restore();
-            i++;
-        }
         ctx.restore();
     }
 
@@ -138,6 +118,30 @@ export class CAHInGameReactions extends GameObject {
         this._updateEmojis();
     }
 
+    //#region progress bar
+    startProgressBar(duration = 1000) {
+        this.objStartTimer("progressbar", duration, true);
+    }
+
+    private _drawProgressBar() {
+        const progressBarWidth = this.width * this.objTimer("progressbar", true);
+        const progressBarHeight = 5;
+
+        // clip to the rounded rectangle
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(0, 0, this.width, this.height, round);
+        ctx.clip();
+
+        // draw the bar
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, this.height - progressBarHeight, progressBarWidth, progressBarHeight);
+
+        ctx.restore();
+    }
+    //#endregion
+
+    //#region emojis
     private _emojiLocations: [number, number][] = new Array(reactionsOrder.length).fill([0, 0]);
     private _emojiHovers: number[] = new Array(reactionsOrder.length).fill(0);
     private _emojisEnabled = true;
@@ -212,6 +216,32 @@ export class CAHInGameReactions extends GameObject {
         }
     }
 
+    private _drawEmojis() {
+        if (!this._emojisEnabled) {
+            const t = this.objTimer("emojis_disable");
+            ctx.globalAlpha = 1 - t * 0.5;
+        }
+
+        let i = 0;
+        for (const [x, y] of this._emojiLocations) {
+            const hover = this._emojiHovers[i];
+            const scale = this._emojiScale * (1 + easeInOutQuad(hover) * 0.3);
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            ctx.drawImage(
+                REACTION_IMAGES[reactionsOrder[i]] ?? NULLTEXTURE,
+                -emojiSize / 2,
+                -emojiSize / 2,
+                emojiSize,
+                emojiSize,
+            );
+            ctx.restore();
+            i++;
+        }
+    }
+
     disableEmojis() {
         this.objStartTimer("emojis_disable", 150);
         this._emojisEnabled = false;
@@ -227,6 +257,7 @@ export class CAHInGameReactions extends GameObject {
 
         this.disableEmojis();
     }
+    //#endregion
 
     //#region rendering
     private _background: ImageBitmap;
