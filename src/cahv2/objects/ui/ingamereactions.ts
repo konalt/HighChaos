@@ -1,13 +1,36 @@
-import { easeInOutBack } from "../../../lib/engine/ease";
-import { consumeMouse, ctx, CursorMode, d, deltaTime, font, getMouse, setCursorMode } from "../../../lib/engine/engine";
+import { easeInOutBack, easeInOutQuad, easeOutQuad } from "../../../lib/engine/ease";
+import {
+    consumeMouse,
+    ctx,
+    CursorMode,
+    d,
+    deltaTime,
+    font,
+    getKeyDown,
+    getMouse,
+    setCursorMode,
+    startTimer,
+    timer,
+} from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { basicPointInRect, clamp, createOffscreenCanvas, FourNums, grey, TwoNums } from "../../../lib/engine/utils";
+import { playSound } from "../../../lib/engine/sound";
+import {
+    basicPointInRect,
+    clamp,
+    createOffscreenCanvas,
+    FourNums,
+    grey,
+    lerp,
+    TwoNums,
+} from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
+import { socket } from "../../network";
 import { currentUsername } from "../../profile";
 import { Reaction, REACTION_IMAGES } from "../../reactions";
 import { generateEmptyAvatar } from "../../utils";
 
 const emojiSize = 95;
+const round = 15;
 
 const reactionsOrder: Reaction[] = [
     Reaction.Joy,
@@ -78,10 +101,15 @@ export class CAHInGameReactions extends GameObject {
         ctx.drawImage(this._submitter, 0, 0);
 
         // Draw emojis
+        if (!this._emojisEnabled) {
+            const t = this.objTimer("emojis_disable");
+            ctx.globalAlpha = 1 - t * 0.5;
+        }
+
         let i = 0;
         for (const [x, y] of this._emojiLocations) {
             const hover = this._emojiHovers[i];
-            const scale = 1 + easeInOutBack(hover) * 0.3;
+            const scale = this._emojiScale * (1 + easeInOutQuad(hover) * 0.3);
 
             ctx.save();
             ctx.translate(x, y);
@@ -112,6 +140,8 @@ export class CAHInGameReactions extends GameObject {
 
     private _emojiLocations: [number, number][] = new Array(reactionsOrder.length).fill([0, 0]);
     private _emojiHovers: number[] = new Array(reactionsOrder.length).fill(0);
+    private _emojisEnabled = true;
+    private _emojiScale = 1; // updated by disable anim
 
     private _calculateEmojiLocations() {
         // empty it out
@@ -138,23 +168,41 @@ export class CAHInGameReactions extends GameObject {
     }
 
     private _updateEmojis() {
+        // skip update if we can
+        if (this._clippedWidth < 1) return;
+
+        // disable effect
+        if (!this._emojisEnabled) {
+            this._emojiScale = lerp(easeOutQuad(this.objTimer("emojis_disable")), 1, 0.8);
+        }
+
         // get the mouse (and transform it)
         const mouse = getMouse();
         const translatedMouse = [mouse[0] - this.x, mouse[1] - this.y] as TwoNums;
 
         let i = 0;
         for (const l of this._emojiLocations) {
+            // skip emojis that are invisible
+            if (l[0] > this._clippedWidth) continue;
+
+            const size = emojiSize * (1 + easeInOutQuad(this._emojiHovers[i]) * 0.3) * this._emojiScale;
+
             // loop thru all locations
-            const rect: FourNums = [l[0] - emojiSize / 2, l[1] - emojiSize / 2, emojiSize, emojiSize];
+            const rect: FourNums = [l[0] - size / 2, l[1] - size / 2, size, size];
 
             // check if hovered
-            if (basicPointInRect(...translatedMouse, ...rect)) {
+            if (basicPointInRect(...translatedMouse, ...rect) && this._emojisEnabled) {
                 consumeMouse();
                 setCursorMode(CursorMode.Click);
 
-                this._emojiHovers[i] += 5 * deltaTime;
+                if (getKeyDown("mouse1")) {
+                    // clicked
+                    this._handleEmojiClick(i);
+                }
+
+                this._emojiHovers[i] += 10 * deltaTime;
             } else {
-                this._emojiHovers[i] -= 5 * deltaTime;
+                this._emojiHovers[i] -= 10 * deltaTime;
             }
 
             // clampmeat
@@ -162,6 +210,22 @@ export class CAHInGameReactions extends GameObject {
 
             i++;
         }
+    }
+
+    disableEmojis() {
+        this.objStartTimer("emojis_disable", 150);
+        this._emojisEnabled = false;
+    }
+
+    private _handleEmojiClick(index: number) {
+        playSound("ui/pop", 0.35);
+
+        // send reaction to server
+        if (socket) {
+            socket.emit("reaction", index);
+        }
+
+        this.disableEmojis();
     }
 
     //#region rendering
@@ -172,7 +236,7 @@ export class CAHInGameReactions extends GameObject {
         ctx.fillStyle = "rgba(0,0,0,0.5)";
 
         ctx.beginPath();
-        ctx.roundRect(0, 0, this.width, this.height, 15);
+        ctx.roundRect(0, 0, this.width, this.height, round);
         ctx.fill();
 
         return c.transferToImageBitmap();
