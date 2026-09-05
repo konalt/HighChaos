@@ -8,8 +8,9 @@ import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
 import { Particle } from "../objects/ui/ingamebackground";
 import { CAHInGamePlayerSubmitCounter } from "../objects/ui/ingameplayersubmitcounter";
 import { CAHInGameReactions } from "../objects/ui/ingamereactions";
+import { CAHInGameRoundResults } from "../objects/ui/ingameroundresults";
 import { CAHInGameVoteText } from "../objects/ui/ingamevotetext";
-import { CAHPlayer } from "../types";
+import { CAHPlayer, CAHRoundResults } from "../types";
 import { blackCardReplace, whiteCardReplace } from "../utils";
 import { CAHIGVoteState } from "./igvote";
 import { CAHInGameBaseScene } from "./ingamebase";
@@ -19,6 +20,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     voteCounter: CAHInGamePlayerSubmitCounter;
     voteTitle: CAHInGameVoteText;
     reactions: CAHInGameReactions;
+    roundResults: CAHInGameRoundResults;
 
     voteCards: CAHCard[];
 
@@ -168,10 +170,31 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         this.reactions.x = reactionsX;
         this.reactions.y = reactionsY;
         this.add(this.reactions, UI_LAYER + 4);
+
+        this.roundResults = new CAHInGameRoundResults();
+        this.roundResults.x = this.centerLine;
+        this.roundResults.y = h * 1.5;
+        this.add(this.roundResults, UI_LAYER + 4);
+
+        removeTimer("roundresults");
+        removeTimer("bigcardleave");
     }
 
     update() {
         this._updateCards();
+        this._updateResultsScreen();
+
+        this.voteTitle.y = this.tlerp(
+            this.voteTitle.height / 2 + 10,
+            this.voteTitle.height / 2 + 10,
+            -(this.voteTitle.height / 2),
+        );
+
+        this.bigCard.y = lerp(
+            easeOutQuad(timer("bigcardleave")),
+            CAHIGVoteState.BigCardY,
+            h + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + 10,
+        );
 
         timerEnd("showcase_showvotes", () => {
             this.voteCounter.show();
@@ -295,4 +318,23 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         startTimer("showcase_end", duration - 1000);
         startTimer("showcase_total", duration);
     }
+
+    //#region results screen
+    private _showingResults = false;
+
+    private _updateResultsScreen() {
+        if (!this._showingResults) return;
+
+        const t = timer("roundresults");
+        //this.roundResults.x = this.tlerp(this.centerLine, this.centerLine, w * 1.5);
+        this.roundResults.y = this.tlerp(h / 2, lerp(easeOutQuad(t), h * 1.5, h / 2), h * 1.5);
+    }
+
+    showResults(results: CAHRoundResults) {
+        this._showingResults = true;
+        startTimer("roundresults", 500);
+        startTimer("bigcardleave", 500);
+        this.roundResults.setResults(results);
+    }
+    //#endregion
 }

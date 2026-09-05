@@ -7,6 +7,7 @@ export interface CAHPlayer {
     chosenWhiteCard: string;
     voteTarget: string;
     votesReceived: number;
+    score: number;
 }
 
 export enum CAHGameState {
@@ -45,6 +46,7 @@ export function deserializePlayer(data: string) {
         chosenWhiteCard: parsed.chosenWhiteCard,
         voteTarget: parsed.voteTarget,
         votesReceived: parsed.votesReceived,
+        score: parsed.score,
     };
     return player;
 }
@@ -65,3 +67,5 @@ export function deserializeGame(data: string) {
     }
     return game;
 }
+
+export type CAHRoundResults = [string, number][];

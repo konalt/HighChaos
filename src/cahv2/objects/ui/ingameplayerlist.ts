@@ -180,7 +180,7 @@ export class CAHInGamePlayerList extends GameObject {
         ctx.font = font(24, "bold");
         ctx.fillStyle = "#eeeeee";
         ctx.fillText(
-            ply.cardsBlack.length.toString(),
+            ply.score.toString(),
             PlayerPadding + PlayerAvatarSize + 10 + textWidth,
             h / 2 + 5,
             w - (PlayerPadding * 2 + PlayerAvatarSize + 10),

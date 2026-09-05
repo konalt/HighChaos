@@ -1,7 +1,7 @@
 import * as sio from "socket.io-client";
 import { currentScene, setScene, startTimer } from "../lib/engine/engine";
 import { CAHMainMenuScene } from "./scenes/mainmenu";
-import { CAHGameState, deserializePlayer } from "./types";
+import { CAHGameState, CAHRoundResults, deserializePlayer } from "./types";
 import { currentGame, currentPlayer } from "./game";
 import { CAHInGameBaseScene } from "./scenes/ingamebase";
 import { CAHIGLobbyState } from "./scenes/iglobby";
@@ -194,7 +194,60 @@ export function initialize() {
                 currentScene.advance(id, duration);
             }
         });
+
+        s.on("roundresults", (results: CAHRoundResults) => {
+            if (!currentGame) return;
+
+            console.log("got round results", results);
+
+            for (const [id, score] of results) {
+                const ply = currentGame.players.get(id);
+                if (!ply) continue;
+
+                ply.score += score;
+            }
+
+            if (currentScene instanceof CAHIGVoteResultsState) {
+                currentScene.showResults(results);
+                currentScene.playerList.reloadPlayers(); // needed to update the scores
+            }
+        });
+
+        s.on("repeat", (newBlackCard) => {
+            if (!currentGame) return;
+
+            console.log(`returning to start with ${newBlackCard}`);
+
+            for (const [_, ply] of currentGame.players) {
+                // remove the played card, if it exists
+                const index = ply.cardsWhite.indexOf(ply.chosenWhiteCard);
+                if (index != -1) {
+                    ply.cardsWhite.splice(index, 1);
+                }
+
+                // reset other shit
+                ply.chosenWhiteCard = "";
+                ply.voteTarget = "";
+                ply.votesReceived = 0;
+            }
+
+            currentGame.currentBlackCard = newBlackCard;
+            currentGame.state = CAHGameState.Play;
+
+            if (currentScene instanceof CAHIGVoteResultsState) {
+                currentScene.finish(new CAHIGPlayState(currentScene.background.particles));
+            }
+        });
         //#endregion
+
+        s.on("winblackcard", ([id, card]) => {
+            if (!currentGame) return;
+
+            const winner = currentGame.players.get(id);
+            if (!winner) return;
+
+            winner.cardsBlack.push(card);
+        });
 
         s.on("reaction", ([id, reaction]) => {
             if (!currentGame) return;
