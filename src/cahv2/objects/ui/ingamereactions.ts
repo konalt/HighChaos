@@ -176,7 +176,9 @@ export class CAHInGameReactions extends GameObject {
         if (this._clippedWidth < 1) return;
 
         // disable effect
-        if (!this._emojisEnabled) {
+        if (this._emojisEnabled) {
+            this._emojiScale = lerp(easeOutQuad(this.objTimer("emojis_enable")), 0.8, 1);
+        } else {
             this._emojiScale = lerp(easeOutQuad(this.objTimer("emojis_disable")), 1, 0.8);
         }
 
@@ -245,13 +247,15 @@ export class CAHInGameReactions extends GameObject {
     }
 
     disableEmojis() {
-        this.objStartTimer("emojis_disable", 150);
         this._emojisEnabled = false;
+        this.objStartTimer("emojis_disable", 150);
+        this.objRemoveTimer("emojis_enable");
     }
 
     enableEmojis() {
         this._emojisEnabled = true;
         this.objStartTimer("emojis_enable", 150);
+        this.objRemoveTimer("emojis_disable");
     }
 
     private _handleEmojiClick(index: number) {
