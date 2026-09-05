@@ -59,7 +59,7 @@ export function initialize() {
                 startTimer("plyj" + ply.id, 300);
                 currentScene.playerList.reloadPlayers();
 
-                playSound("ui/player_join");
+                playSound("ui/player_join", 0.8);
             }
         });
 

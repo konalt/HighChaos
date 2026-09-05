@@ -101,7 +101,7 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
             card.isWhite = true;
             card.scale = CardScale;
             card.onClick = () => {
-                playSound("cards/slip", 0.7);
+                playSound("cards/slip", 0.4);
                 //card.flip();
                 this.submitCard(card.user.index);
             };

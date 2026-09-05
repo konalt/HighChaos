@@ -187,7 +187,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
             () => {
                 console.log(`showing card ${this._curIntervalIndex}`);
 
-                playSound("cards/slip", 0.3);
+                playSound("cards/slip", 0.4);
                 startTimer(`cardappear${this._curIntervalIndex}`, 200);
 
                 this._curIntervalIndex++;
@@ -235,7 +235,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
 
         startTimer("voted", 200);
 
-        playSound("cards/slip");
+        playSound("cards/slip", 0.4);
 
         if (socket) {
             socket.emit("vote", this.voteCards[index].user.submitterId);

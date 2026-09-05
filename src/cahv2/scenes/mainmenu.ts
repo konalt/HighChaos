@@ -78,7 +78,6 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.createGameCard.isWhite = true;
         this.createGameCard.scale = CardScale;
         this.createGameCard.onClick = () => {
-            //playSound("ui/skinslide");
             this._createGame();
         };
         this.add(this.createGameCard, UI_LAYER);

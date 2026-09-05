@@ -248,7 +248,7 @@ export class CAHInGameReactions extends GameObject {
     }
 
     private _handleEmojiClick(index: number) {
-        playSound("ui/pop", 0.35);
+        playSound("ui/pop", 0.3);
 
         // send reaction to server
         if (socket) {

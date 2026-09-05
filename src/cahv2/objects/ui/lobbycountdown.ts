@@ -106,7 +106,7 @@ export class CAHLobbyCountdown extends GameObject {
         this._start = globalTimer;
         this.objStartTimer("countdown", duration);
 
-        playSound("ui/skinslide");
+        playSound("ui/skinslide", 0.8);
     }
     //#endregion
 }

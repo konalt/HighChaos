@@ -100,7 +100,7 @@ export class CAHMenuTitle extends GameObject {
             if (getKeyDown("mouse1") && !this.isFlipping) {
                 this.isFlipping = true;
                 startTimer(`flip${this.uuid}`, 500);
-                playSound("cards/slip", 0.6);
+                playSound("cards/slip", 0.4);
             }
         }
     }
