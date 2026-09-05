@@ -116,6 +116,8 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
 
                 this.voteCards.push(card);
                 this.add(card, UI_LAYER + 5);
+
+                removeTimer(`cardappear${i}`);
                 i++;
 
                 dx += incrementX;

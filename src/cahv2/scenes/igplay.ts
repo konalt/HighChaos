@@ -1,5 +1,5 @@
 import { easeInOutBack, easeOutQuad } from "../../lib/engine/ease";
-import { d, globalTimer, startTimer, timer, w } from "../../lib/engine/engine";
+import { d, globalTimer, removeTimer, startTimer, timer, w } from "../../lib/engine/engine";
 import { Layer } from "../../lib/engine/layer";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { playSound } from "../../lib/engine/sound";
@@ -85,6 +85,8 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
             this.playerSubmitCounter.updateTotalPlayers();
         }
         this.add(this.playerSubmitCounter, UI_LAYER + 2);
+
+        removeTimer("cardsubmit");
     }
 
     private _clearCards() {
@@ -137,7 +139,7 @@ export class CAHIGPlayState extends CAHInGameBaseScene {
             let theta = pc.user.theta - totalArc / 2 - Math.PI / 2;
             let rad = HandRadius + pc._hoverTransition * 70;
             rad -= this.tlerp(CardHeight, 0); // in/out transition effect
-            rad -= lerp(easeOutQuad(timer("canplaytoggle", true)) * (this.canPlay ? -1 : 1), 0, CardHeight / 2); // play ability effect
+            if (!this.canPlay) rad -= lerp(easeOutQuad(timer("canplaytoggle", true)), 0, CardHeight / 2); // play ability effect
 
             if (i == this._submittedCardIndex) {
                 // this card has been submitted we need to move it to the right place
