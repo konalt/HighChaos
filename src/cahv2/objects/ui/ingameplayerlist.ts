@@ -232,14 +232,10 @@ export class CAHInGamePlayerList extends GameObject {
     update() {
         this.width = this._element.width;
 
-        timerEnd(
-            "reactions_hide",
-            () => {
-                this._isHiding = false;
-                this._currentReactions.clear();
-            },
-            true,
-        );
+        this.objTimerEnd("reactions_hide", () => {
+            this._isHiding = false;
+            this._currentReactions.clear();
+        });
     }
 
     draw() {
