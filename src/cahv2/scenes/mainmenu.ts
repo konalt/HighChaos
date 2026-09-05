@@ -64,7 +64,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.joinGameCard.scale = CardScale;
         this.joinGameCard.onClick = () => {
             this._setCardsEnabled(false);
-            playSound("ui/skinslide", 0.8);
+            playSound("ui/skinslide", 0.75);
             startTimer("joincard_slide_out", TransitionDuration);
             startTimer("roomcode_slide", TransitionDuration);
             this._isTransitioning = true;
@@ -90,7 +90,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.roomCodeBackCard.scale = CardScale * 0.8;
         this.roomCodeBackCard.onClick = () => {
             this._setCardsEnabled(true);
-            playSound("ui/skinslide", 0.8);
+            playSound("ui/skinslide", 0.75);
             startTimer("roomcode_slide_out", TransitionDuration);
             startTimer("joincard_slide", TransitionDuration);
             this._isTransitioning = true;

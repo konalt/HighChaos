@@ -71,7 +71,7 @@ export class CAHSceneTransition extends GameObject {
         this._onFinish = onFinish;
         startTimer(`cover${this.uuid}`, Duration);
 
-        playSound("ui/skinslide", 0.8);
+        playSound("ui/skinslide", 0.75);
     }
 
     uncover(onFinish = () => {}) {
