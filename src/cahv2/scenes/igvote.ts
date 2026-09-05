@@ -90,17 +90,7 @@ export class CAHIGVoteState extends CAHInGameBaseScene {
             let dx = 0;
             let dy = 0;
 
-            const placeholderCards = false;
-
-            // worst for loop ever award
-            for (const [_, ply] of placeholderCards
-                ? new Array(8)
-                      .fill(0)
-                      .map(
-                          (_) =>
-                              ["", { chosenWhiteCard: whiteCardReplace(sample(window.cardsWhite)), id: "" }] as const,
-                      )
-                : currentGame.players) {
+            for (const [_, ply] of currentGame.players) {
                 const card = new CAHCard();
                 card.text = whiteCardReplace(ply.chosenWhiteCard);
                 card.isWhite = true;
