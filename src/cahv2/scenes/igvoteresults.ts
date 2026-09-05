@@ -1,6 +1,7 @@
 import { easeOutQuad } from "../../lib/engine/ease";
 import { h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
+import { playSound } from "../../lib/engine/sound";
 import { lerp, sample } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
 import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
@@ -185,6 +186,8 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
             this.reactions.clipXEnd = 0;
             this.reactions.startProgressBar(this._currentShowcaseDuration - 3500);
 
+            playSound("cards/light", 0.8);
+
             startTimer("showcase_move_slide", 300);
         });
 
@@ -194,6 +197,9 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
             if (this._currentShowcaseCard) {
                 this._currentShowcaseCard.user.showcaseEnding = true;
             }
+
+            playSound("ui/skinslide", 0.75);
+
             startTimer("showcase_end_slide", 300);
         });
 
@@ -280,6 +286,8 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         this.voteCounter.overrideText = player.votesReceived.toString();
         this.reactions.username = player.name;
+
+        playSound("cards/slip", 0.4);
 
         startTimer("showcase_start", 200);
         startTimer("showcase_showvotes", 1000);
