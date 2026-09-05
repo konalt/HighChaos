@@ -37,6 +37,8 @@ export class CAHErrorBox extends GameObject {
     }
 
     update() {
+        if (this._stage == 0) return;
+
         super.update();
         ctx.font = font(FontSize);
         ctx.textBaseline = "top";
