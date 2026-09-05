@@ -4,6 +4,7 @@ import { createOffscreenCanvas } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { currentGame } from "../../game";
 import { CAHRoundResults } from "../../types";
+import { circularAvatar } from "../../utils";
 
 const Width = 650;
 const Padding = 20;
@@ -61,7 +62,7 @@ export class CAHInGameRoundResults extends GameObject {
             let x = Padding;
 
             // draw avatar
-            ctx.drawImage(NULLTEXTURE, x, -PlayerHeight / 2, PlayerHeight, PlayerHeight);
+            ctx.drawImage(circularAvatar(NULLTEXTURE, PlayerHeight), x, -PlayerHeight / 2, PlayerHeight, PlayerHeight);
             x += PlayerHeight + 10; // avatar + gap
 
             // draw name
