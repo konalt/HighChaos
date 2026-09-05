@@ -9,6 +9,7 @@ import { CAHIGPlayState } from "./scenes/igplay";
 import { playSound } from "../lib/engine/sound";
 import { CAHIGVoteState } from "./scenes/igvote";
 import { CAHIGVoteResultsState } from "./scenes/igvoteresults";
+import { Reaction } from "./reactions";
 
 export let socket: sio.Socket | null = null;
 
@@ -194,6 +195,16 @@ export function initialize() {
             }
         });
         //#endregion
+
+        s.on("reaction", ([id, reaction]) => {
+            if (!currentGame) return;
+
+            console.log(`${id} reacted with ${reaction} (${Reaction[reaction]})`);
+
+            if (currentScene instanceof CAHInGameBaseScene) {
+                currentScene.playerList.handleReaction(id, reaction);
+            }
+        });
 
         s.once("ack", () => {
             socket = s;

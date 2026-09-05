@@ -26,7 +26,7 @@ export class CAHInGameBaseScene extends CAHBaseScene {
         this.leftStart = this.playerList.width;
         this.width = w - this.leftStart;
         this.centerLine = w / 2 + this.leftStart / 2;
-        this.add(this.playerList, UI_LAYER + 1);
+        this.add(this.playerList, UI_LAYER + 20);
     }
 
     update(): void {

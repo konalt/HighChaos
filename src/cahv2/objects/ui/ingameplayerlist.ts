@@ -1,9 +1,12 @@
-import { easeOutCirc } from "../../../lib/engine/ease";
+import { easeInOutBack, easeOutCirc } from "../../../lib/engine/ease";
 import { addToAtlas, ctx, font, h, timer, timerEnd } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { playSound } from "../../../lib/engine/sound";
+import { lerp } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
-import { currentGame } from "../../game";
+import { currentGame, currentPlayer } from "../../game";
+import { Reaction, REACTION_IMAGES } from "../../reactions";
 import { CAHPlayer } from "../../types";
 import { generateEmptyAvatar } from "../../utils";
 
@@ -19,6 +22,8 @@ const PlayerPadding = 20;
 const PlayerAvatarSize = PlayerHeight - PlayerPadding * 2;
 const PlayerRound = 10;
 const PlayerGap = 10;
+
+const ReactionSize = 100;
 
 export class CAHInGamePlayerList extends GameObject {
     private _path: Path2D;
@@ -206,6 +211,15 @@ export class CAHInGamePlayerList extends GameObject {
 
     update() {
         this.width = this._element.width;
+
+        timerEnd(
+            "reactions_hide",
+            () => {
+                this._isHiding = false;
+                this._currentReactions.clear();
+            },
+            true,
+        );
     }
 
     draw() {
@@ -217,11 +231,37 @@ export class CAHInGamePlayerList extends GameObject {
         ctx.translate(Padding + PlayerWidth / 2, Padding + TitleFontSize + Padding + PlayerHeight / 2);
         for (const [id, img] of this._images) {
             ctx.save();
+
+            // draw reaction if its here
+            if (this._currentReactions.has(id)) {
+                const reaction = this._currentReactions.get(id) as Reaction; // its okay, we know its not undefined
+                const t = this.objTimer(`react${id}`, true) * (this._isHiding ? this.objTimer("reactions_hide") : 1);
+                const scale = lerp(easeInOutBack(t), 0.5, 1);
+
+                // setup
+                ctx.save();
+                ctx.translate(PlayerWidth / 4 + 200 * easeInOutBack(t), 0);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = t;
+
+                ctx.drawImage(
+                    REACTION_IMAGES[reaction],
+                    -ReactionSize / 2,
+                    -ReactionSize / 2,
+                    ReactionSize,
+                    ReactionSize,
+                );
+
+                ctx.restore();
+            }
+
+            // scale in effect
             if (timer("plyj" + id, true)) {
                 const t = easeOutCirc(timer("plyj" + id, true));
                 ctx.scale(t, t);
                 timerEnd("plyj" + id);
             }
+
             ctx.drawImage(img, -PlayerWidth / 2, -PlayerHeight / 2, PlayerWidth, PlayerHeight);
             ctx.restore();
             ctx.translate(0, img.height + PlayerGap);
@@ -232,4 +272,22 @@ export class CAHInGamePlayerList extends GameObject {
     init() {
         this.reloadPlayers();
     }
+
+    //#region reactions
+    private _currentReactions: Map<string, Reaction> = new Map();
+    private _isHiding = false;
+
+    handleReaction(id: string, reaction: Reaction) {
+        // sound is played clientside so we dont wanna play it twice
+        if (id !== currentPlayer.id) playSound("ui/pop", 0.3);
+
+        this._currentReactions.set(id, reaction);
+        this.objStartTimer(`react${id}`, 300);
+    }
+
+    hideReactions() {
+        this._isHiding = true;
+        this.objStartTimer("reactions_hide", 300, true);
+    }
+    //#endregion
 }

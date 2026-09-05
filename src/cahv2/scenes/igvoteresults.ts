@@ -190,6 +190,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         timerEnd("showcase_end", () => {
             this.voteCounter.hide();
+            this.playerList.hideReactions();
             if (this._currentShowcaseCard) {
                 this._currentShowcaseCard.user.showcaseEnding = true;
             }
