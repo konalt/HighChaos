@@ -130,7 +130,7 @@ export class CAHInGamePlayerList extends GameObject {
         // background
         ctx.beginPath();
         ctx.roundRect(0, 0, w, h, PlayerRound);
-        ctx.fillStyle = "#131313d0";
+        ctx.fillStyle = "#0c0c0c";
         ctx.fill();
 
         // avatar
@@ -156,13 +156,33 @@ export class CAHInGamePlayerList extends GameObject {
 
         // name
         ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.font = font(28);
-        ctx.fillStyle = "#fff";
+        ctx.textBaseline = "bottom";
+        ctx.font = font(28, "bold");
+        ctx.fillStyle = "#ffffff";
         ctx.fillText(
             ply.name,
             PlayerPadding + PlayerAvatarSize + 10,
-            h / 2,
+            h / 2 + 5,
+            w - (PlayerPadding * 2 + PlayerAvatarSize + 10),
+        );
+
+        // score
+        ctx.textBaseline = "top";
+        ctx.font = font(24);
+        ctx.fillStyle = "#dddddd";
+        const textWidth = ctx.measureText("Score: ").width;
+        ctx.fillText(
+            "Score: ",
+            PlayerPadding + PlayerAvatarSize + 10,
+            h / 2 + 5,
+            w - (PlayerPadding * 2 + PlayerAvatarSize + 10),
+        );
+        ctx.font = font(24, "bold");
+        ctx.fillStyle = "#eeeeee";
+        ctx.fillText(
+            ply.cardsBlack.length.toString(),
+            PlayerPadding + PlayerAvatarSize + 10 + textWidth,
+            h / 2 + 5,
             w - (PlayerPadding * 2 + PlayerAvatarSize + 10),
         );
 
