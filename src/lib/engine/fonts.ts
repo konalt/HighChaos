@@ -18,3 +18,30 @@ export async function loadFonts(fonts?: string[]) {
     }
     return document.fonts.ready;
 }
+
+// new advanced method
+export interface HCFontFace {
+    style: "normal" | "italic";
+    weight: number;
+    src: string;
+}
+
+export interface HCFont {
+    name: string;
+    faces: HCFontFace[];
+}
+
+export async function loadFontsAdvanced(fonts: HCFont[]) {
+    for (const font of fonts) {
+        for (const face of font.faces) {
+            const f = new FontFace(font.name, `url("${face.src}")`, {
+                display: "swap",
+                style: face.style,
+                weight: face.weight.toString(),
+            });
+            document.fonts.add(f);
+            f.load();
+        }
+    }
+    return document.fonts.ready;
+}

@@ -1,0 +1,95 @@
+{
+    "name": "Montserrat",
+    "faces": [
+        {
+            "style": "normal",
+            "weight": 100,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-100.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 100,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-100italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 200,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-200.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 200,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-200italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 300,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-300.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 300,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-300italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 400,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-regular.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 400,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 500,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-500.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 500,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-500italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 600,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-600.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 600,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-600italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 700,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-700.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 700,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-700italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 800,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-800.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 800,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-800italic.woff2"
+        },
+        {
+            "style": "normal",
+            "weight": 900,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-900.woff2"
+        },
+        {
+            "style": "italic",
+            "weight": 900,
+            "src": "/fonts/f/montserrat-v29-cyrillic_latin-900italic.woff2"
+        }
+    ]
+}
