@@ -340,6 +340,7 @@ export class CAHCard extends GameObject {
     }
 
     set isWhite(isWhite: boolean) {
+        if (isWhite == this._isWhite) return;
         this._isWhite = isWhite;
         this.createCache();
     }
@@ -349,6 +350,7 @@ export class CAHCard extends GameObject {
     }
 
     set forceBigText(forceBigText: boolean) {
+        if (forceBigText == this._forceBigText) return;
         this._forceBigText = forceBigText;
         this.createCache();
     }
@@ -358,6 +360,7 @@ export class CAHCard extends GameObject {
     }
 
     set fontSizeFactor(fontSizeFactor: number) {
+        if (fontSizeFactor == this._fontSizeFactor) return;
         this._fontSizeFactor = fontSizeFactor;
         this.createCache();
     }
