@@ -330,6 +330,7 @@ export class CAHCard extends GameObject {
     }
 
     set text(text: string) {
+        if (text == this._text) return;
         this._text = text;
         this.createCache();
     }
