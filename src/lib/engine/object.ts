@@ -50,7 +50,7 @@ export class GameObject {
     }
 
     objTimer(name: string, clamp = true) {
-        return timer(this.uuid + name);
+        return timer(this.uuid + name, clamp);
     }
 
     objTimerEnd(name: string, cb = () => {}, remove = true) {
