@@ -201,7 +201,7 @@ export class CAHInGameReactions extends GameObject {
 
                 if (getKeyDown("mouse1")) {
                     // clicked
-                    this._handleEmojiClick(i);
+                    this._handleEmojiClick(reactionsOrder[i]);
                 }
 
                 this._emojiHovers[i] += 10 * deltaTime;
