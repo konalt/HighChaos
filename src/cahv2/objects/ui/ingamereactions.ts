@@ -100,9 +100,9 @@ export class CAHInGameReactions extends GameObject {
         ctx.drawImage(this._background, 0, 0);
         ctx.drawImage(this._submitter, 0, 0);
 
-        this._drawEmojis();
-
         this._drawProgressBar();
+
+        this._drawEmojis();
 
         ctx.restore();
     }
@@ -217,6 +217,7 @@ export class CAHInGameReactions extends GameObject {
     }
 
     private _drawEmojis() {
+        ctx.save();
         if (!this._emojisEnabled) {
             const t = this.objTimer("emojis_disable");
             ctx.globalAlpha = 1 - t * 0.5;
@@ -240,11 +241,17 @@ export class CAHInGameReactions extends GameObject {
             ctx.restore();
             i++;
         }
+        ctx.restore();
     }
 
     disableEmojis() {
         this.objStartTimer("emojis_disable", 150);
         this._emojisEnabled = false;
+    }
+
+    enableEmojis() {
+        this._emojisEnabled = true;
+        this.objStartTimer("emojis_enable", 150);
     }
 
     private _handleEmojiClick(index: number) {
