@@ -65,16 +65,11 @@ export class CAHInGameReactions extends GameObject {
     }
 
     //#region username stuff
-    private _username: string = "username";
+    username: string = "username";
+    avatar: HTMLImageElement = NULLTEXTURE;
 
-    set username(s: string) {
-        this._username = s;
-
+    updateImage() {
         this._submitter = this._renderSubmitter();
-    }
-
-    get username() {
-        return this._username;
     }
     //#endregion
 
@@ -311,7 +306,7 @@ export class CAHInGameReactions extends GameObject {
 
         ctx.save();
         ctx.clip(avatarMask);
-        ctx.drawImage(generateEmptyAvatar(), currentX, currentY - avatarSize / 2, avatarSize, avatarSize); // TODO: add avatars
+        ctx.drawImage(this.avatar, currentX, currentY - avatarSize / 2, avatarSize, avatarSize); // TODO: add avatars
         ctx.restore();
 
         ctx.strokeStyle = "#fff";
@@ -322,7 +317,7 @@ export class CAHInGameReactions extends GameObject {
 
         ctx.font = font(30, "600");
         ctx.fillStyle = grey(0.8);
-        const username = " " + this._username; // space for avatar spacing
+        const username = " " + this.username; // space for avatar spacing
         const usernameWidth = ctx.measureText(username).width;
         ctx.fillText(username, currentX, currentY);
         currentX += usernameWidth;

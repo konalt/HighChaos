@@ -16,11 +16,12 @@ import { HCButton } from "../../lib/ui/hcbutton";
 import { CAHSettingsButton } from "../objects/ui/settingsbtn";
 import { CAHSettingsScene } from "./settings";
 import { CAHMenuProfile } from "../objects/ui/menuprofile";
-import { currentUsername } from "../profile";
+import { currentAvatarString, currentUsername } from "../profile";
 import { CAHButton } from "../objects/ui/cahbtn";
 import { COLOR } from "../color";
 import { CAHIGLobbyState } from "./iglobby";
 import { playSound } from "../../lib/engine/sound";
+import { CAHMenuProfileEdit } from "../objects/ui/menuprofileedit";
 
 const CardCenterGap = 600;
 const CardY = 750;
@@ -46,6 +47,7 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
     settingsButton: CAHSettingsButton;
 
     menuProfile: CAHMenuProfile;
+    menuProfileEdit: CAHMenuProfileEdit;
 
     socket: Socket | null = null;
 
@@ -53,6 +55,8 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
 
     constructor() {
         super();
+
+        this.reverseUpdate = true;
 
         this.title = new CAHMenuTitle();
         this.add(this.title, UI_LAYER + 3);
@@ -160,7 +164,13 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         this.menuProfile = new CAHMenuProfile();
         this.menuProfile.x = 20;
         this.menuProfile.y = 20;
+        this.menuProfile.onClick = () => {
+            this.menuProfileEdit.show();
+        };
         this.add(this.menuProfile, UI_LAYER);
+
+        this.menuProfileEdit = new CAHMenuProfileEdit();
+        this.add(this.menuProfileEdit, UI_LAYER + 3);
     }
 
     private _setCardsEnabled(e: boolean) {
@@ -220,22 +230,29 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
                 const socket = await initialize();
                 this.socket = socket;
 
-                socket.emit("join_game", code, currentUsername, token, (response: string) => {
-                    const [responseType, responseData] = response.split("\uE000");
-                    if (responseType != "OK") {
-                        reject(response);
-                        return;
-                    }
-                    const game = deserializeGame(responseData);
+                socket.emit(
+                    "join_game",
+                    code,
+                    currentUsername,
+                    token,
+                    currentAvatarString,
+                    async (response: string) => {
+                        const [responseType, responseData] = response.split("\uE000");
+                        if (responseType != "OK") {
+                            reject(response);
+                            return;
+                        }
+                        const game = await deserializeGame(responseData);
 
-                    const p = game.players.get(socket.id ?? "");
-                    if (!p) throw "what the FUCK";
+                        const p = game.players.get(socket.id ?? "");
+                        if (!p) throw "what the FUCK";
 
-                    setPlayer(p);
-                    setGame(game);
-                    this._toLobby();
-                    resolve(game);
-                });
+                        setPlayer(p);
+                        setGame(game);
+                        this._toLobby();
+                        resolve(game);
+                    },
+                );
             });
         } catch (e: any) {
             console.error(e);
@@ -251,13 +268,13 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
             const socket = await initialize();
             this.socket = socket;
 
-            socket.emit("join_game", code, currentUsername, "", (response: string) => {
+            socket.emit("join_game", code, currentUsername, "", currentAvatarString, async (response: string) => {
                 const [responseType, responseData] = response.split("\uE000");
                 if (responseType != "OK") {
                     reject(response);
                     return;
                 }
-                const game = deserializeGame(responseData);
+                const game = await deserializeGame(responseData);
 
                 const p = game.players.get(socket.id ?? "");
                 if (!p) throw "what the FUCK";

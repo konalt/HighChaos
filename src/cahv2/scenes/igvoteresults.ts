@@ -300,6 +300,8 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
         this.voteCounter.overrideText = player.votesReceived.toString();
         this.reactions.username = player.name;
+        this.reactions.avatar = player.avatar;
+        this.reactions.updateImage();
         this.reactions.enableEmojis();
 
         playSound("cards/slip", 0.4);

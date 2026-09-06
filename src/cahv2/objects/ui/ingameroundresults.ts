@@ -62,7 +62,7 @@ export class CAHInGameRoundResults extends GameObject {
             let x = Padding;
 
             // draw avatar
-            ctx.drawImage(circularAvatar(NULLTEXTURE, PlayerHeight), x, -PlayerHeight / 2, PlayerHeight, PlayerHeight);
+            ctx.drawImage(circularAvatar(ply.avatar, PlayerHeight), x, -PlayerHeight / 2, PlayerHeight, PlayerHeight);
             x += PlayerHeight + 10; // avatar + gap
 
             // draw name

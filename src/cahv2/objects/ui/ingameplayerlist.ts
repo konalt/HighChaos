@@ -141,13 +141,7 @@ export class CAHInGamePlayerList extends GameObject {
 
         ctx.save();
         ctx.clip(avatarMask);
-        ctx.drawImage(
-            generateEmptyAvatar(),
-            PlayerPadding,
-            (h - PlayerAvatarSize) / 2,
-            PlayerAvatarSize,
-            PlayerAvatarSize,
-        ); // TODO: add avatars
+        ctx.drawImage(ply.avatar, PlayerPadding, (h - PlayerAvatarSize) / 2, PlayerAvatarSize, PlayerAvatarSize);
         ctx.restore();
 
         ctx.strokeStyle = "#fff";

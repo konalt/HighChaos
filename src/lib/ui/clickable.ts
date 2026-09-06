@@ -1,4 +1,4 @@
-import { ctx, CursorMode, d, getKeyDown, getMouse, setCursorMode } from "../engine/engine";
+import { canHover, ctx, CursorMode, d, getKeyDown, getMouse, setCursorMode } from "../engine/engine";
 import { GameObject } from "../engine/object";
 import { Anchor, anchorToCoords, basicPointInRect, clamp, FourNums, grey, lerp } from "../engine/utils";
 
@@ -34,7 +34,7 @@ export class Clickable extends GameObject {
 
         // check if mouse is hovering
         let mouse = getMouse(true);
-        this._hovered = !this.ignore && basicPointInRect(...mouse, this.bx, this.by, this.bw, this.bh);
+        this._hovered = !this.ignore && basicPointInRect(...mouse, this.bx, this.by, this.bw, this.bh) && canHover();
 
         if (this._hovered) {
             this._hoverTransition += this.hoverAnimationSpeed;

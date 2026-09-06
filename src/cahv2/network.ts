@@ -44,10 +44,10 @@ export function initialize() {
             playSound("ui_error", 0.3);
         });
 
-        s.on("ply_join", (plyData) => {
+        s.on("ply_join", async (plyData) => {
             if (!currentGame) return;
 
-            const ply = deserializePlayer(plyData);
+            const ply = await deserializePlayer(plyData);
 
             if (currentGame.players.has(ply.id)) {
                 throw new Error("what????");

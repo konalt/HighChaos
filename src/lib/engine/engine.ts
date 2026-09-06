@@ -589,10 +589,13 @@ export function addToAtlas(img: HTMLImageElement | ImageBitmap, id = "") {
 }
 
 export async function loadImageAbsolute(url: string) {
-    return new Promise<HTMLImageElement>((resolve) => {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
             resolve(img);
+        };
+        img.onerror = (e) => {
+            reject(e);
         };
         img.src = url;
     });
@@ -1082,6 +1085,28 @@ export function wrap(text: string, width: number, fontOverride = "") {
     lines.push(curLine.join(" "));
 
     return lines;
+}
+
+export function acceptFile(accept = "image/*") {
+    return new Promise<string>((res, rej) => {
+        let input = document.createElement("input");
+        input.type = "file";
+        input.accept = accept;
+        input.onchange = () => {
+            let file = Array.from(input.files ?? [])[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                if (typeof reader.result == "string") {
+                    res(reader.result);
+                } else {
+                    rej(`reader.result was ${typeof reader.result} instead of string`);
+                }
+            });
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    });
 }
 
 declare global {

@@ -74,4 +74,23 @@ export function circularAvatar(avatar: HTMLImageElement | ImageBitmap, size = 25
     return c.transferToImageBitmap();
 }
 
+export function bitmapToDataURL(img: ImageBitmap) {
+    const [c, ctx] = createOffscreenCanvas(img.width, img.height);
+    ctx.drawImage(img, 0, 0);
+
+    return new Promise<string>((resolve, reject) => {
+        c.convertToBlob().then((b) => {
+            // OH NO FILEREADERSYNC IS ONLY AVAILABLE IN WORKERS
+            // BETTER DO SOME JANKY CALLBACK SHIT!!!
+            const r = new FileReader();
+
+            r.onload = () => {
+                resolve(r.result as string);
+            };
+
+            r.readAsDataURL(b);
+        });
+    });
+}
+
 export const IDBName = "CAHV2";

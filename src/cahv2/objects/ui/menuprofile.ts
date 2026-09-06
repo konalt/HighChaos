@@ -3,8 +3,8 @@ import { GameObject } from "../../../lib/engine/object";
 import { lerp } from "../../../lib/engine/utils";
 import { Clickable } from "../../../lib/ui/clickable";
 import { COLOR } from "../../color";
-import { currentUsername, setUsername } from "../../profile";
-import { generateEmptyAvatar } from "../../utils";
+import { currentAvatar, currentUsername, setUsername } from "../../profile";
+import { circularAvatar, generateEmptyAvatar } from "../../utils";
 
 const Width = 400;
 const Height = 80;
@@ -20,18 +20,10 @@ export class CAHMenuProfile extends Clickable {
     constructor() {
         super();
 
-        this._avatarDisplay = this._generateDisplayAvatar(generateEmptyAvatar());
+        this._avatarDisplay = circularAvatar(currentAvatar, 128);
 
         this.bw = Width;
         this.bh = Height;
-
-        this.onClick = () => {
-            const newName = prompt("Enter new username", currentUsername);
-
-            if (newName) {
-                setUsername(newName);
-            }
-        };
     }
 
     update() {
@@ -39,6 +31,10 @@ export class CAHMenuProfile extends Clickable {
 
         this.bx = this.x;
         this.by = this.y;
+    }
+
+    updateAvatar() {
+        this._avatarDisplay = circularAvatar(currentAvatar, 128);
     }
 
     draw() {
@@ -64,24 +60,5 @@ export class CAHMenuProfile extends Clickable {
             this.y + Height / 2 + AvatarSize * 0.2,
             Width - this.x - Padding * 2 - AvatarSize - Gap,
         );
-    }
-
-    private _generateDisplayAvatar(avatar: ImageBitmap) {
-        const canvas = new OffscreenCanvas(AvatarSize, AvatarSize);
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) throw new Error(":3");
-
-        ctx.save();
-        ctx.roundRect(0, 0, AvatarSize, AvatarSize, AvatarRoundRadius);
-        ctx.clip();
-        ctx.drawImage(avatar, 0, 0, AvatarSize, AvatarSize);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "white";
-        ctx.stroke();
-
-        const img = canvas.transferToImageBitmap();
-        addToAtlas(img);
-        return img;
     }
 }
