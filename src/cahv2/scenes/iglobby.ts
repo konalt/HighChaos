@@ -1,14 +1,11 @@
-import { easeOutQuad } from "../../lib/engine/ease";
-import { h, setScene, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
+import { h, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
-import { lerp } from "../../lib/engine/utils";
 import { currentGame, currentPlayer } from "../game";
 import { socket } from "../network";
 import { CAHButton } from "../objects/ui/cahbtn";
 import { Particle } from "../objects/ui/ingamebackground";
 import { CAHLobbyCodeDisplay } from "../objects/ui/lobbycodedisplay";
 import { CAHLobbyCountdown } from "../objects/ui/lobbycountdown";
-import { CAHIGPlayState } from "./igplay";
 import { CAHInGameBaseScene } from "./ingamebase";
 
 export class CAHIGLobbyState extends CAHInGameBaseScene {
