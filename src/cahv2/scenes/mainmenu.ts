@@ -326,10 +326,6 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
             this.roomCodeJoinButton.needsUpdate = true;
             this.roomCodeInput.needsUpdate = true;
         }
-
-        if (getKeyDown("mouse1")) {
-            playSound("teto", 0.3);
-        }
     }
 
     async init(data: any) {
