@@ -187,8 +187,6 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
             h + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + 10,
         );
 
-        this.playerList.x = this.tlerp(0, 0, -this.playerList.width);
-
         timerEnd("showcase_showvotes", () => {
             this.voteCounter.show();
         });
