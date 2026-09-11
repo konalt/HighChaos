@@ -235,10 +235,12 @@ export class CAHInGamePlayerList extends GameObject {
     draw() {
         if (!this._element) return;
 
+        ctx.save();
+        ctx.translate(this.x, 0);
         ctx.drawImage(this._element, 0, 0);
 
-        ctx.save();
         ctx.translate(Padding + PlayerWidth / 2, Padding + TitleFontSize + Padding + PlayerHeight / 2);
+
         for (const [id, img] of this._images) {
             ctx.save();
 

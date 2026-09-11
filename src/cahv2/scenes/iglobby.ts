@@ -37,7 +37,7 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
             if (socket) {
                 socket.emit("start");
             }
-            //this.finish(new CAHIGPlayState(this.background.particles));
+            /* this.finish(new CAHIGFinalScoreState(this.background.particles)); */
         };
         this.add(this.startButton, UI_LAYER);
 
@@ -49,6 +49,8 @@ export class CAHIGLobbyState extends CAHInGameBaseScene {
         this.codeDisplay.x = this.centerLine;
         this.codeDisplay.y = this.tlerp(-200, 200);
         this.startButton.x = this.tlerp(w + 400, w - 20);
+
+        this.playerList.x = this.tlerp(-this.playerList.width, 0, 0);
 
         // only enable start button if there are enough players
         this.startButton.disabled = currentGame.players.size < 1 || this.isStarting;

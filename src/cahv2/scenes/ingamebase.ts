@@ -23,14 +23,15 @@ export class CAHInGameBaseScene extends CAHBaseScene {
         this.add(this.background, UI_LAYER);
 
         this.playerList = new CAHInGamePlayerList();
-        this.leftStart = this.playerList.width;
+        this.add(this.playerList, UI_LAYER + 10);
+
+        this.leftStart = this.playerList.x + this.playerList.width;
         this.width = w - this.leftStart;
         this.centerLine = w / 2 + this.leftStart / 2;
-        this.add(this.playerList, UI_LAYER + 10);
     }
 
     update(): void {
-        this.leftStart = this.playerList.width;
+        this.leftStart = this.playerList.x + this.playerList.width;
         this.width = w - this.leftStart;
         this.centerLine = w / 2 + this.leftStart / 2;
 
