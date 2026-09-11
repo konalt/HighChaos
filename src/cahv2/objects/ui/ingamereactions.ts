@@ -26,7 +26,7 @@ import {
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { socket } from "../../network";
 import { currentUsername } from "../../profile";
-import { Reaction, REACTION_IMAGES } from "../../reactions";
+import { playReactionSound, Reaction, REACTION_IMAGES } from "../../reactions";
 import { generateEmptyAvatar } from "../../utils";
 
 const emojiSize = 95;
@@ -254,7 +254,7 @@ export class CAHInGameReactions extends GameObject {
     }
 
     private _handleEmojiClick(index: number) {
-        playSound("ui/pop", 0.3);
+        playReactionSound(index as Reaction);
 
         // send reaction to server
         if (socket) {
@@ -306,7 +306,7 @@ export class CAHInGameReactions extends GameObject {
 
         ctx.save();
         ctx.clip(avatarMask);
-        ctx.drawImage(this.avatar, currentX, currentY - avatarSize / 2, avatarSize, avatarSize); // TODO: add avatars
+        ctx.drawImage(this.avatar, currentX, currentY - avatarSize / 2, avatarSize, avatarSize);
         ctx.restore();
 
         ctx.strokeStyle = "#fff";

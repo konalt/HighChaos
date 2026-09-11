@@ -6,7 +6,7 @@ import { lerp } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
 import { currentGame, currentPlayer } from "../../game";
-import { Reaction, REACTION_IMAGES } from "../../reactions";
+import { playReactionSound, Reaction, REACTION_IMAGES } from "../../reactions";
 import { CAHPlayer } from "../../types";
 import { generateEmptyAvatar } from "../../utils";
 
@@ -291,7 +291,9 @@ export class CAHInGamePlayerList extends GameObject {
 
     handleReaction(id: string, reaction: Reaction) {
         // sound is played clientside so we dont wanna play it twice
-        if (id !== currentPlayer.id) playSound("ui/pop", 0.3);
+        if (id !== currentPlayer.id) {
+            playReactionSound(reaction);
+        }
 
         this._currentReactions.set(id, reaction);
         this.objStartTimer(`react${id}`, 300);

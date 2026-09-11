@@ -1,4 +1,5 @@
 import { loadImage } from "../lib/engine/engine";
+import { playSound } from "../lib/engine/sound";
 import { NULLTEXTURE } from "../lib/ui/hcimage";
 
 export enum Reaction {
@@ -30,5 +31,16 @@ export async function loadEmojis() {
         const id = Reaction[val].toLowerCase();
 
         REACTION_IMAGES[val] = await loadImage(`cahv2/emoji/${id}.png`);
+    }
+}
+
+export function playReactionSound(r: Reaction) {
+    switch (r) {
+        case Reaction.Teto:
+            playSound("teto", 0.3);
+            break;
+        default:
+            playSound("ui/pop", 0.3);
+            break;
     }
 }

@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import { easeOutQuad } from "../../lib/engine/ease";
-import { debugMode, font, h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
+import { debugMode, font, getKeyDown, h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
 import { UI_LAYER } from "../../lib/engine/scene";
 import { lerp } from "../../lib/engine/utils";
 import { initialize } from "../network";
@@ -325,6 +325,10 @@ export class CAHMainMenuScene extends CAHMenuBaseScene {
         if (this._isTransitioning) {
             this.roomCodeJoinButton.needsUpdate = true;
             this.roomCodeInput.needsUpdate = true;
+        }
+
+        if (getKeyDown("mouse1")) {
+            playSound("teto", 0.3);
         }
     }
 
