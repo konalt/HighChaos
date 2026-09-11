@@ -10,6 +10,7 @@ import { playSound } from "../lib/engine/sound";
 import { CAHIGVoteState } from "./scenes/igvote";
 import { CAHIGVoteResultsState } from "./scenes/igvoteresults";
 import { Reaction } from "./reactions";
+import { CAHIGFinalScoreState } from "./scenes/igfinalscore";
 
 export let socket: sio.Socket | null = null;
 
@@ -236,6 +237,52 @@ export function initialize() {
 
             if (currentScene instanceof CAHIGVoteResultsState) {
                 currentScene.finish(new CAHIGPlayState(currentScene.background.particles));
+            }
+        });
+
+        s.on("finalscore", () => {
+            if (!currentGame) return;
+
+            if (currentScene instanceof CAHIGVoteResultsState) {
+                currentScene.finish(new CAHIGFinalScoreState(currentScene.background.particles));
+            }
+        });
+
+        s.on("finalscore_advance", (step: number) => {
+            if (!currentGame) return;
+
+            if (currentScene instanceof CAHIGFinalScoreState) {
+                switch (step) {
+                    case 0:
+                        currentScene.podium.showBronze();
+                        break;
+                    case 1:
+                        currentScene.podium.showSilver();
+                        break;
+                    case 2:
+                        currentScene.podium.showGold();
+                        break;
+                }
+            }
+        });
+
+        s.on("end", () => {
+            if (!currentGame) return;
+
+            for (const [_, ply] of currentGame.players) {
+                // reset all that stuff
+                ply.chosenWhiteCard = "";
+                ply.voteTarget = "";
+                ply.votesReceived = 0;
+                ply.score = 0;
+                ply.cardsBlack = [];
+                ply.cardsWhite = [];
+            }
+
+            currentGame.state = CAHGameState.WaitingForPlayers;
+
+            if (currentScene instanceof CAHIGFinalScoreState) {
+                currentScene.finish(new CAHIGLobbyState(currentScene.background.particles));
             }
         });
         //#endregion
