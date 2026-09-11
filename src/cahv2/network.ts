@@ -131,6 +131,10 @@ export function initialize() {
 
             sply.chosenWhiteCard = card;
 
+            if (id != currentPlayer.id) {
+                playSound("ui/pop", 0.3);
+            }
+
             if (currentScene instanceof CAHIGPlayState) {
                 currentScene.playerSubmitCounter.updateCurrentPlayers((ply) => !!ply.chosenWhiteCard);
             }
@@ -157,6 +161,10 @@ export function initialize() {
             console.log(`player ${vid} voted for ${tid}`);
 
             vply.voteTarget = tid;
+
+            if (vid != currentPlayer.id) {
+                playSound("ui/pop", 0.3);
+            }
 
             if (currentScene instanceof CAHIGVoteState) {
                 currentScene.voteCounter.updateCurrentPlayers((ply) => !!ply.voteTarget);
