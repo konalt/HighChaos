@@ -9,6 +9,7 @@ import { Particle } from "../objects/ui/ingamebackground";
 import { CAHInGamePlayerSubmitCounter } from "../objects/ui/ingameplayersubmitcounter";
 import { CAHInGameReactions } from "../objects/ui/ingamereactions";
 import { CAHInGameRoundResults } from "../objects/ui/ingameroundresults";
+import { CAHInGameVoteCount } from "../objects/ui/ingamevotecount";
 import { CAHInGameVoteText } from "../objects/ui/ingamevotetext";
 import { CAHPlayer, CAHRoundResults } from "../types";
 import { blackCardReplace, whiteCardReplace } from "../utils";
@@ -17,7 +18,7 @@ import { CAHInGameBaseScene } from "./ingamebase";
 
 export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     bigCard: CAHCard;
-    voteCounter: CAHInGamePlayerSubmitCounter;
+    voteCount: CAHInGameVoteCount;
     voteTitle: CAHInGameVoteText;
     reactions: CAHInGameReactions;
     roundResults: CAHInGameRoundResults;
@@ -42,6 +43,9 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
     constructor(bgp: Particle[]) {
         super(bgp);
 
+        this._scScale = 0.8;
+        this._rcScale = this._scScale;
+
         this.bigCard = new CAHCard();
         this.bigCard = new CAHCard();
         if (currentGame) {
@@ -53,13 +57,20 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         this.bigCard.clickable = false;
         this.add(this.bigCard, UI_LAYER + 6);
 
-        this.voteCounter = new CAHInGamePlayerSubmitCounter("Votes");
-        this.voteCounter.x = this.leftStart + CAHIGVoteState.BigCardXOffset;
-        this.voteCounter.y = (CAHIGVoteState.BigCardY + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + h) / 2; // halfway between bottom of big card and bottom of screen
-        this.voteCounter.scale = 0.85;
-        this.voteCounter.overrideText = "0";
-        this.voteCounter.hide(1);
-        this.add(this.voteCounter, UI_LAYER + 2);
+        // vote counter params
+        const voteCountWidth = CardWidth * CAHIGVoteState.BigCardScale;
+        const voteCountHeight = CardHeight * this._scScale * 0.9;
+        const voteCountX = this.leftStart + CAHIGVoteState.BigCardXOffset - voteCountWidth / 2;
+        const voteCountY =
+            (CAHIGVoteState.BigCardY + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + h) / 2 - voteCountHeight / 2;
+
+        this.voteCount = new CAHInGameVoteCount(voteCountWidth, voteCountHeight);
+        this.voteCount.user.oy = this.bigCard.y - voteCountHeight / 2; // Original Y
+        this.voteCount.user.ty = voteCountY; // Target Y
+        this.voteCount.user.fy = voteCountY + voteCountHeight * 1.5; // Final Y
+        this.voteCount.x = voteCountX;
+        this.voteCount.y = this.voteCount.user.oy;
+        this.add(this.voteCount, UI_LAYER + 4);
 
         this.voteTitle = new CAHInGameVoteText("Vote for your favourite!", "The results are in!");
         this.voteTitle.x = this.centerLine;
@@ -135,16 +146,14 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
             }
         }
 
-        this._scScale = 0.8;
         this._scX =
             this.leftStart +
             CAHIGVoteState.BigCardXOffset +
             (CardWidth * CAHIGVoteState.BigCardScale) / 2 +
             30 +
             (CardWidth * this._scScale) / 2;
-        this._scY = this.voteCounter.y;
+        this._scY = (CAHIGVoteState.BigCardY + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + h) / 2;
 
-        this._rcScale = this._scScale;
         this._rcX = w - (CardWidth * this._rcScale) / 2 - (h - (this._scY + (CardHeight * this._scScale) / 2));
         this._rcY = this._scY;
 
@@ -173,6 +182,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
 
     update() {
         this._updateCards();
+        this._updateVoteCount();
         this._updateResultsScreen();
 
         this.voteTitle.y = this.tlerp(
@@ -188,7 +198,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         );
 
         timerEnd("showcase_showvotes", () => {
-            this.voteCounter.show();
+            this._showVoteCount();
         });
 
         timerEnd("showcase_move", () => {
@@ -206,7 +216,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         });
 
         timerEnd("showcase_end", () => {
-            this.voteCounter.hide();
+            this._hideVoteCount();
             this.playerList.hideReactions();
             if (this._currentShowcaseCard) {
                 this._currentShowcaseCard.user.showcaseEnding = true;
@@ -298,7 +308,7 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         card.user.showcasing = true;
         card.flipFaceUp();
 
-        this.voteCounter.overrideText = player.votesReceived.toString();
+        this.voteCount.updateContent(player.voters);
         this.reactions.username = player.name;
         this.reactions.avatar = player.avatar;
         this.reactions.updateImage();
@@ -329,6 +339,44 @@ export class CAHIGVoteResultsState extends CAHInGameBaseScene {
         startTimer("roundresults", 500);
         startTimer("bigcardleave", 500);
         this.roundResults.setResults(results);
+    }
+    //#endregion
+
+    //#region vote count thing
+    private _voteCountIn = false;
+    private _voteCountOut = false;
+
+    private _updateVoteCount() {
+        if (this._voteCountOut) {
+            // transition to below the screen
+            this.voteCount.y = lerp(
+                easeOutQuad(timer("votecount_out")),
+                this.voteCount.user.ty,
+                this.voteCount.user.fy,
+            );
+        } else if (this._voteCountIn) {
+            // transition from card
+            this.voteCount.y = lerp(easeOutQuad(timer("votecount_in")), this.voteCount.user.oy, this.voteCount.user.ty);
+        }
+
+        timerEnd("votecount_out", () => {
+            // remove timers and reset vars
+            removeTimer("votecount_in");
+            removeTimer("votecount_out");
+
+            this._voteCountIn = false;
+            this._voteCountOut = false;
+        });
+    }
+
+    private _showVoteCount() {
+        this._voteCountIn = true;
+        startTimer("votecount_in", 300);
+    }
+
+    private _hideVoteCount() {
+        this._voteCountOut = true;
+        startTimer("votecount_out", 300);
     }
     //#endregion
 }

@@ -171,13 +171,13 @@ export function initialize() {
             }
         });
 
-        s.on("voteresults", (tally: Record<string, number>) => {
+        s.on("voteresults", (tally: Record<string, string[]>) => {
             if (!currentGame) return;
 
             console.log("votes received", tally);
 
             // parse the votes
-            for (const [id, count] of Object.entries(tally)) {
+            for (const [id, voters] of Object.entries(tally)) {
                 const ply = currentGame.players.get(id);
 
                 if (!ply) {
@@ -185,7 +185,7 @@ export function initialize() {
                     continue;
                 }
 
-                ply.votesReceived = count;
+                ply.voters = voters;
             }
 
             if (currentScene instanceof CAHIGVoteState) {
@@ -237,7 +237,7 @@ export function initialize() {
                 // reset other shit
                 ply.chosenWhiteCard = "";
                 ply.voteTarget = "";
-                ply.votesReceived = 0;
+                ply.voters = [];
             }
 
             currentGame.currentBlackCard = newBlackCard;
@@ -281,7 +281,7 @@ export function initialize() {
                 // reset all that stuff
                 ply.chosenWhiteCard = "";
                 ply.voteTarget = "";
-                ply.votesReceived = 0;
+                ply.voters = [];
                 ply.score = 0;
                 ply.cardsBlack = [];
                 ply.cardsWhite = [];

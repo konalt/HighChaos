@@ -10,7 +10,7 @@ export interface CAHPlayer {
     cardsBlack: string[];
     chosenWhiteCard: string;
     voteTarget: string;
-    votesReceived: number;
+    voters: string[];
     score: number;
 }
 
@@ -52,7 +52,7 @@ export async function deserializePlayer(data: string) {
         cardsWhite: parsed.cardsWhite,
         chosenWhiteCard: parsed.chosenWhiteCard,
         voteTarget: parsed.voteTarget,
-        votesReceived: parsed.votesReceived,
+        voters: parsed.voters,
         score: parsed.score,
     };
     return player;
