@@ -1,4 +1,4 @@
-import { CanvasStyle, ctx, debugMode, font, h, w } from "../../../lib/engine/engine";
+import { addToAtlas, CanvasStyle, ctx, debugMode, font, h, w } from "../../../lib/engine/engine";
 import { Anchor, anchorToCoords, lerp } from "../../../lib/engine/utils";
 import { Clickable } from "../../../lib/ui/clickable";
 import { COLOR } from "../../color";
@@ -70,7 +70,9 @@ export class CAHButton extends Clickable {
         octx.fillStyle = "white";
         octx.fillText(t, 5, 5);
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     update(): void {

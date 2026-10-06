@@ -1,8 +1,18 @@
+import { NULLTEXTURE } from "../ui/hcimage";
 import { SceneCamera } from "./camera";
 import { FadeDuration } from "./constants";
 import { log } from "./log";
 import { Scene } from "./scene";
-import { Anchor, anchorToCoords, basicPointInRect, TwoNums } from "./utils";
+import { DebugAtlas } from "./scenes/atlas";
+import { Anchor, anchorToCoords, basicPointInRect, TwoNums, uuidv4 } from "./utils";
+
+declare global {
+    interface Window {
+        hc: Record<string, any>;
+    }
+}
+
+window.hc = {};
 
 let canvasMain: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 let ctxMain: CanvasRenderingContext2D = canvasMain.getContext("2d") as CanvasRenderingContext2D;
@@ -342,8 +352,10 @@ function handleKeyUp(event: KeyboardEvent) {
 }
 let mouseX = 0;
 let mouseY = 0;
+let mouseConsumed = false;
 let screenTransform: DOMMatrix | undefined;
 export function getMouse(screenSpace = false): TwoNums {
+    //if (mouseConsumed) return [-Infinity, -Infinity];
     if (screenSpace) {
         if (!screenTransform) return [0, 0];
         const p = new DOMPoint(mouseX * resolutionMultiplier, mouseY * resolutionMultiplier);
@@ -359,6 +371,12 @@ export function getMouse(screenSpace = false): TwoNums {
         zoomed = [zoomed[0] + w / 2, zoomed[1] + h / 2]; // put it back
         return zoomed;
     }
+}
+export function consumeMouse() {
+    mouseConsumed = true;
+}
+export function canHover() {
+    return !mouseConsumed;
 }
 export function transformPoint(point: TwoNums, transform: DOMMatrix): TwoNums {
     const p = new DOMPoint(...point);
@@ -460,6 +478,8 @@ export function setFont(newFont: string) {
 
 //#region timers
 export let globalTimer = 0;
+let globalTimerOffset = 0;
+let tsChangeTime = 0;
 let timers: Record<string, [number, number, boolean]> = {};
 export function startTimer(name: string, duration: number, inverse = false) {
     //log("timers", `Started timer ${name} with duration ${duration}${inverse ? " (inverse)" : ""}`);
@@ -541,73 +561,50 @@ export function setCursorMode(mode: CursorMode) {
 //#endregion
 
 //#region Assets
+export const images: Map<string, HTMLImageElement | ImageBitmap> = new Map();
+
 export async function loadImage(url: string) {
+    //if (images.get(url)) return images.get(url) ?? NULLTEXTURE;
+
     return new Promise<HTMLImageElement>((resolve) => {
         const img = new Image();
         img.onload = () => {
+            images.set(url, img);
             resolve(img);
+        };
+        img.onerror = (e) => {
+            console.error(`Error while loading image ${url}`, e);
+            resolve(NULLTEXTURE);
         };
         img.src = `/assets/img/${url}`;
     });
 }
 
+export function addToAtlas(img: HTMLImageElement | ImageBitmap, id = "") {
+    if (!debugMode) return;
+
+    if (!id) id = uuidv4();
+
+    images.set(id, img);
+}
+
 export async function loadImageAbsolute(url: string) {
-    return new Promise<HTMLImageElement>((resolve) => {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
             resolve(img);
+        };
+        img.onerror = (e) => {
+            reject(e);
         };
         img.src = url;
     });
 }
 //#endregion
 
-//#region Sound
-const sounds: Record<string, AudioBuffer> = {};
-const sources: Record<string, AudioBufferSourceNode[]> = {};
-
-export async function loadSounds(soundList: string[]) {
-    for (const path of soundList) {
-        const id = path.replace(/\//g, "_");
-        const arrayBuffer = await (await fetch(`/assets/snd/${path}.mp3`)).arrayBuffer();
-        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
-            sounds[id] = audioBuffer;
-        });
-    }
-}
-
-let audioContext: AudioContext;
-let volume = 1;
-let gains: [number, GainNode][] = [];
-export function playSound(sndID: string, vol = 1, loop = false) {
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = vol * volume;
-    gainNode.connect(audioContext.destination);
-    gains.push([vol, gainNode]);
-    const source = audioContext.createBufferSource();
-    source.loop = loop;
-    source.buffer = sounds[sndID];
-    source.connect(gainNode);
-    source.start(0);
-    if (!sources[sndID]) sources[sndID] = [];
-    sources[sndID].push(source);
-    source.addEventListener("ended", () => {
-        if (!source.loop) {
-            gains = gains.filter((g) => g[1] !== gainNode);
-        }
-    });
-    return source;
-}
-export function setGlobalVolume(newVolume: number) {
-    volume = newVolume;
-    for (const [originalVolume, node] of gains) {
-        node.gain.value = originalVolume * newVolume;
-    }
-}
-//#endregion
-
 //#region drawing shit
 export let deltaTime = 1;
+let timeScale = 1;
 let lastLoop = performance.now();
 const fpsc: number[] = [];
 const fpscc = 5;
@@ -622,8 +619,17 @@ function calculateFPS() {
     if (fpsc.length > fpscc) fpsc.shift();
     deltaTime = (thisLoop - lastLoop) / targetFramerate;
     if (deltaTime > 2) deltaTime = 2;
+    deltaTime *= timeScale;
     lastLoop = thisLoop;
 }
+
+export function setTimeScale(n: number) {
+    globalTimerOffset = globalTimer;
+    tsChangeTime = performance.now();
+    timeScale = n;
+}
+
+window.hc.setTimeScale = setTimeScale;
 
 /**
  * Must be called after calculateFPS()
@@ -706,9 +712,9 @@ function drawDebugInfo() {
     debugText.push(HEAD("Debug Camera"));
     debugText.push(`Center: ${Math.floor(debugCamera.x)} ${Math.floor(debugCamera.y)}`);
     debugText.push(`Zoom: ${Math.floor(debugCamera.zoom * 1e4) / 1e4}x`);
-    debugText.push(HEAD("Sound"));
+    /* debugText.push(HEAD("Sound"));
     debugText.push(`Current volume: ${Math.round(volume * 100)}%`);
-    debugText.push(`Sounds playing: ${gains.length}`);
+    debugText.push(`Sounds playing: ${gains.length}`); */
     if (debugLines.length > 0) {
         debugText.push(HEAD("Game Debug"));
         debugText.push(...debugLines);
@@ -721,13 +727,14 @@ function drawDebugInfo() {
 }
 
 function draw() {
-    globalTimer = performance.now();
+    globalTimer = globalTimerOffset + (performance.now() - tsChangeTime) * timeScale;
     try {
         if (!currentScene) {
             if (isLoadingScene) {
                 justPressed = [];
                 justReleased = [];
                 typingKeys = [];
+                mouseConsumed = false;
                 requestAnimationFrame(draw);
                 ctx.clearRect(0, 0, w, h);
                 text(w / 2, h / 2, "Loading...", "white", font(46), "center");
@@ -741,6 +748,7 @@ function draw() {
             justPressed = [];
             justReleased = [];
             typingKeys = [];
+            mouseConsumed = false;
             requestAnimationFrame(draw);
             return;
         }
@@ -749,6 +757,9 @@ function draw() {
             debugMode = !debugMode;
             debugCameraFollowsSceneCamera = true;
             localStorage.setItem("debug", Number(debugMode).toString());
+        }
+        if (getKeyDown("F4")) {
+            setScene(new DebugAtlas());
         }
         if (debugMode) {
             handleDebugKeys();
@@ -797,6 +808,7 @@ function draw() {
     justPressed = [];
     justReleased = [];
     typingKeys = [];
+    mouseConsumed = false;
     requestAnimationFrame(draw);
 }
 //#endregion
@@ -832,7 +844,6 @@ export function init(_g: string) {
     );
     onResize();
     window.setResolution = setResolution;
-    audioContext = new AudioContext();
     window.addEventListener("resize", onResize);
     lastLoop = performance.now();
     draw();
@@ -1074,6 +1085,28 @@ export function wrap(text: string, width: number, fontOverride = "") {
     lines.push(curLine.join(" "));
 
     return lines;
+}
+
+export function acceptFile(accept = "image/*") {
+    return new Promise<string>((res, rej) => {
+        let input = document.createElement("input");
+        input.type = "file";
+        input.accept = accept;
+        input.onchange = () => {
+            let file = Array.from(input.files ?? [])[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                if (typeof reader.result == "string") {
+                    res(reader.result);
+                } else {
+                    rej(`reader.result was ${typeof reader.result} instead of string`);
+                }
+            });
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    });
 }
 
 declare global {

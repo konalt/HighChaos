@@ -12,6 +12,7 @@ export class GameObject {
     visible: boolean;
     uuid: string;
     spawnTime: number;
+    user: Record<string, any> = {};
 
     constructor() {
         this.x = 0;
@@ -49,7 +50,7 @@ export class GameObject {
     }
 
     objTimer(name: string, clamp = true) {
-        return timer(this.uuid + name);
+        return timer(this.uuid + name, clamp);
     }
 
     objTimerEnd(name: string, cb = () => {}, remove = true) {

@@ -1,17 +1,25 @@
+import { loadImageAbsolute } from "../lib/engine/engine";
+import { NULLTEXTURE } from "../lib/ui/hcimage";
+
 export interface CAHPlayer {
     id: string;
     name: string;
+    avatar: HTMLImageElement;
     isHost: boolean;
+    cardsWhite: string[];
+    cardsBlack: string[];
+    chosenWhiteCard: string;
+    voteTarget: string;
+    voters: string[];
+    score: number;
 }
 
 export enum CAHGameState {
     WaitingForPlayers,
     Countdown,
     Play,
-    Slideshow,
-    Voting,
-    VoteSlideshow,
-    Leaderboard,
+    Vote,
+    VoteResults,
 }
 
 export interface CAHGameSettings {
@@ -28,19 +36,29 @@ export interface CAHGame {
     settings: CAHGameSettings;
     state: CAHGameState;
     hostId: string;
+    currentBlackCard: string;
 }
 
-export function deserializePlayer(data: string) {
+export async function deserializePlayer(data: string) {
     const parsed = JSON.parse(data);
+    const decodedAvatar = await loadImageAbsolute(parsed.avatarData);
+
     const player: CAHPlayer = {
         id: parsed.id,
         name: parsed.name,
+        avatar: decodedAvatar,
         isHost: parsed.isHost,
+        cardsBlack: parsed.cardsBlack,
+        cardsWhite: parsed.cardsWhite,
+        chosenWhiteCard: parsed.chosenWhiteCard,
+        voteTarget: parsed.voteTarget,
+        voters: parsed.voters,
+        score: parsed.score,
     };
     return player;
 }
 
-export function deserializeGame(data: string) {
+export async function deserializeGame(data: string) {
     const parsed = JSON.parse(data);
     const game: CAHGame = {
         players: new Map(),
@@ -48,10 +66,13 @@ export function deserializeGame(data: string) {
         settings: parsed.settings,
         hostId: parsed.hostId,
         state: parsed.state,
+        currentBlackCard: parsed.currentBlackCard,
     };
     for (const playerData of parsed.players) {
-        const playerParsed = JSON.parse(playerData);
+        const playerParsed = await deserializePlayer(playerData);
         game.players.set(playerParsed.id, playerParsed);
     }
     return game;
 }
+
+export type CAHRoundResults = [string, number][];

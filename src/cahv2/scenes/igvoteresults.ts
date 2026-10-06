@@ -1,0 +1,381 @@
+import { easeOutQuad } from "../../lib/engine/ease";
+import { h, removeTimer, startTimer, timer, timerEnd, w } from "../../lib/engine/engine";
+import { UI_LAYER } from "../../lib/engine/scene";
+import { playSound } from "../../lib/engine/sound";
+import { lerp } from "../../lib/engine/utils";
+import { currentGame, currentPlayer } from "../game";
+import { CAHCard, CardHeight, CardWidth } from "../objects/ui/card";
+import { Particle } from "../objects/ui/ingamebackground";
+import { CAHInGameReactions } from "../objects/ui/ingamereactions";
+import { CAHInGameRoundResults } from "../objects/ui/ingameroundresults";
+import { CAHInGameVoteCount } from "../objects/ui/ingamevotecount";
+import { CAHInGameVoteText } from "../objects/ui/ingamevotetext";
+import { CAHPlayer, CAHRoundResults } from "../types";
+import { blackCardReplace, whiteCardReplace } from "../utils";
+import { CAHIGVoteState } from "./igvote";
+import { CAHInGameBaseScene } from "./ingamebase";
+
+export class CAHIGVoteResultsState extends CAHInGameBaseScene {
+    bigCard: CAHCard;
+    voteCount: CAHInGameVoteCount;
+    voteTitle: CAHInGameVoteText;
+    reactions: CAHInGameReactions;
+    roundResults: CAHInGameRoundResults;
+
+    voteCards: CAHCard[];
+
+    private _voteCardsAreaWidth = 0;
+    private _voteCardsAreaHeight = 0;
+    private _voteCardsAreaX = 0;
+    private _voteCardsAreaY = 0;
+
+    //#region card showcase
+    private _scX: number; // showcase card X
+    private _scY: number; // showcase card Y
+    private _scScale: number; // showcase card Scale
+
+    private _rcX: number; // reactions card X
+    private _rcY: number; // reactions card Y
+    private _rcScale: number; // reactions card Scale
+    //#endregion
+
+    constructor(bgp: Particle[]) {
+        super(bgp);
+
+        this._scScale = 0.8;
+        this._rcScale = this._scScale;
+
+        this.bigCard = new CAHCard();
+        this.bigCard = new CAHCard();
+        if (currentGame) {
+            this.bigCard.text = blackCardReplace(currentGame.currentBlackCard);
+        }
+        this.bigCard.x = this.leftStart + CAHIGVoteState.BigCardXOffset;
+        this.bigCard.y = CAHIGVoteState.BigCardY;
+        this.bigCard.scale = CAHIGVoteState.BigCardScale;
+        this.bigCard.clickable = false;
+        this.add(this.bigCard, UI_LAYER + 6);
+
+        // vote counter params
+        const voteCountWidth = CardWidth * CAHIGVoteState.BigCardScale;
+        const voteCountHeight = CardHeight * this._scScale * 0.9;
+        const voteCountX = this.leftStart + CAHIGVoteState.BigCardXOffset - voteCountWidth / 2;
+        const voteCountY =
+            (CAHIGVoteState.BigCardY + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + h) / 2 - voteCountHeight / 2;
+
+        this.voteCount = new CAHInGameVoteCount(voteCountWidth, voteCountHeight);
+        this.voteCount.user.oy = this.bigCard.y - voteCountHeight / 2; // Original Y
+        this.voteCount.user.ty = voteCountY; // Target Y
+        this.voteCount.user.fy = voteCountY + voteCountHeight * 1.5; // Final Y
+        this.voteCount.x = voteCountX;
+        this.voteCount.y = this.voteCount.user.oy;
+        this.add(this.voteCount, UI_LAYER + 4);
+
+        this.voteTitle = new CAHInGameVoteText("Vote for your favourite!", "The results are in!");
+        this.voteTitle.x = this.centerLine;
+        this.voteTitle.y = this.voteTitle.height / 2 + 10;
+        this.add(this.voteTitle, UI_LAYER + 7);
+
+        // hopefully you never have to touch this again
+        this._voteCardsAreaX =
+            this.leftStart + CAHIGVoteState.BigCardXOffset + (CardWidth * CAHIGVoteState.BigCardScale) / 2 + 60;
+        this._voteCardsAreaWidth =
+            this.width - (CAHIGVoteState.BigCardXOffset + (CardWidth * CAHIGVoteState.BigCardScale) / 2 + 60 + 60);
+        this._voteCardsAreaY = CAHIGVoteState.BigCardY - (CardHeight * CAHIGVoteState.BigCardScale) / 2;
+        this._voteCardsAreaHeight = CardHeight * CAHIGVoteState.BigCardScale;
+
+        const l = this.addLayer(UI_LAYER + 5);
+        l.reverseUpdate = true;
+
+        this.voteCards = [];
+        if (currentGame) {
+            // create votable cards from players
+            let i = 0;
+
+            const cardsX = 4;
+            const cardsY = 2;
+            const spanX = this._voteCardsAreaWidth - CardWidth * CAHIGVoteState.VoteCardScale;
+            const spanY = this._voteCardsAreaHeight - CardHeight * CAHIGVoteState.VoteCardScale;
+            const incrementX = spanX / (cardsX - 1);
+            const incrementY = spanY / (cardsY - 1);
+
+            let dx = 0;
+            let dy = 0;
+
+            // worst for loop ever award
+            for (const [_, ply] of currentGame.players) {
+                const card = new CAHCard();
+                card.text = whiteCardReplace(ply.chosenWhiteCard);
+                card.isWhite = true;
+                card.fontSizeFactor = 1.2;
+                card.scale = CAHIGVoteState.VoteCardScale;
+                card.clickable = false;
+
+                // user stuff
+                card.user.index = i;
+                card.user.submitterId = ply.id;
+                card.user.showcasing = false;
+                card.user.showcaseEnding = false;
+
+                card.user.voted = ply.id == currentPlayer.voteTarget;
+                if (card.user.voted) {
+                    card.scale = CAHIGVoteState.VoteCardScale * 1.2;
+                } else {
+                    card.setFlip(1);
+                    card.scale = CAHIGVoteState.VoteCardScale * 0.8;
+                }
+
+                card.user.ox = this._voteCardsAreaX + (CardWidth * CAHIGVoteState.VoteCardScale) / 2 + dx;
+                card.user.oy = this._voteCardsAreaY + (CardHeight * CAHIGVoteState.VoteCardScale) / 2 + dy;
+                card.user.os = card.scale;
+
+                card.x = card.user.ox;
+                card.y = card.user.oy;
+
+                console.log(card);
+                this.voteCards.push(card);
+                this.add(card, UI_LAYER + 5);
+                i++;
+
+                dx += incrementX;
+                if (dx > spanX) {
+                    dx = 0;
+                    dy += incrementY;
+                }
+            }
+        }
+
+        this._scX =
+            this.leftStart +
+            CAHIGVoteState.BigCardXOffset +
+            (CardWidth * CAHIGVoteState.BigCardScale) / 2 +
+            30 +
+            (CardWidth * this._scScale) / 2;
+        this._scY = (CAHIGVoteState.BigCardY + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + h) / 2;
+
+        this._rcX = w - (CardWidth * this._rcScale) / 2 - (h - (this._scY + (CardHeight * this._scScale) / 2));
+        this._rcY = this._scY;
+
+        // calculate reactions box size
+
+        const reactionsHeight = CardHeight * this._scScale * 0.9;
+        const reactionsY = this._scY - reactionsHeight / 2;
+
+        const reactionsX =
+            this.leftStart + CAHIGVoteState.BigCardXOffset + (CardWidth * CAHIGVoteState.BigCardScale) / 2 + 30 + 10;
+        const reactionsWidth = this._rcX - (CardWidth * this._rcScale) / 2 - 20 - reactionsX;
+
+        this.reactions = new CAHInGameReactions(reactionsWidth, reactionsHeight);
+        this.reactions.x = reactionsX;
+        this.reactions.y = reactionsY;
+        this.add(this.reactions, UI_LAYER + 4);
+
+        this.roundResults = new CAHInGameRoundResults();
+        this.roundResults.x = this.centerLine;
+        this.roundResults.y = h * 1.5;
+        this.add(this.roundResults, UI_LAYER + 4);
+
+        removeTimer("roundresults");
+        removeTimer("bigcardleave");
+    }
+
+    update() {
+        this._updateCards();
+        this._updateVoteCount();
+        this._updateResultsScreen();
+
+        this.voteTitle.y = this.tlerp(
+            this.voteTitle.height / 2 + 10,
+            this.voteTitle.height / 2 + 10,
+            -(this.voteTitle.height / 2),
+        );
+
+        this.bigCard.y = lerp(
+            easeOutQuad(timer("bigcardleave")),
+            CAHIGVoteState.BigCardY,
+            h + (CardHeight * CAHIGVoteState.BigCardScale) / 2 + 10,
+        );
+
+        timerEnd("showcase_showvotes", () => {
+            this._showVoteCount();
+        });
+
+        timerEnd("showcase_move", () => {
+            if (this._currentShowcaseCard) {
+                this._currentShowcaseCard.user.showcaseMoving = true;
+            }
+
+            this.reactions.clipXStart = 0;
+            this.reactions.clipXEnd = 0;
+            this.reactions.startProgressBar(this._currentShowcaseDuration - 3500);
+
+            playSound("cards/light", 0.8);
+
+            startTimer("showcase_move_slide", 300);
+        });
+
+        timerEnd("showcase_end", () => {
+            this._hideVoteCount();
+            this.playerList.hideReactions();
+            if (this._currentShowcaseCard) {
+                this._currentShowcaseCard.user.showcaseEnding = true;
+            }
+
+            playSound("ui/skinslide", 0.75);
+
+            startTimer("showcase_end_slide", 300);
+        });
+
+        super.update();
+    }
+
+    private _updateCards() {
+        for (const card of this.voteCards) {
+            if (card.user.showcasing) {
+                if (card.user.showcaseEnding) {
+                    // the timer
+                    const t = timer("showcase_end_slide", true);
+
+                    // outro (slide offscreen)
+                    card.y = lerp(easeOutQuad(t), this._rcY, h + (CardHeight * this._rcScale) / 2 + 10);
+
+                    // clip the other thing haha
+                    this.reactions.clipXStart = lerp(easeOutQuad(t), 0, this.reactions.width);
+
+                    // on end, remove timer and make sure this card doesnt reappear
+                    timerEnd("showcase_end_slide", () => {
+                        card.user.showcasing = false;
+                        card.enabled = false;
+
+                        // remove the other timer
+                        removeTimer("showcase_start");
+                    });
+                } else if (card.user.showcaseMoving) {
+                    // the timer
+                    const t = timer("showcase_move_slide", true);
+
+                    // move animation
+                    card.x = lerp(easeOutQuad(t), this._scX, this._rcX);
+                    this.reactions.clipXEnd = card.x - this.reactions.x;
+                    // the y and scale are the same (for now)
+                    //card.y = lerp(easeOutQuad(t), this._scX, this._scY);
+                    //card.scale = lerp(easeOutQuad(t), card.user.os, this._scScale);
+                } else {
+                    // the timer
+                    const t = timer("showcase_start", true);
+
+                    // intro animation
+                    card.x = lerp(easeOutQuad(t), card.user.ox, this._scX);
+                    card.y = lerp(easeOutQuad(t), card.user.oy, this._scY);
+                    card.scale = lerp(easeOutQuad(t), card.user.os, this._scScale);
+                }
+            }
+        }
+    }
+
+    async init(a: any) {
+        await super.init(a);
+
+        this.voteTitle.flip();
+    }
+
+    // advancing and stuff
+
+    private _currentShowcasePlayer: CAHPlayer | null = null;
+    private _currentShowcaseCard: CAHCard | null = null;
+    private _currentShowcaseDuration = -1;
+
+    advance(id: string, duration: number) {
+        const card = this.voteCards.find((c) => c.user.submitterId == id);
+        if (!card) {
+            // we dont ??? have one???
+            console.log(`no card found for player ${id}`);
+            return;
+        }
+
+        const player = currentGame.players.get(id);
+        if (!player) {
+            // we dont have one of these either
+            console.log(`no player found for id ${id}`);
+            return;
+        }
+
+        this._currentShowcaseCard = card;
+        this._currentShowcasePlayer = player;
+        this._currentShowcaseDuration = duration;
+
+        card.user.showcasing = true;
+        card.flipFaceUp();
+
+        this.voteCount.updateContent(player.voters);
+        this.reactions.username = player.name;
+        this.reactions.avatar = player.avatar;
+        this.reactions.updateImage();
+        this.reactions.enableEmojis();
+
+        playSound("cards/slip", 0.4);
+
+        startTimer("showcase_start", 200);
+        startTimer("showcase_showvotes", 1000);
+        startTimer("showcase_move", 2500);
+        startTimer("showcase_end", duration - 1000);
+        startTimer("showcase_total", duration);
+    }
+
+    //#region results screen
+    private _showingResults = false;
+
+    private _updateResultsScreen() {
+        if (!this._showingResults) return;
+
+        const t = timer("roundresults");
+        //this.roundResults.x = this.tlerp(this.centerLine, this.centerLine, w * 1.5);
+        this.roundResults.y = this.tlerp(h / 2, lerp(easeOutQuad(t), h * 1.5, h / 2), h * 1.5);
+    }
+
+    showResults(results: CAHRoundResults) {
+        this._showingResults = true;
+        startTimer("roundresults", 500);
+        startTimer("bigcardleave", 500);
+        this.roundResults.setResults(results);
+    }
+    //#endregion
+
+    //#region vote count thing
+    private _voteCountIn = false;
+    private _voteCountOut = false;
+
+    private _updateVoteCount() {
+        if (this._voteCountOut) {
+            // transition to below the screen
+            this.voteCount.y = lerp(
+                easeOutQuad(timer("votecount_out")),
+                this.voteCount.user.ty,
+                this.voteCount.user.fy,
+            );
+        } else if (this._voteCountIn) {
+            // transition from card
+            this.voteCount.y = lerp(easeOutQuad(timer("votecount_in")), this.voteCount.user.oy, this.voteCount.user.ty);
+        }
+
+        timerEnd("votecount_out", () => {
+            // remove timers and reset vars
+            removeTimer("votecount_in");
+            removeTimer("votecount_out");
+
+            this._voteCountIn = false;
+            this._voteCountOut = false;
+        });
+    }
+
+    private _showVoteCount() {
+        this._voteCountIn = true;
+        startTimer("votecount_in", 300);
+    }
+
+    private _hideVoteCount() {
+        this._voteCountOut = true;
+        startTimer("votecount_out", 300);
+    }
+    //#endregion
+}

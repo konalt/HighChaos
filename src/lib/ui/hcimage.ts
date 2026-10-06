@@ -2,7 +2,7 @@ import { d, loadImage } from "../engine/engine";
 import { GameObject } from "../engine/object";
 import { Anchor } from "../engine/utils";
 
-const MISSINGTEXTUREURL =
+export const NULLTEXTURE_DATA =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALElEQVQYV2P8z/D/PwMQMAIhCAD5YBrGZySoAKwJi06ESYQUELSCoAKK3QAAUtcn+TTvDwYAAAAASUVORK5CYII=";
 export let NULLTEXTURE: HTMLImageElement;
 
@@ -10,7 +10,7 @@ let img = new Image();
 img.onload = () => {
     NULLTEXTURE = img;
 };
-img.src = MISSINGTEXTUREURL;
+img.src = NULLTEXTURE_DATA;
 
 export class HCImage extends GameObject {
     src: string;
@@ -20,7 +20,7 @@ export class HCImage extends GameObject {
 
     constructor() {
         super();
-        this.src = MISSINGTEXTUREURL;
+        this.src = NULLTEXTURE_DATA;
 
         this.image = NULLTEXTURE;
     }

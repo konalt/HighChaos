@@ -1,3 +1,6 @@
+import { addToAtlas } from "../lib/engine/engine";
+import { createOffscreenCanvas } from "../lib/engine/utils";
+
 export function blackCardReplace(text: string, replacements: string[] = []) {
     let noAsterisks = text.replace(/\*/g, "");
     let replaced = noAsterisks.replace(/%%%/g, (_, i) => {
@@ -46,7 +49,48 @@ export function generateEmptyAvatar() {
     ctx.fillStyle = "#555";
     ctx.fill();
 
-    return canvas.transferToImageBitmap();
+    const img = canvas.transferToImageBitmap();
+    addToAtlas(img, "emptyavatar");
+    return img;
+}
+
+export function circularAvatar(avatar: HTMLImageElement | ImageBitmap, size = 256, outline = 4) {
+    const [c, ctx] = createOffscreenCanvas(size, size);
+
+    const avatarMask = new Path2D();
+    avatarMask.moveTo(size, size / 2);
+    avatarMask.arc(size / 2, size / 2, size / 2 - outline / 2, 0, Math.PI * 2);
+    avatarMask.closePath();
+
+    ctx.save();
+    ctx.clip(avatarMask);
+    ctx.drawImage(avatar, 0, 0, size, size);
+    ctx.restore();
+
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = outline;
+    ctx.stroke(avatarMask);
+
+    return c.transferToImageBitmap();
+}
+
+export function bitmapToDataURL(img: ImageBitmap) {
+    const [c, ctx] = createOffscreenCanvas(img.width, img.height);
+    ctx.drawImage(img, 0, 0);
+
+    return new Promise<string>((resolve, reject) => {
+        c.convertToBlob().then((b) => {
+            // OH NO FILEREADERSYNC IS ONLY AVAILABLE IN WORKERS
+            // BETTER DO SOME JANKY CALLBACK SHIT!!!
+            const r = new FileReader();
+
+            r.onload = () => {
+                resolve(r.result as string);
+            };
+
+            r.readAsDataURL(b);
+        });
+    });
 }
 
 export const IDBName = "CAHV2";

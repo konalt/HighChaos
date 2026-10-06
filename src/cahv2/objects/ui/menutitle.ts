@@ -1,5 +1,6 @@
 import { easeInOutBack, easeInOutQuad, easeInQuad, easeOutCirc, easeOutQuad } from "../../../lib/engine/ease";
 import {
+    canHover,
     ctx,
     CursorMode,
     d,
@@ -18,6 +19,7 @@ import {
     w,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
+import { playSound } from "../../../lib/engine/sound";
 import { basicPointInRect, FourNums, lerp } from "../../../lib/engine/utils";
 import { NULLTEXTURE } from "../../../lib/ui/hcimage";
 import { COLOR } from "../../color";
@@ -92,13 +94,14 @@ export class CAHMenuTitle extends GameObject {
         this._bw = this._img.width * (this.scale + this.beat * beatScale);
         this._bh = this._img.height * (this.scale + this.beat * beatScale);
         const bbRect: FourNums = [this.x - this._bw / 2, this.renderY - this._bh / 2, this._bw, this._bh];
-        this._hovered = basicPointInRect(...getMouse(), ...bbRect);
+        this._hovered = basicPointInRect(...getMouse(), ...bbRect) && canHover();
 
         if (this._hovered) {
             setCursorMode(CursorMode.Click);
             if (getKeyDown("mouse1") && !this.isFlipping) {
                 this.isFlipping = true;
                 startTimer(`flip${this.uuid}`, 500);
+                playSound("cards/slip", 0.4);
             }
         }
     }

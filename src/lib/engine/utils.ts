@@ -1,4 +1,4 @@
-import { ctx } from "./engine";
+import { ctx, d } from "./engine";
 
 export type Anchor = "tl" | "tc" | "tr" | "cl" | "cc" | "cr" | "bl" | "bc" | "br";
 
@@ -104,10 +104,41 @@ export function basicPointInRect(
     const sin = Math.sin(-rotation);
 
     const urX = cx + (dx * cos - dy * sin);
-    const urY = cx + (dx * sin + dy * cos);
+    const urY = cy + (dx * sin + dy * cos);
 
     // final check
     return valueInRange(urX, x, x + w) && valueInRange(urY, y, y + h);
+}
+
+export function debugDrawUnrotatedPoint(
+    px: number,
+    py: number,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    rotation = 0,
+    rotationCenterX = 0,
+    rotationCenterY = 0,
+) {
+    // find coords of center
+    const cx = x + w / 2 + rotationCenterX;
+    const cy = y + h / 2 + rotationCenterY;
+
+    // unrotate da point
+    const dx = px - cx; // point as offset from center
+    const dy = py - cy;
+
+    // unrotate with the mathematical
+    const cos = Math.cos(-rotation);
+    const sin = Math.sin(-rotation);
+
+    const urX = cx + (dx * cos - dy * sin);
+    const urY = cy + (dx * sin + dy * cos);
+
+    const col = valueInRange(urX, x, x + w) && valueInRange(urY, y, y + h);
+
+    d.circ(urX, urY, 5, col ? "lime" : "red");
 }
 
 export function degToRad(degrees: number) {
@@ -193,4 +224,29 @@ export function uuidv4() {
                   .toString(16)
                   .padStart(4, "0") + s(n - 1);
     return [s(2), s(), s(), s(), s(3)].join("-");
+}
+
+/**
+ * Creates an offscreen canvas. Defaults to a square if only width is supplied.
+ * @param width The width
+ * @param height The height (optional)
+ * @returns [OffscreenCanvas, OffscreenCanvasRenderingContext2D]
+ */
+export function createOffscreenCanvas(
+    width: number,
+    height = -1,
+): [OffscreenCanvas, OffscreenCanvasRenderingContext2D] {
+    // override height if not set to make a square
+    if (height == -1) {
+        height = width;
+    }
+
+    // create the canvas and get the context
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+
+    // error handling
+    if (!ctx) throw new Error("Failed to get offscreen canvas context");
+
+    return [canvas, ctx];
 }

@@ -1,6 +1,9 @@
 import { easeOutQuad } from "../../../lib/engine/ease";
 import {
+    addToAtlas,
+    canHover,
     canvas,
+    consumeMouse,
     ctx,
     CursorMode,
     d,
@@ -19,38 +22,44 @@ import {
     wrap,
 } from "../../../lib/engine/engine";
 import { GameObject } from "../../../lib/engine/object";
-import { basicPointInRect, clamp } from "../../../lib/engine/utils";
+import { basicPointInRect, clamp, debugDrawUnrotatedPoint } from "../../../lib/engine/utils";
 import { COLOR } from "../../color";
 
-const CardWidth = 330;
-const CardHeight = 450;
-const CardRadius = 10;
-const CardMargin = 20;
-const CardOutline = 5;
-const CardFontSize = 30;
-const CardBackFontSize = 56;
-const CardFontWeight = 700;
-const CardBackFontWeight = 800;
-const CardFlipDuration = 300;
+export const CardWidth = 330;
+export const CardHeight = 450;
+export const CardRadius = 10;
+export const CardMargin = 20;
+export const CardOutline = 5;
+export const CardFontSize = 30;
+export const CardBackFontSize = 56;
+export const CardFontWeight = 700;
+export const CardBackFontWeight = 800;
+export const CardFlipDuration = 300;
+
+export const Resolution = 1.5;
 
 export class CAHCard extends GameObject {
     // le cache
     private cache: ImageBitmap | null = null;
 
     // hovering stuff
-    private _hovered = false;
-    private _hoverTransition = 0;
-    private _clicked = false;
+    _hovered = false;
+    _lastHovered = false;
+    _hoverTransition = 0;
+    _clicked = false;
     hoverAnimationSpeed = 20;
 
     // clicking stuff
     clickable = true;
     onClick: () => void = () => {};
+    onMouseEnter: () => void = () => {};
+    onMouseLeave: () => void = () => {};
 
     // things that would require updates / rerenders
     private _isWhite = false;
     private _text = "";
     private _forceBigText = false;
+    private _fontSizeFactor = 1;
 
     // bounding box
     private _bx = 0;
@@ -59,23 +68,32 @@ export class CAHCard extends GameObject {
     private _bh = 0;
 
     // oh flip! math!
-    private _flip = 0;
-    private _isFlipping = false;
-    private _flipOrigin = 0;
-    private _flipScaleFactor = 0;
+    _flip = 0;
+    _isFlipping = false;
+    _flipOrigin = 0;
+    _flipScaleFactor = 0;
+
+    flipScalesBoundingBox = false;
 
     // scaling
     private _scale = 1; // final scale w/ everything taken into account
     hoverScaleAmount = 0.05; // how much to change da scale when hovered
     scale = 1; // global scale to modify
 
+    // rotation
+    rotation = 0;
+
     constructor() {
         super();
     }
 
-    static renderCard(text: string, isWhite: boolean, forceBigText = false) {
+    static renderCard(text: string, isWhite: boolean, forceBigText = false, fontSizeFactor = 1) {
+        // upscale the render size
+        const rW = CardWidth * Resolution;
+        const rH = CardHeight * Resolution;
+
         // get a canvas
-        const canvas = new OffscreenCanvas(CardWidth + 10, CardHeight + 10);
+        const canvas = new OffscreenCanvas(rW + 10, rH + 10);
         const ctx = canvas.getContext("2d");
 
         // hahaha! you may be using a browser from the stone age!
@@ -92,6 +110,7 @@ export class CAHCard extends GameObject {
         // canvas setup
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(1.5, 1.5);
         ctx.fillStyle = backgroundColor;
         ctx.strokeStyle = textColor;
         ctx.lineWidth = CardOutline;
@@ -107,9 +126,9 @@ export class CAHCard extends GameObject {
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         if (isBack || forceBigText) {
-            ctx.font = font(CardBackFontSize, CardBackFontWeight.toString());
+            ctx.font = font(CardBackFontSize * fontSizeFactor, CardBackFontWeight.toString());
         } else {
-            ctx.font = font(CardFontSize, CardFontWeight.toString());
+            ctx.font = font(CardFontSize * fontSizeFactor, CardFontWeight.toString());
         }
         ctx.fillStyle = textColor;
 
@@ -132,11 +151,13 @@ export class CAHCard extends GameObject {
         // Cleanup
         ctx.restore();
 
-        return canvas.transferToImageBitmap();
+        const img = canvas.transferToImageBitmap();
+        addToAtlas(img);
+        return img;
     }
 
     async createCache() {
-        this.cache = CAHCard.renderCard(this._text, this._isWhite, this._forceBigText);
+        this.cache = CAHCard.renderCard(this._text, this._isWhite, this._forceBigText, this._fontSizeFactor);
     }
 
     private recalculateFlipShit() {
@@ -151,7 +172,10 @@ export class CAHCard extends GameObject {
 
     private recalculateBoundingBox() {
         // calculate bounding box
-        this._bw = CardWidth * this._scale * this._flipScaleFactor;
+        this._bw = CardWidth * this._scale;
+        if (this.flipScalesBoundingBox) {
+            this._bw *= this._flipScaleFactor;
+        }
         this._bh = CardHeight * this._scale;
         this._bx = this.x - this._bw / 2;
         this._by = this.y - this._bh / 2;
@@ -176,29 +200,44 @@ export class CAHCard extends GameObject {
         // reset clicked variable - should only be true for 1 frame
         if (this._clicked) this._clicked = false;
 
-        // check if mouse is hovering over button
-        let mouse = getMouse(true);
-        this._hovered = this.clickable && basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh);
+        if (this.clickable) {
+            // check if mouse is hovering over button
+            let mouse = getMouse(false);
+            this._hovered =
+                basicPointInRect(...mouse, this._bx, this._by, this._bw, this._bh, this.rotation) && canHover();
 
-        if (this._hovered) {
-            // hovering - advance hover animation
-            this._hoverTransition += this.hoverAnimationSpeed * deltaTime;
+            if (this._hovered) {
+                if (!this._lastHovered) {
+                    this.onMouseEnter();
+                }
 
-            // set the cursor mode
-            setCursorMode(CursorMode.Click);
+                consumeMouse();
 
-            // handle clicking
-            if (getKeyDown("mouse1")) {
-                this.onClick();
-                this._clicked = true;
+                // hovering - advance hover animation
+                this._hoverTransition += this.hoverAnimationSpeed * deltaTime;
+
+                // set the cursor mode
+                setCursorMode(CursorMode.Click);
+
+                // handle clicking
+                if (getKeyDown("mouse1")) {
+                    this.onClick();
+                    this._clicked = true;
+                }
+            } else {
+                if (this._lastHovered) {
+                    this.onMouseLeave();
+                }
+                // not hovered - reverse hover anim
+                this._hoverTransition -= this.hoverAnimationSpeed * deltaTime;
             }
-        } else {
-            // not hovered - reverse hover anim
-            this._hoverTransition -= this.hoverAnimationSpeed * deltaTime;
-        }
 
-        // clamp that shit
-        this._hoverTransition = clamp(this._hoverTransition);
+            // clamp that shit
+            this._hoverTransition = clamp(this._hoverTransition);
+
+            // store last hover state
+            this._lastHovered = this._hovered;
+        }
 
         // apply a scaling thing
         this._scale = this.scale * (1 + this._hoverTransition * this.hoverScaleAmount);
@@ -208,6 +247,7 @@ export class CAHCard extends GameObject {
         // setup
         ctx.save();
         ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
         ctx.scale(this._scale * this._flipScaleFactor, this._scale);
 
         // safety - if there is no cached image, draw a scary rectangle instead
@@ -224,22 +264,34 @@ export class CAHCard extends GameObject {
                     img = CardBackBlack;
                 }
             }
-            ctx.drawImage(img, -this.cache.width / 2, -this.cache.height / 2);
+
+            // calculate draw size
+            const drawWidth = (this.cache.width - 10) / Resolution + 10;
+            const drawHeight = (this.cache.height - 10) / Resolution + 10;
+
+            ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
         } else {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 2;
             ctx.strokeRect(-CardWidth / 2, -CardHeight / 2, CardWidth, CardHeight);
         }
 
-        // return to normalcy
-        ctx.restore();
-
         // debug
         if (debugMode) {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 1;
-            ctx.strokeRect(this._bx, this._by, this._bw, this._bh);
+            ctx.strokeRect(
+                -this._bw / 2 / this._scale,
+                -this._bh / 2 / this._scale,
+                this._bw / this._scale,
+                this._bh / this._scale,
+            );
+
+            //debugDrawUnrotatedPoint(...getMouse(), this._bx, this._by, this._bw, this._bh, this.rotation);
         }
+
+        // return to normalcy
+        ctx.restore();
     }
 
     flip(duration = CardFlipDuration) {
@@ -278,6 +330,7 @@ export class CAHCard extends GameObject {
     }
 
     set text(text: string) {
+        if (text == this._text) return;
         this._text = text;
         this.createCache();
     }
@@ -287,6 +340,7 @@ export class CAHCard extends GameObject {
     }
 
     set isWhite(isWhite: boolean) {
+        if (isWhite == this._isWhite) return;
         this._isWhite = isWhite;
         this.createCache();
     }
@@ -296,7 +350,18 @@ export class CAHCard extends GameObject {
     }
 
     set forceBigText(forceBigText: boolean) {
+        if (forceBigText == this._forceBigText) return;
         this._forceBigText = forceBigText;
+        this.createCache();
+    }
+
+    get fontSizeFactor() {
+        return this._fontSizeFactor;
+    }
+
+    set fontSizeFactor(fontSizeFactor: number) {
+        if (fontSizeFactor == this._fontSizeFactor) return;
+        this._fontSizeFactor = fontSizeFactor;
         this.createCache();
     }
     //#endregion

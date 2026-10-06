@@ -6,8 +6,6 @@ import {
     getMouse,
     h,
     loadImage,
-    loadSounds,
-    playSound,
     setScene,
     startTimer,
     timer,
@@ -23,6 +21,7 @@ import { Sack } from "../objects/sack";
 import { LivesDisplay } from "../objects/lives";
 import { ScoreDisplay } from "../objects/score";
 import { GameOverScene } from "./gameover";
+import { playSound } from "../../lib/engine/sound";
 
 export class GameScene extends SantaScene {
     presents: Present[] = [];
@@ -69,7 +68,7 @@ export class GameScene extends SantaScene {
             }, 500);
         }
         if (this.score > 10 && Math.random() < 0.03 && !this.powerup) {
-            playSound("santa_sleighbells", 0.6);
+            playSound("sleighbells", 0.6);
             this.powerup = true;
             startTimer("powerup", 7000);
         }
@@ -83,7 +82,7 @@ export class GameScene extends SantaScene {
         let i = 0;
         for (const p of this.presents) {
             if (!p.collected && valueInRange(p.x, catchXMin, catchXMax) && p.y > h - Sack.SackGrabHeightMin) {
-                playSound("santa_hohoho", 0.6);
+                playSound("hohoho", 0.6);
                 this.score++;
                 this.doLevelup();
                 p.collect();
@@ -95,7 +94,7 @@ export class GameScene extends SantaScene {
                         presents: this.score,
                     });
                 }
-                playSound("santa_baby", 0.5);
+                playSound("baby", 0.5);
                 this.remove(p);
                 this.presents[i] = this.createPresent();
             }
