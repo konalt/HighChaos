@@ -9,7 +9,7 @@ import {
     useCanvas,
     w,
 } from "../../lib/engine/engine";
-import { intList, sample, TwoNums } from "../../lib/engine/utils";
+import { createOffscreenCanvas, intList, sample, TwoNums } from "../../lib/engine/utils";
 import { NULLTEXTURE } from "../../lib/ui/hcimage";
 import { drawBlockRaw } from "../objects/world";
 import { Chunk, CHUNK_SIZE, worldCoordsToChunkCoords } from "./chunk";
@@ -17,7 +17,7 @@ import { currentBlock } from "./game";
 import { gameSettings } from "./settings";
 import { world } from "./world";
 
-export let rendererCache: Map<string, OffscreenCanvas> = new Map();
+export let rendererCache: Map<string, ImageBitmap> = new Map();
 
 export let CHUNK_RENDER_SIZE = 64;
 export const MAX_CHUNK_CACHE_SIZE = 64;
@@ -30,11 +30,7 @@ export function initChunkRenderer() {
 export async function cacheChunk(chunk: Chunk) {
     if (chunk.data.length == 0) return;
 
-    const c = new OffscreenCanvas(CHUNK_RENDER_SIZE, CHUNK_RENDER_SIZE);
-    if (!rendererCache.get(`${chunk.x},${chunk.y}`)) rendererCache.set(`${chunk.x},${chunk.y}`, c);
-    const ctx = c.getContext("2d");
-
-    if (!ctx) return;
+    const [c, ctx] = createOffscreenCanvas(CHUNK_RENDER_SIZE, CHUNK_RENDER_SIZE);
 
     ctx.imageSmoothingEnabled = false;
     for (const block of chunk.data) {
@@ -50,10 +46,9 @@ export async function cacheChunk(chunk: Chunk) {
         );
     }
 
-    rendererCache.set(`${chunk.x},${chunk.y}`, c);
-
     const img = c.transferToImageBitmap();
-    addToAtlas(img, `${chunk.x},${chunk.y}`);
+    //addToAtlas(img, `${chunk.x},${chunk.y}`);
+    if (!rendererCache.get(`${chunk.x},${chunk.y}`)) rendererCache.set(`${chunk.x},${chunk.y}`, img);
     return img;
 }
 
@@ -78,6 +73,13 @@ export function trimChunks() {
 }
 
 export function drawChunk(cx: number, cy: number) {
+    /* ctx.fillStyle = "red";
+    ctx.fillRect(
+        cx * CHUNK_RENDER_SIZE - 0.5,
+        cy * CHUNK_RENDER_SIZE - 0.5,
+        CHUNK_RENDER_SIZE + 1,
+        CHUNK_RENDER_SIZE + 1,
+    ); */
     if (!isInRenderDistance(cx, cy)) return;
     if (world.getChunk(cx, cy).data.length == 0) return false;
     let img = rendererCache.get(`${cx},${cy}`);
